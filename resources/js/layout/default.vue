@@ -128,37 +128,25 @@ const profileMenuItems = ref([
 		]
 	},
 	{
-			label: 'Profile',
-			items: [
-				{
-					label: 'Settings',
-					icon: 'pi pi-cog',
-					shortcut: '⌘+O'
-				},
-				{
-					label: 'Messages',
-					icon: 'pi pi-inbox',
-					badge: 2
-				},
-				{
-					label: 'Logout',
-					icon: 'pi pi-sign-out',
-					shortcut: '⌘+Q',
-					command: () => {
-						axios.post('/api/users/logout')
-							.then(res => {
-								console.log(res);
-
-								localStorage.removeItem('vectocian-palace-refresh-token');
-								localStorage.removeItem('vectocian-palace-access-token');
-
-								// logout();
-
-								router.push('/sign-in')
-							})
-					}
-				}
-			]
+        label: 'Profile',
+        items: [
+            {
+                label: 'Settings',
+                icon: 'pi pi-cog',
+                shortcut: '⌘+O',
+            },
+            {
+                label: 'Messages',
+                icon: 'pi pi-inbox',
+                badge: 2
+            },
+            {
+                label: 'Logout',
+                icon: 'pi pi-sign-out',
+                shortcut: '⌘+Q',
+                command: () => { window.location.href = '/logout' }
+            }
+        ]
 	},
 ]);
 

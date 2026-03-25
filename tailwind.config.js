@@ -5,6 +5,7 @@ import tailwindCssPrime from 'tailwindcss-primeui';
 export default {
 	content: [
 		'./vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
+        './views/**/*.blade.php',
 		'./storage/framework/views/*.php',
 		'./resources/**/*.blade.php',
 		'./resources/**/*.js',
