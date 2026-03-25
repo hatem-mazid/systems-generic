@@ -11,7 +11,10 @@ class AuthController extends Controller
     // Get current authenticated user
     public function user(Request $request)
     {
-        return response()->json($request->user());
+        return response()->json([
+            'info' => $request->user(),
+            'permissions' => $request->user()->getAllPermissions()->pluck('name'),
+        ]);
     }
 
     // Login (optional if you keep Blade login)

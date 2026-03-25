@@ -186,7 +186,8 @@ const langItems = ref([
 const fetchUserInfo = async () => {
     try {
         const response = await axios.get('/user');
-        userStore.setInfo(response.data);
+        userStore.setInfo(response.data.info);
+        userStore.setPermissions(response.data.permissions);
     } catch (error) {
         console.error('Failed to fetch user info:', error);
     }

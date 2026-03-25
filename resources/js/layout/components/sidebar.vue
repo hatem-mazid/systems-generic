@@ -94,9 +94,9 @@
 <script setup>
 import Drawer from 'primevue/drawer';
 import { onMounted, ref, watch } from 'vue';
-// import { useUserStore } from "@/stores/user";
+import { useUserStore } from "@/stores/user";
 
-// const { hasPermission } = useUserStore();
+const { hasPermission } = useUserStore();
 
 const props = defineProps({
 	isModal: {
@@ -166,7 +166,7 @@ const sidebarItems = ref([
 		icon: 'pi pi-user',
 		title: 'users',
 		to: '/users',
-		permission: 'List Users'
+		permission: 'users index'
 	},
 	// {
 	// 	icon: 'pi pi-chart-line',
@@ -182,7 +182,5 @@ const sidebarItems = ref([
 	// 	]
 	// },
 ]);
-
-const hasPermission = () => true;
 
 </script>
