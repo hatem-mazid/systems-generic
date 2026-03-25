@@ -5,24 +5,27 @@ import Aura from '@primeuix/themes/aura';
 import router from './router'
 import i18n from './i18n/index'
 import StyleClass from 'primevue/styleclass';
+import { createPinia } from 'pinia'
 
 import 'primeicons/primeicons.css'
 
 import { rtlPlugin } from './plugins/rtl';
 
 const app = createApp(App)
+const pinia = createPinia()
 
 app.use(PrimeVue, {
-    theme: {
-        preset: Aura,
-        options: {
-            darkModeSelector: '.dark',
-        }
-    },
+	theme: {
+		preset: Aura,
+		options: {
+			darkModeSelector: '.dark',
+		}
+	},
 })
 app.use(i18n);
 app.use(router);
 app.use(rtlPlugin);
+app.use(pinia);
 
 app.directive('styleclass', StyleClass);
 

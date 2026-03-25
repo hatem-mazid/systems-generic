@@ -8,9 +8,13 @@ Route::get('login', function () {
 })->name('login');
 
 Route::post('/login', [AuthController::class, 'login'])->name('login');
-Route::get('/logout', [AuthController::class, 'logout'])->middleware('auth');
-Route::get('/user', [AuthController::class, 'user'])->middleware('auth');
 
-Route::middleware(['auth'])->get('/{any}', function () {
-    return view('welcome');
-})->where('any', '.*');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/logout', [AuthController::class, 'logout']);
+
+    Route::get('/user', [AuthController::class, 'user']);
+
+    Route::get('/{any}', function () {
+        return view('welcome');
+    })->where('any', '.*');
+});

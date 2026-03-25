@@ -33,14 +33,14 @@
 
 							<Button severity="secondary" @click="toggleDarkMode" rounded icon="pi pi-sun" aria-label="Save" />
 
-							<Avatar role="button" :label="info?.name && info?.name[0] " class="!size-10" @click="toggleProfileMenu" style="background-color: #ece9fc; color: #2a1261" shape="circle" />
+							<Avatar role="button" :label="userStore.info?.name && userStore.info?.name[0] " class="!size-10" @click="toggleProfileMenu" style="background-color: #ece9fc; color: #2a1261" shape="circle" />
 							<Menu ref="profileMenu" class="w-full md:w-60" id="overlay_menu" :model="profileMenuItems" :popup="true">
 								<template #start>
 									<button v-ripple class="relative gap-2 items-center overflow-hidden w-full border-0 bg-transparent flex p-2 pl-4 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-none cursor-pointer transition-colors duration-200">
 
 										<Avatar role="button" label="V" @click="toggleProfileMenu" style="background-color: #ece9fc; color: #2a1261" shape="circle" />
 										<span class="inline-flex flex-col items-start">
-											<span class="font-bold">{{ info?.name }}</span>
+											<span class="font-bold">{{ userStore.info?.name }}</span>
 										</span>
 									</button>
 								</template>
@@ -79,6 +79,7 @@
 import { onMounted, ref, watch } from 'vue';
 import sidebar from './components/sidebar.vue';
 import Menubar from 'primevue/menubar';
+import { useUserStore } from '../stores/user';
 
 import { useI18n } from 'vue-i18n';
 // import { useUserStore } from "@/stores/user";
@@ -87,6 +88,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { useWindowSize } from '@vueuse/core'
 
 import axios from 'axios';
+const userStore = useUserStore();
 
 const { width } = useWindowSize();
 const router = useRouter();
@@ -181,39 +183,18 @@ const langItems = ref([
 	}
 ]);
 
-// const items = ref([
-// 	{
-// 		label: 'Home',
-// 		icon: 'pi pi-home'
-// 	},
-// 	{
-// 		label: 'Projects',
-// 		icon: 'pi pi-search',
-// 		badge: 3,
-// 		items: [
-// 			{
-// 				label: 'Core',
-// 				icon: 'pi pi-bolt',
-// 				shortcut: '⌘+S'
-// 			},
-// 			{
-// 				label: 'Blocks',
-// 				icon: 'pi pi-server',
-// 				shortcut: '⌘+B'
-// 			},
-// 			{
-// 				separator: true
-// 			},
-// 			{
-// 				label: 'UI Kit',
-// 				icon: 'pi pi-pencil',
-// 				shortcut: '⌘+U'
-// 			}
-// 		]
-// 	}
-// ]);
+const fetchUserInfo = async () => {
+    try {
+        const response = await axios.get('/user');
+        userStore.setInfo(response.data);
+    } catch (error) {
+        console.error('Failed to fetch user info:', error);
+    }
+};
 
 onMounted(() => {
+    fetchUserInfo();
+
 	if (localStorage.getItem('vectorian-palace-theme') === 'true') {
 		document.documentElement.classList.remove('dark');
 	} else {
