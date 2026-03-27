@@ -1,0 +1,23 @@
+Categories (polymorphic) (categorizables)
+Product
+Unit
+Order
+OrderItem
+TimerSession
+- expenses:
+    Schema::create('expenses', function (Blueprint $table) {
+        $table->id();
+
+        $table->string('title');
+        $table->decimal('amount', 10, 2);
+
+        $table->date('date');
+
+        $table->text('notes')->nullable();
+
+        $table->foreignId('user_id')->nullable(); // who added it
+
+        $table->timestamps();
+    });
+Setting
+Media (for images)
