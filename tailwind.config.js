@@ -15,12 +15,12 @@ export default {
 	// darkMode: ['dark'],
 	darkMode: ['variant', [
 		'&:is(.dark *)',
-  ]],
+    ]],
 	theme: {
 		extend: {
-			fontFamily: {
-				sans: ['Figtree', ...defaultTheme.fontFamily.sans],
-			},
+            fontFamily: {
+                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+            },
 		},
 	},
 	plugins: [tailwindCssPrime],

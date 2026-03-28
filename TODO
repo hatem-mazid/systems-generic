@@ -1,6 +1,7 @@
 Categories (polymorphic) (categorizables)
 Product
 Unit
+Unit groups
 Order
 OrderItem
 TimerSession
@@ -9,5 +10,14 @@ Setting
 Media (for images)
 
 pages:
-- home page, (shortcuts or quick show) (for each role)
--
+    - home page, (shortcuts or quick show) (for each role)
+    - h
+
+to hadeel:
+    - create cursor account
+    - add page sample
+    - make a plan and website skelton
+
+
+UI:
+    - change UI icons

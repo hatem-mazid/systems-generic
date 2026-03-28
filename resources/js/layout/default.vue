@@ -4,14 +4,9 @@
 		<sidebar v-model:minimize="minimize" :is-modal="isModal" v-model:show="show" />
 
 
-		<div :class="[isModal || !show ? 'ps-0' : 'ps-[318px]' , 'min-h-screen flex flex-col transition-all']">
+		<div :class="['ps-20 min-h-screen flex flex-col transition-all']">
 			<div class="p-4">
 				<Menubar :dark="false">
-					<template #start>
-						<span v-if="isModal || !show">
-							<Button type="button" variant="text" @click="collapse" icon="pi pi-bars" rounded outlined></Button>
-						</span>
-					</template>
 					<!-- <template #item="{ item, props, hasSubmenu, root }">
 						<a v-ripple class="flex items-center" v-bind="props.action">
 							<span>{{ item.label }}</span>
@@ -65,7 +60,7 @@
 				</main>
 
 				<footer class="">
-					<div class="p-4 border-t border-surface-700 text-surface-500 dark:text-surface-400">
+					<div class="px-4 py-2 border-t border-gray-200 text-sm border-surface-700 text-surface-500 dark:text-surface-400">
 						© 2025 developed by spark team
 					</div>
 				</footer>
@@ -82,27 +77,13 @@ import Menubar from 'primevue/menubar';
 import { useUserStore } from '../stores/user';
 
 import { useI18n } from 'vue-i18n';
-// import { useUserStore } from "@/stores/user";
 import { useRTL } from "../composables/useRTL";
-import { useRouter, useRoute } from 'vue-router';
-import { useWindowSize } from '@vueuse/core'
-
 import axios from 'axios';
+
 const userStore = useUserStore();
 
-const { width } = useWindowSize();
-const router = useRouter();
-// const { info, logout } = useUserStore();
-
-const minimize = ref(false);
-const show = ref(width.value > 1024);
-const isModal = ref(width.value < 1024);
 const { t, locale } = useI18n();
 const { updateRTLState } = useRTL();
-
-const collapse = () => {
-	show.value = !show.value;
-};
 
 function toggleDarkMode() {
 	localStorage.setItem('vectorian-palace-theme', document.documentElement.classList.contains('dark'));
@@ -210,11 +191,6 @@ onMounted(() => {
 			document.getElementsByTagName('html')[0].setAttribute('dir', 'rtl')
 		}
 	}
-});
-
-watch(width, newVal => {
-	isModal.value = newVal < 1024;
-	show.value = newVal > 1024;
 });
 
 </script>
