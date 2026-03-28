@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\LocaleController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('login', function () {
@@ -10,6 +11,8 @@ Route::get('login', function () {
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 Route::middleware(['auth'])->group(function () {
+    Route::get('/locale', [LocaleController::class, 'update'])->name('locale.update');
+
     Route::get('/logout', [AuthController::class, 'logout']);
 
     Route::get('/user', [AuthController::class, 'user']);

@@ -77,13 +77,11 @@ import Menubar from 'primevue/menubar';
 import { useUserStore } from '../stores/user';
 
 import { useI18n } from 'vue-i18n';
-import { useRTL } from "../composables/useRTL";
 import axios from 'axios';
 
 const userStore = useUserStore();
 
 const { t, locale } = useI18n();
-const { updateRTLState } = useRTL();
 
 function toggleDarkMode() {
 	localStorage.setItem('vectorian-palace-theme', document.documentElement.classList.contains('dark'));
@@ -141,25 +139,20 @@ const langMenu = ref(null);
 const toggleLangMenu = (event) => {
 	langMenu.value.toggle(event);
 };
+
+async function setLocale(lang) {
+    window.location.href = `/locale?locale=${lang}`;
+}
+
 const langItems = ref([
 	{
 		label: 'English',
-		command: () => {
-			locale.value = 'en';
-			document.getElementsByTagName('html')[0].setAttribute('dir', 'ltr');
-			localStorage.setItem('vectorian-palace-lang', 'en');
-			updateRTLState();
-		},
+		command: () => setLocale('en'),
 		key: 'en',
 	},
 	{
 		label: 'عربي',
-		command: () => {
-			locale.value = 'ar';
-			document.getElementsByTagName('html')[0].setAttribute('dir', 'rtl');
-			localStorage.setItem('vectorian-palace-lang', 'ar');
-			updateRTLState();
-		},
+		command: () => setLocale('ar'),
 		key: 'ar',
 	}
 ]);
@@ -183,14 +176,14 @@ onMounted(() => {
 		document.documentElement.classList.add('dark');
 	}
 
-	let savedLang = localStorage.getItem('vectorian-palace-lang');
-	if (savedLang) {
-		locale.value = savedLang;
+	// let savedLang = localStorage.getItem('vectorian-palace-lang');
+	// if (savedLang) {
+	// 	locale.value = savedLang;
 
-		if(savedLang == 'ar') {
-			document.getElementsByTagName('html')[0].setAttribute('dir', 'rtl')
-		}
-	}
+	// 	if(savedLang == 'ar') {
+	// 		document.getElementsByTagName('html')[0].setAttribute('dir', 'rtl')
+	// 	}
+	// }
 });
 
 </script>

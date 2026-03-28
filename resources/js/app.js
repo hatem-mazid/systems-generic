@@ -7,9 +7,8 @@ import i18n from './i18n/index'
 import StyleClass from 'primevue/styleclass';
 import { createPinia } from 'pinia'
 
+import isRTL from './utils/isRTL';
 import 'primeicons/primeicons.css'
-
-import { rtlPlugin } from './plugins/rtl';
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -24,9 +23,10 @@ app.use(PrimeVue, {
 })
 app.use(i18n);
 app.use(router);
-app.use(rtlPlugin);
 app.use(pinia);
 
 app.directive('styleclass', StyleClass);
+
+app.config.globalProperties.$isRTL = isRTL;
 
 app.mount('#app')

@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col h-full !w-20 border dark:border-surface-700 bg-white dark:bg-surface-900 absolute top-0" :class="$isRTL.value ? 'right-0' : 'left-0'">
+    <div class="flex flex-col h-full !w-20 border dark:border-surface-700 bg-white dark:bg-surface-900 absolute top-0" :class="$isRTL() ? 'right-0' : 'left-0'">
         <div class="flex items-center justify-between px-6 pt-4 shrink-0">
             <span class="inline-flex items-center gap-2">
                 <svg width="35" height="40" viewBox="0 0 35 40" fill="none" xmlns="http://www.w3.org/2000/svg">

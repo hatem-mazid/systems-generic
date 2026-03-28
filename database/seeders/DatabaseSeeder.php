@@ -16,10 +16,27 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
         $this->call(RolesAndPermissionsSeeder::class);
 
-        User::factory()->create([
-            'name' => 'Hatem',
-            'email' => 'admin@admin.com',
+        $admin = User::factory()->create([
+            'name' => 'admin',
+            'email' => 'admin@spark.com',
             'password' => bcrypt('password'),
         ]);
+
+        $account = User::factory()->create([
+            'name' => 'accounting',
+            'email' => 'account@spark.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        $waiter = User::factory()->create([
+            'name' => 'waiter',
+            'email' => 'waiter@spark.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        $admin->assignRole('admin');
+        $account->assignRole('accounting');
+        $waiter->assignRole('waiter');
+
     }
 }
