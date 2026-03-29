@@ -24,9 +24,7 @@ class UserController extends Controller
             return response()->json(['message' => __('User not found', $_SESSION['locale'] ?? 'en')], 404);
         }
 
-        return response()->json([
-            'user' => $user,
-        ]);
+        return response()->json($user);
     }
 
     /**
