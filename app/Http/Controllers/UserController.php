@@ -13,13 +13,18 @@ class UserController extends Controller
     public function index(Request $request)
     {
         return response()->json([
-            'users' => User::with('roles')->paginate($request->get('per_page', 10)),
+            'users' => User::with(['roles' => function ($query) {
+                $query->select('name');
+            }])->paginate($request->get('per_page', 10)),
         ]);
     }
 
     public function show(string $id)
     {
-        $user = User::with('roles')->find($id);
+        $user = User::with(['roles' => function ($query) {
+            $query->select('name');
+        }])->find($id);
+
         if (!$user) {
             return response()->json(['message' => __('User not found', $_SESSION['locale'] ?? 'en')], 404);
         }
@@ -60,6 +65,7 @@ class UserController extends Controller
             'name' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $id,
             'active' => 'sometimes|required|boolean',
+            'role' => 'sometimes|required|array',
         ]);
 
         $user = User::find($id);
@@ -68,6 +74,9 @@ class UserController extends Controller
         }
 
         $user->update($formData);
+        if (isset($formData['role'])) {
+            $user->roles()->sync($formData['role']);
+        }
 
         return response()->json([
             'user' => $user,
