@@ -39,6 +39,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|string|exists:roles,name',
             'active' => 'required|boolean',
         ]);
 
@@ -61,6 +62,7 @@ class UserController extends Controller
             'name' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $id,
             'active' => 'sometimes|required|boolean',
+            'role' => 'required|string|exists:roles,name',
             'role' => 'sometimes|required|string',
         ]);
 
