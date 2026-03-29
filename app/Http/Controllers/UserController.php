@@ -50,6 +50,8 @@ class UserController extends Controller
             'active' => $formData['active'],
         ]);
 
+        $user->assignRole($formData['role']);
+
         return response()->json(new UserResource($user));
     }
 
@@ -63,7 +65,6 @@ class UserController extends Controller
             'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $id,
             'active' => 'sometimes|required|boolean',
             'role' => 'required|string|exists:roles,name',
-            'role' => 'sometimes|required|string',
         ]);
 
         $user = User::find($id);
@@ -73,7 +74,8 @@ class UserController extends Controller
 
         $user->update($formData);
         if (isset($formData['role'])) {
-            $user->roles()->sync($formData['role']);
+            $user->syncRoles($formData['role']);
+            $user->load('roles');
         }
 
         return response()->json(new UserResource($user));
