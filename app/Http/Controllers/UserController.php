@@ -17,6 +17,18 @@ class UserController extends Controller
         ]);
     }
 
+    public function show(string $id)
+    {
+        $user = User::with('roles')->find($id);
+        if (!$user) {
+            return response()->json(['message' => __('User not found', $_SESSION['locale'] ?? 'en')], 404);
+        }
+
+        return response()->json([
+            'user' => $user,
+        ]);
+    }
+
     /**
      * Store a newly created resource in storage.
      */
