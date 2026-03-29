@@ -61,7 +61,7 @@ class UserController extends Controller
             'name' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $id,
             'active' => 'sometimes|required|boolean',
-            'role' => 'sometimes|required|array',
+            'role' => 'sometimes|required|string',
         ]);
 
         $user = User::find($id);
