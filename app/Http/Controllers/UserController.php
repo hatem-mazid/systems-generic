@@ -18,35 +18,25 @@ class UserController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        //
-    }
+        $formData = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        $user = User::create([
+            'name' => $formData['name'],
+            'email' => $formData['email'],
+            'password' => bcrypt($formData['password']),
+        ]);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        return response()->json([
+            'user' => $user,
+        ]);
     }
 
     /**
@@ -54,7 +44,41 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $formData = $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $id,
+        ]);
+
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['message' => __('User not found', $_SESSION['locale'] ?? 'en')], 404);
+        }
+
+        $user->update($formData);
+
+        return response()->json([
+            'user' => $user,
+        ]);
+    }
+
+    public function updatePassword(Request $request, string $id)
+    {
+        $formData = $request->validate([
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['message' => __('User not found', $_SESSION['locale'] ?? 'en')], 404);
+        }
+
+        $user->update([
+            'password' => bcrypt($formData['password']),
+        ]);
+
+        return response()->json([
+            'message' => __('Password updated successfully', $_SESSION['locale'] ?? 'en'),
+        ]);
     }
 
     /**
@@ -62,6 +86,15 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['message' => __('User not found', $_SESSION['locale'] ?? 'en')], 404);
+        }
+
+        $user->delete();
+
+        return response()->json([
+            'message' => __('User deleted successfully', $_SESSION['locale'] ?? 'en'),
+        ]);
     }
 }
