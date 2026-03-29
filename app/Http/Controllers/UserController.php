@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserCollection;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -12,24 +14,20 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        return response()->json([
-            'users' => User::with(['roles' => function ($query) {
-                $query->select('name');
-            }])->paginate($request->get('per_page', 10)),
-        ]);
+        $users = User::with('roles')->paginate($request->integer('per_page', 10));
+
+        return new UserCollection($users);
     }
 
     public function show(string $id)
     {
-        $user = User::with(['roles' => function ($query) {
-            $query->select('name');
-        }])->find($id);
+        $user = User::with('roles')->find($id);
 
         if (!$user) {
             return response()->json(['message' => __('User not found', $_SESSION['locale'] ?? 'en')], 404);
         }
 
-        return response()->json($user);
+        return response()->json(new UserResource($user));
     }
 
     /**
@@ -51,9 +49,7 @@ class UserController extends Controller
             'active' => $formData['active'],
         ]);
 
-        return response()->json([
-            'user' => $user,
-        ]);
+        return response()->json(new UserResource($user));
     }
 
     /**
@@ -78,9 +74,7 @@ class UserController extends Controller
             $user->roles()->sync($formData['role']);
         }
 
-        return response()->json([
-            'user' => $user,
-        ]);
+        return response()->json(new UserResource($user));
     }
 
     public function updatePassword(Request $request, string $id)

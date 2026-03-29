@@ -18,7 +18,7 @@
                     <div>
                         <p class="text-base text-surface-800 font-medium">{{ user.name }}</p>
                         <p class="text-sm text-surface-500">{{ user.email }}</p>
-                        <p class="text-sm text-surface-500">{{ user.roles[0].name }}</p>
+                        <p v-if="user.roles" class="text-sm text-surface-500">{{ user.roles }}</p>
                     </div>
 
                     <div class="flex gap-2 mt-4 justify-center">
@@ -57,8 +57,11 @@ const fetchUsers = (page = 1) => {
     isLoading.value = true;
     axios.get('/api/users', { params: { page, per_page: paginator.value.per_page } })
         .then(({ data }) => {
-            users.value = data.users.data;
-            paginator.value = data.users;
+            users.value = data.items ?? [];
+            paginator.value = {
+                ...paginator.value,
+                ...data.meta,
+            };
         })
         .catch(error => {
             console.error('Error fetching users:', error);
