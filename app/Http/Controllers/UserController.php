@@ -26,12 +26,14 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
+            'active' => 'required|boolean',
         ]);
 
         $user = User::create([
             'name' => $formData['name'],
             'email' => $formData['email'],
             'password' => bcrypt($formData['password']),
+            'active' => $formData['active'],
         ]);
 
         return response()->json([
@@ -47,6 +49,7 @@ class UserController extends Controller
         $formData = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $id,
+            'active' => 'sometimes|required|boolean',
         ]);
 
         $user = User::find($id);
