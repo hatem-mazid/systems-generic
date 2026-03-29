@@ -12,7 +12,7 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'active' => $this->active,
-            'roles' => $this->roles->pluck('name')->toArray()[0] ?? null,
+            'role' => $this->roles->pluck('name')->toArray()[0] ?? null,
         ];
     }
 }
