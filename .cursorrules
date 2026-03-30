@@ -1,0 +1,150 @@
+# Spark Systems — Cafe POS
+
+## Core System
+
+- Productized POS system for cafes/restaurants
+- Fast, touch-first interface
+- Minimal customization
+- Single-tenant now, multi-tenant later
+
+---
+
+## Stack
+
+### Backend
+- Laravel (monolith)
+- Session-based authentication (Laravel Breeze)
+- Web routes for app
+- API routes only for testing/integrations
+
+### Frontend
+- Vue 3 (Composition API)
+- Vite
+- PrimeVue + Tailwind
+- SPA mounted inside Blade
+
+---
+
+## Roles
+
+- admin
+- accounting
+- waiter
+
+Use spatie/laravel-permission
+
+- Treat user as having one role
+- Always use `$user->roles`
+- Do not define custom role relations
+
+---
+
+## Core Models
+
+### UnitGroup
+- id
+- name
+- position
+- is_active
+
+### Unit
+- id
+- unit_group_id
+- name
+- capacity
+- is_active
+- is_available
+- current_order_id (nullable, no FK required)
+- position
+
+### Order
+- id
+- unit_id
+- user_id
+- status (open, closed, cancelled)
+- total
+- opened_at
+- closed_at
+
+### OrderItem
+- id
+- order_id
+- product_id (nullable)
+- name (snapshot)
+- price (snapshot)
+- quantity
+- total
+- type (product, service, timer)
+- notes (nullable)
+- meta (json)
+
+### Product
+- id
+- name
+- description
+- type (physical, service_fixed, service_timer)
+- price
+- price_per_hour
+- is_available
+- is_limited
+- stock_quantity
+
+### TimerSession
+- id
+- unit_id
+- order_id
+- product_id
+- started_at
+- ended_at
+- duration_minutes
+- calculated_total
+
+### Expense
+- id
+- title
+- amount
+- spent_at
+- notes
+- user_id
+
+### Setting
+- id
+- key
+- value
+
+### Media
+- use spatie/laravel-medialibrary
+
+---
+
+## Core Logic
+
+- Unit holds current active order via `current_order_id`
+- Order is the main entity
+- OrderItem stores final billing data (snapshot)
+- TimerSession tracks time only, not billing
+- On timer stop → create OrderItem
+
+---
+
+## Translations
+
+- Use polymorphic `translations` table
+- Fields:
+  - locale
+  - key
+  - value
+  - translatable_type
+  - translatable_id
+
+- Always keep fallback value in main table
+
+---
+
+## Backend Rules
+
+- Keep controllers thin
+- Use Eloquent relationships
+- Use helper methods for logic (e.g. isFree, isBusy)
+- Avoid complex queries in POS flow
+- Avoid unnecessary foreign keys during early development
