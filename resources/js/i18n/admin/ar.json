@@ -37,5 +37,10 @@
             "accounting": "محاسب",
             "waiter": "نادل"
         }
+    },
+    "Sidebar": {
+        "Dashboard": "لوحة التحكم",
+        "Categories": "التصنيفات",
+        "Users": "المستخدمين"
     }
 }

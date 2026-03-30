@@ -37,5 +37,10 @@
             "accounting": "Accounting",
             "waiter": "Waiter"
         }
+    },
+    "Sidebar": {
+        "Dashboard": "Dashboard",
+        "Categories": "Categories",
+        "Users": "Users"
     }
 }
