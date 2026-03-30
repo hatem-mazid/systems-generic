@@ -24,7 +24,7 @@ class UserController extends Controller
         $user = User::with('roles')->find($id);
 
         if (!$user) {
-            return response()->json(['message' => __('User not found', $_SESSION['locale'] ?? 'en')], 404);
+            return response()->json(['message' => __('messages.User not found')], 404);
         }
 
         return response()->json(new UserResource($user));
@@ -69,7 +69,7 @@ class UserController extends Controller
 
         $user = User::find($id);
         if (!$user) {
-            return response()->json(['message' => __('User not found', $_SESSION['locale'] ?? 'en')], 404);
+            return response()->json(['message' => __('messages.User not found')], 404);
         }
 
         $user->update($formData);
@@ -89,7 +89,7 @@ class UserController extends Controller
 
         $user = User::find($id);
         if (!$user) {
-            return response()->json(['message' => __('User not found', $_SESSION['locale'] ?? 'en')], 404);
+            return response()->json(['message' => __('messages.User not found')], 404);
         }
 
         $user->update([
@@ -97,7 +97,7 @@ class UserController extends Controller
         ]);
 
         return response()->json([
-            'message' => __('Password updated successfully', $_SESSION['locale'] ?? 'en'),
+            'message' => 'Password updated successfully',
         ]);
     }
 
@@ -108,13 +108,13 @@ class UserController extends Controller
     {
         $user = User::find($id);
         if (!$user) {
-            return response()->json(['message' => __('User not found', $_SESSION['locale'] ?? 'en')], 404);
+            return response()->json(['message' => __('messages.User not found')], 404);
         }
 
         $user->delete();
 
         return response()->json([
-            'message' => __('User deleted successfully', $_SESSION['locale'] ?? 'en'),
+            'message' => __('messages.User deleted successfully'),
         ]);
     }
 }
