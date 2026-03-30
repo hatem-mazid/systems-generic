@@ -26,6 +26,12 @@
         "UpdatedSuccess": "User updated successfully.",
         "ValidationError": "Please fix the errors and try again.",
         "SaveError": "Something went wrong. Please try again.",
+        "ResetPassword": "Reset password",
+        "ResetPasswordTitle": "Set new password",
+        "ResetPasswordHint": "Choose a new password for this user. They will use it on the next sign-in.",
+        "ResetPasswordSuccess": "Password updated successfully.",
+        "ResetPasswordError": "Could not update the password.",
+        "ResetPasswordSubmit": "Update password",
         "Roles": {
             "admin": "Admin",
             "accounting": "Accounting",

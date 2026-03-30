@@ -26,6 +26,12 @@
         "UpdatedSuccess": "تم تحديث المستخدم بنجاح.",
         "ValidationError": "يرجى تصحيح الأخطاء والمحاولة مرة أخرى.",
         "SaveError": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+        "ResetPassword": "إعادة تعيين كلمة المرور",
+        "ResetPasswordTitle": "تعيين كلمة مرور جديدة",
+        "ResetPasswordHint": "اختر كلمة مرور جديدة لهذا المستخدم. سيستخدمها عند تسجيل الدخول التالي.",
+        "ResetPasswordSuccess": "تم تحديث كلمة المرور بنجاح.",
+        "ResetPasswordError": "تعذر تحديث كلمة المرور.",
+        "ResetPasswordSubmit": "تحديث كلمة المرور",
         "Roles": {
             "admin": "مسؤول",
             "accounting": "محاسب",

@@ -18,11 +18,17 @@ export const usersService = {
     },
     updateUser: async (
         id: string,
-        user: User,
+        user: User
     ): Promise<AxiosResponse<User>> => {
         return http.put<User>(`/api/users/${id}`, user);
     },
     deleteUser: async (id: string): Promise<AxiosResponse<unknown>> => {
         return http.delete(`/api/users/${id}`);
+    },
+    resetPassword: async (
+        id: string,
+        payload: { password: string; password_confirmation: string }
+    ): Promise<AxiosResponse<{ message?: string }>> => {
+        return http.post(`/api/users/${id}/updatePassword`, payload);
     },
 };

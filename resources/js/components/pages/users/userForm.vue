@@ -4,6 +4,7 @@
         <template #title>
             <div class="flex justify-between items-center gap-2 flex-wrap">
                 {{ userId ? $t("UserForm.Edit") : $t("UserForm.Create") }}
+                <ResetPasswordDialog v-if="userId" :user-id="userId" />
             </div>
         </template>
 
@@ -205,6 +206,7 @@ import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { usersService } from "../../../apis/services/users.apis";
+import ResetPasswordDialog from "./ResetPasswordDialog.vue";
 import type { User } from "../../../types/users";
 import { UserRole } from "../../../types/users";
 
