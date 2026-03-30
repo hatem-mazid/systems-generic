@@ -15,4 +15,29 @@ export default defineConfig({
             resolvers: [PrimeVueResolver()],
         }),
     ],
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    if (id.includes('node_modules')) {
+                        if (id.includes('@primeuix')) {
+                            return 'primeuix';
+                        }
+                        if (
+                            id.includes('primevue') ||
+                            id.includes('@primevue')
+                        ) {
+                            return 'primevue';
+                        }
+                        if (id.includes('vue-i18n')) {
+                            return 'i18n';
+                        }
+                        if (id.includes('axios')) {
+                            return 'http';
+                        }
+                    }
+                },
+            },
+        },
+    },
 });

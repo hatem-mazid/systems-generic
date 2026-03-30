@@ -1,0 +1,35 @@
+{
+    "Users": "المستخدمين",
+    "Add User": "إضافة مستخدم",
+    "Cancel": "إلغاء",
+    "Delete": "حذف",
+    "UsersList": {
+        "DeleteTitle": "حذف مستخدم",
+        "DeleteMessage": "هل أنت متأكد من حذف {name}؟ لا يمكن التراجع عن هذا الإجراء.",
+        "DeleteSuccess": "تم حذف المستخدم بنجاح.",
+        "DeleteError": "تعذر حذف المستخدم."
+    },
+    "UserForm": {
+        "Create": "إنشاء مستخدم",
+        "Edit": "تعديل مستخدم",
+        "Name": "الاسم الكامل",
+        "Email": "البريد الإلكتروني",
+        "Password": "كلمة المرور",
+        "ConfirmPassword": "تأكيد كلمة المرور",
+        "Role": "الدور",
+        "Status": "الحالة",
+        "Active": "نشط",
+        "Inactive": "غير نشط",
+        "SubmitCreate": "إنشاء",
+        "SubmitUpdate": "تحديث",
+        "CreatedSuccess": "تم إنشاء المستخدم بنجاح.",
+        "UpdatedSuccess": "تم تحديث المستخدم بنجاح.",
+        "ValidationError": "يرجى تصحيح الأخطاء والمحاولة مرة أخرى.",
+        "SaveError": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+        "Roles": {
+            "admin": "مسؤول",
+            "accounting": "محاسب",
+            "waiter": "نادل"
+        }
+    }
+}

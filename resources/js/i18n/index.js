@@ -1,25 +1,19 @@
-import { createI18n } from 'vue-i18n'
+import { createI18n } from "vue-i18n";
+import adminAr from "./admin/ar.json";
+import adminEn from "./admin/en.json";
 
 const messages = {
-    en: {
-        start: 'Start',
-        units: 'Units',
-        Users: 'Users',
-    },
-    ar: {
-        start: 'ابدأ',
-        units: 'الوحدات',
-        Users: 'المستخدمين',
-    }
-}
+    ar: adminAr,
+    en: adminEn,
+};
 
-const locale = document.documentElement.lang || 'en';
+const locale = document.documentElement.lang || "en";
 
 const i18n = createI18n({
     legacy: false,
     locale: locale,
-    fallbackLocale: 'en',
+    fallbackLocale: "en",
     messages,
-})
+});
 
-export default i18n
+export default i18n;

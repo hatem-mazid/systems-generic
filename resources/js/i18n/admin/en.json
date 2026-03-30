@@ -1,0 +1,35 @@
+{
+    "Users": "Users",
+    "Add User": "Add User",
+    "Cancel": "Cancel",
+    "Delete": "Delete",
+    "UsersList": {
+        "DeleteTitle": "Delete user",
+        "DeleteMessage": "Are you sure you want to delete {name}? This cannot be undone.",
+        "DeleteSuccess": "User deleted successfully.",
+        "DeleteError": "Could not delete the user."
+    },
+    "UserForm": {
+        "Create": "Create User",
+        "Edit": "Edit User",
+        "Name": "Full name",
+        "Email": "Email",
+        "Password": "Password",
+        "ConfirmPassword": "Confirm password",
+        "Role": "Role",
+        "Status": "Status",
+        "Active": "Active",
+        "Inactive": "Inactive",
+        "SubmitCreate": "Create",
+        "SubmitUpdate": "Update",
+        "CreatedSuccess": "User created successfully.",
+        "UpdatedSuccess": "User updated successfully.",
+        "ValidationError": "Please fix the errors and try again.",
+        "SaveError": "Something went wrong. Please try again.",
+        "Roles": {
+            "admin": "Admin",
+            "accounting": "Accounting",
+            "waiter": "Waiter"
+        }
+    }
+}

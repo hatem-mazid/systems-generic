@@ -1,32 +1,39 @@
 <template>
     <div class="">
         <div class="flex justify-between">
-            <h1 class="text-2xl text-surface-800 font-semibold">
-                {{ $t('Users') }}
+            <h1
+                class="text-2xl text-surface-800 font-semibold dark:text-surface-100"
+            >
+                {{ $t("Users") }}
             </h1>
 
-            <Button size="lg" :label="$t('Add User')" icon="pi pi-plus" />
+            <Button
+                to="/users/create"
+                as="router-link"
+                size="lg"
+                :label="$t('Add User')"
+                icon="pi pi-plus"
+            />
         </div>
-        <div class="grid grid-cols-3 gap-4 mt-4">
-            <Skeleton v-if="isLoading" v-for="_ in paginator.per_page" width="100%" height="150px" class="mb-2" />
+        <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <Skeleton
+                v-if="isLoading"
+                v-for="n in paginator.per_page"
+                :key="'sk-' + n"
+                width="100%"
+                height="220px"
+                class="rounded-2xl"
+            />
 
-            <Card v-else v-for="user in users" :key="user.id" class="border rounded-lg border-surface-300 dark:border-surface-700">
-                <template #content>
-                    <div class="flex justify-center mb-2">
-                        <Avatar :label="user.name[0]" size="xlarge" shape="circle" />
-                    </div>
-                    <div>
-                        <p class="text-base text-surface-800 font-medium">{{ user.name }}</p>
-                        <p class="text-sm text-surface-500">{{ user.email }}</p>
-                        <p v-if="user.roles" class="text-sm text-surface-500">{{ user.roles }}</p>
-                    </div>
-
-                    <div class="flex gap-2 mt-4 justify-center">
-                        <Button variant="outlined" size="large" rounded icon="pi pi-pencil" severity="info" />
-                        <Button variant="outlined" size="large" rounded icon="pi pi-trash" severity="danger" />
-                    </div>
-                </template>
-            </Card>
+            <UserCard
+                v-else
+                v-for="user in users"
+                :key="user.id"
+                :user="user"
+                :deleting="deletingId === user.id"
+                :disable-delete="deletingId !== null && deletingId !== user.id"
+                @delete="confirmDelete"
+            />
         </div>
 
         <Paginator
@@ -39,13 +46,21 @@
     </div>
 </template>
 
-
 <script setup>
-import { onMounted, ref } from 'vue';
-import { Button } from 'primevue';
-import axios from 'axios';
+import { Button } from "primevue";
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+import { onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { usersService } from "../../apis/services/users.apis";
+import UserCard from "../../components/pages/users/UserCard.vue";
+
+const { t } = useI18n();
+const confirm = useConfirm();
+const toast = useToast();
 
 const isLoading = ref(true);
+const deletingId = ref(null);
 const users = ref([]);
 const paginator = ref({
     current_page: 1,
@@ -53,26 +68,71 @@ const paginator = ref({
     total: 0,
 });
 
-const fetchUsers = (page = 1) => {
-    isLoading.value = true;
-    axios.get('/api/users', { params: { page, per_page: paginator.value.per_page } })
-        .then(({ data }) => {
+const fetchUsers = (page = 1, showFullLoading = true) => {
+    if (showFullLoading) {
+        isLoading.value = true;
+    }
+    usersService
+        .getUsers({ page, per_page: paginator.value.per_page })
+        .then((response) => {
+            const data = response.data;
             users.value = data.items ?? [];
             paginator.value = {
                 ...paginator.value,
                 ...data.meta,
             };
         })
-        .catch(error => {
-            console.error('Error fetching users:', error);
+        .catch((error) => {
+            console.error("Error fetching users:", error);
         })
         .finally(() => {
-            isLoading.value = false;
+            if (showFullLoading) {
+                isLoading.value = false;
+            }
         });
 };
 
+const confirmDelete = (user) => {
+    confirm.require({
+        message: t("UsersList.DeleteMessage", { name: user.name }),
+        header: t("UsersList.DeleteTitle"),
+        icon: "pi pi-exclamation-triangle",
+        rejectProps: {
+            label: t("Cancel"),
+            severity: "secondary",
+            outlined: true,
+        },
+        acceptProps: {
+            label: t("Delete"),
+            severity: "danger",
+        },
+        accept: () => {
+            deletingId.value = user.id;
+            usersService
+                .deleteUser(String(user.id))
+                .then(() => {
+                    toast.add({
+                        severity: "success",
+                        summary: t("UsersList.DeleteSuccess"),
+                        life: 3000,
+                    });
+                    return fetchUsers(paginator.value.current_page, false);
+                })
+                .catch(() => {
+                    toast.add({
+                        severity: "error",
+                        summary: t("UsersList.DeleteError"),
+                        life: 4000,
+                    });
+                })
+                .finally(() => {
+                    deletingId.value = null;
+                });
+        },
+    });
+};
+
 const onPageChange = (event) => {
-    // event.page is 0-indexed, event.rows is the new per_page
     paginator.value.per_page = event.rows;
     fetchUsers(event.page + 1);
 };
