@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('/api/users', UserController::class);
     Route::post('/api/users/{id}/updatePassword', [UserController::class, 'updatePassword']);
+
+    Route::resource('/api/categories', CategoryController::class);
+    Route::post('/api/categories/{category}/media', [CategoryController::class, 'storeMedia']);
+    Route::delete('/api/categories/{category}/media', [CategoryController::class, 'destroyMedia']);
 
     Route::get('/{any}', function () {
         return view('welcome');
