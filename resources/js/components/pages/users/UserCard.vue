@@ -20,7 +20,7 @@
                         <Tag
                             v-if="activeKnown"
                             :value="activeLabel"
-                            :severity="isActive ? 'success' : 'secondary'"
+                            :severity="isActive ? 'success' : 'warn'"
                             class="mt-2 !text-xs"
                             rounded
                         />
@@ -83,7 +83,7 @@
                     <Button
                         v-tooltip.top="$t('UserForm.Edit')"
                         variant="outlined"
-                        size="small"
+                        size="large"
                         rounded
                         icon="pi pi-pencil"
                         :to="`/users/${user.id}`"
@@ -94,7 +94,7 @@
                     <Button
                         v-tooltip.top="$t('Delete')"
                         variant="outlined"
-                        size="small"
+                        size="large"
                         rounded
                         icon="pi pi-trash"
                         severity="danger"
