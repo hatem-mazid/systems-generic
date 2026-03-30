@@ -19,7 +19,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
 
     Route::resource('/api/users', UserController::class);
-    Route::post('/api/user/{id}/updatePassword', [UserController::class, 'updatePassword']);
+    Route::post('/api/users/{id}/updatePassword', [UserController::class, 'updatePassword']);
 
     Route::get('/{any}', function () {
         return view('welcome');
