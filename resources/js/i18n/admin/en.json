@@ -1,6 +1,8 @@
 {
     "Users": "Users",
     "Add User": "Add User",
+    "Add Category": "Add Category",
+    "Edit": "Edit",
     "Cancel": "Cancel",
     "Delete": "Delete",
     "UsersList": {
@@ -42,5 +44,39 @@
         "Dashboard": "Dashboard",
         "Categories": "Categories",
         "Users": "Users"
+    },
+    "CategoriesList": {
+        "DeleteTitle": "Delete category",
+        "DeleteMessage": "Are you sure you want to delete {name}? This cannot be undone.",
+        "DeleteSuccess": "Category deleted successfully.",
+        "DeleteError": "Could not delete the category.",
+        "Empty": "No categories found.",
+        "NoDescription": "No description"
+    },
+    "CategoryForm": {
+        "Create": "Create category",
+        "Edit": "Edit category",
+        "LocaleEnglish": "English",
+        "LocaleArabic": "العربية",
+        "Title": "Title",
+        "Description": "Description",
+        "Order": "Order",
+        "Status": "Status",
+        "Active": "Active",
+        "Inactive": "Inactive",
+        "Image": "Image",
+        "AddImage": "Add image",
+        "ChangeImage": "Change image",
+        "RemoveImage": "Remove image",
+        "UploadOr": "Or upload",
+        "SubmitCreate": "Create",
+        "SubmitUpdate": "Update",
+        "CreatedSuccess": "Category created successfully.",
+        "UpdatedSuccess": "Category updated successfully.",
+        "ValidationError": "Please fix the errors and try again.",
+        "SaveError": "Something went wrong. Please try again.",
+        "LoadError": "Could not load this category.",
+        "ImageRemoved": "Image removed.",
+        "ImageRemoveError": "Could not remove the image."
     }
 }

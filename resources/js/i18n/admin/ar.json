@@ -1,6 +1,8 @@
 {
     "Users": "المستخدمين",
     "Add User": "إضافة مستخدم",
+    "Add Category": "إضافة تصنيف",
+    "Edit": "تعديل",
     "Cancel": "إلغاء",
     "Delete": "حذف",
     "UsersList": {
@@ -42,5 +44,39 @@
         "Dashboard": "لوحة التحكم",
         "Categories": "التصنيفات",
         "Users": "المستخدمين"
+    },
+    "CategoriesList": {
+        "DeleteTitle": "حذف تصنيف",
+        "DeleteMessage": "هل أنت متأكد من حذف {name}؟ لا يمكن التراجع عن هذا الإجراء.",
+        "DeleteSuccess": "تم حذف التصنيف بنجاح.",
+        "DeleteError": "تعذر حذف التصنيف.",
+        "Empty": "لا توجد تصنيفات.",
+        "NoDescription": "لا يوجد وصف"
+    },
+    "CategoryForm": {
+        "Create": "إنشاء تصنيف",
+        "Edit": "تعديل تصنيف",
+        "LocaleEnglish": "English",
+        "LocaleArabic": "العربية",
+        "Title": "العنوان",
+        "Description": "الوصف",
+        "Order": "الترتيب",
+        "Status": "الحالة",
+        "Active": "نشط",
+        "Inactive": "غير نشط",
+        "Image": "الصورة",
+        "AddImage": "إضافة صورة",
+        "ChangeImage": "تغيير الصورة",
+        "RemoveImage": "إزالة الصورة",
+        "UploadOr": "أو رفع صورة",
+        "SubmitCreate": "إنشاء",
+        "SubmitUpdate": "تحديث",
+        "CreatedSuccess": "تم إنشاء التصنيف بنجاح.",
+        "UpdatedSuccess": "تم تحديث التصنيف بنجاح.",
+        "ValidationError": "يرجى تصحيح الأخطاء والمحاولة مرة أخرى.",
+        "SaveError": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+        "LoadError": "تعذر تحميل هذا التصنيف.",
+        "ImageRemoved": "تمت إزالة الصورة.",
+        "ImageRemoveError": "تعذر إزالة الصورة."
     }
 }

@@ -12,7 +12,7 @@ export const sidebarItems = [
         permission: null,
     },
     {
-        icon: "pi pi-home",
+        icon: "pi pi-tags",
         title: SIDEBAR_TITLES.Categories,
         to: "/categories",
         permission: null,
