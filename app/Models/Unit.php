@@ -11,8 +11,12 @@ class Unit extends Model
         'unit_group_id',
         'name',
         'capacity',
+        'type',
+        'color',
+        'properties',
         'is_active',
         'is_available',
+        'reserved_at',
         'current_order_id',
         'position',
     ];
@@ -20,6 +24,8 @@ class Unit extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'is_available' => 'boolean',
+        'properties' => 'array',
+        'reserved_at' => 'datetime',
     ];
 
     /*

@@ -18,9 +18,13 @@ return new class extends Migration
 
             $table->string('name'); // fallback
             $table->integer('capacity')->nullable();
+            $table->string('type')->nullable(); // table, game, room, ...
+            $table->string('color', 20)->nullable();
+            $table->json('properties')->nullable();
 
             $table->boolean('is_active')->default(true);
             $table->boolean('is_available')->default(true);
+            $table->timestamp('reserved_at')->nullable();
 
             // Core logic
             $table->foreignId('current_order_id')

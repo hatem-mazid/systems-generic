@@ -11,13 +11,12 @@ Media (for images)
 
 pages:
     - home page, (shortcuts or quick show) (for each role)
-    - h
 
 to hadeel:
-    - create cursor account
-    - add page sample
+    <!-- - create cursor account -->
+    <!-- - add page sample -->
     - make a plan and website skelton
-    - make API dog documentation
+    <!-- - make API dog documentation -->
 
 hadeel feedbacks:
     - consider that we are working on touch screens, so small buttons no tooltips,
