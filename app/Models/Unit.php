@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\UnitGroups;
+use App\Models\UnitGroup;
 use Illuminate\Database\Eloquent\Model;
 
 class Unit extends Model
@@ -36,7 +36,7 @@ class Unit extends Model
 
     public function group()
     {
-        return $this->belongsTo(UnitGroups::class, 'unit_group_id');
+        return $this->belongsTo(UnitGroup::class, 'unit_group_id');
     }
 
 
