@@ -1,6 +1,7 @@
 export const SIDEBAR_TITLES = {
     Dashboard: "Sidebar.Dashboard",
     Categories: "Sidebar.Categories",
+    UnitGroups: "Sidebar.UnitGroups",
     Users: "Sidebar.Users",
 };
 
@@ -15,6 +16,12 @@ export const sidebarItems = [
         icon: "pi pi-tags",
         title: SIDEBAR_TITLES.Categories,
         to: "/categories",
+        permission: null,
+    },
+    {
+        icon: "pi pi-th-large",
+        title: SIDEBAR_TITLES.UnitGroups,
+        to: "/unit-groups",
         permission: null,
     },
     {

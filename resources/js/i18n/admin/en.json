@@ -2,6 +2,7 @@
     "Users": "Users",
     "Add User": "Add User",
     "Add Category": "Add Category",
+    "Add Unit Group": "Add Unit Group",
     "Edit": "Edit",
     "Cancel": "Cancel",
     "Delete": "Delete",
@@ -43,7 +44,32 @@
     "Sidebar": {
         "Dashboard": "Dashboard",
         "Categories": "Categories",
+        "UnitGroups": "Unit groups",
         "Users": "Users"
+    },
+    "UnitGroupsList": {
+        "DeleteTitle": "Delete unit group",
+        "DeleteMessage": "Are you sure you want to delete {name}? This cannot be undone.",
+        "DeleteSuccess": "Unit group deleted successfully.",
+        "DeleteError": "Could not delete the unit group.",
+        "Empty": "No unit groups found.",
+        "Position": "Position"
+    },
+    "UnitGroupsForm": {
+        "Create": "Create unit group",
+        "Edit": "Edit unit group",
+        "Name": "Name",
+        "Position": "Position",
+        "Status": "Status",
+        "Active": "Active",
+        "Inactive": "Inactive",
+        "SubmitCreate": "Create",
+        "SubmitUpdate": "Update",
+        "CreatedSuccess": "Unit group created successfully.",
+        "UpdatedSuccess": "Unit group updated successfully.",
+        "ValidationError": "Please fix the errors and try again.",
+        "SaveError": "Something went wrong. Please try again.",
+        "LoadError": "Could not load this unit group."
     },
     "CategoriesList": {
         "DeleteTitle": "Delete category",

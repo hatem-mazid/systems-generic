@@ -2,6 +2,7 @@
     "Users": "المستخدمين",
     "Add User": "إضافة مستخدم",
     "Add Category": "إضافة تصنيف",
+    "Add Unit Group": "إضافة مجموعة وحدات",
     "Edit": "تعديل",
     "Cancel": "إلغاء",
     "Delete": "حذف",
@@ -43,7 +44,32 @@
     "Sidebar": {
         "Dashboard": "لوحة التحكم",
         "Categories": "التصنيفات",
+        "UnitGroups": "مجموعات الوحدات",
         "Users": "المستخدمين"
+    },
+    "UnitGroupsList": {
+        "DeleteTitle": "حذف مجموعة وحدات",
+        "DeleteMessage": "هل أنت متأكد من حذف {name}؟ لا يمكن التراجع عن هذا الإجراء.",
+        "DeleteSuccess": "تم حذف مجموعة الوحدات بنجاح.",
+        "DeleteError": "تعذر حذف مجموعة الوحدات.",
+        "Empty": "لا توجد مجموعات وحدات.",
+        "Position": "الترتيب"
+    },
+    "UnitGroupsForm": {
+        "Create": "إنشاء مجموعة وحدات",
+        "Edit": "تعديل مجموعة وحدات",
+        "Name": "الاسم",
+        "Position": "الترتيب",
+        "Status": "الحالة",
+        "Active": "نشط",
+        "Inactive": "غير نشط",
+        "SubmitCreate": "إنشاء",
+        "SubmitUpdate": "تحديث",
+        "CreatedSuccess": "تم إنشاء مجموعة الوحدات بنجاح.",
+        "UpdatedSuccess": "تم تحديث مجموعة الوحدات بنجاح.",
+        "ValidationError": "يرجى تصحيح الأخطاء والمحاولة مرة أخرى.",
+        "SaveError": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+        "LoadError": "تعذر تحميل مجموعة الوحدات."
     },
     "CategoriesList": {
         "DeleteTitle": "حذف تصنيف",

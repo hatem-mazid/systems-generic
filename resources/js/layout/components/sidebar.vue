@@ -37,7 +37,7 @@
                             ></i>
                             <span
                                 v-if="!minimize"
-                                class="font-medium text-xs"
+                                class="font-medium text-xs text-center"
                                 >{{ $t(item.title) }}</span
                             >
                         </RouterLink>
@@ -56,8 +56,8 @@
 </template>
 
 <script setup>
-import { useUserStore } from "@/stores/user";
 import { sidebarItems } from "@/layout/constants/sidebarItems";
+import { useUserStore } from "@/stores/user";
 
 const { hasPermission } = useUserStore();
 

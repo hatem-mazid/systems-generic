@@ -29,6 +29,18 @@ const routes = [
         path: "/categories/:id",
         component: () => import("./pages/categories/[id].vue"),
     },
+    {
+        path: "/unit-groups",
+        component: () => import("./pages/unitGroups/index.vue"),
+    },
+    {
+        path: "/unit-groups/create",
+        component: () => import("./pages/unitGroups/create.vue"),
+    },
+    {
+        path: "/unit-groups/:id",
+        component: () => import("./pages/unitGroups/[id].vue"),
+    },
 ];
 
 const router = createRouter({
