@@ -22,8 +22,7 @@ return new class extends Migration
             $table->string('color', 20)->nullable();
             $table->json('properties')->nullable();
 
-            $table->boolean('is_active')->default(true);
-            $table->boolean('is_available')->default(true);
+            $table->string('status')->default('available'); // available, reserved, occupied, inactive
             $table->timestamp('reserved_at')->nullable();
 
             // Core logic
