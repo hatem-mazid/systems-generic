@@ -11,21 +11,21 @@ class UnitController extends Controller
 {
     public function index(Request $request)
     {
-        // $request->validate([
-        //     'per_page' => 'sometimes|integer|min:1|max:100',
-        //     'unit_group_id' => 'sometimes|integer|exists:unit_groups,id',
-        // ]);
+        $request->validate([
+            'per_page' => 'sometimes|integer|min:1|max:100',
+            'unit_group_id' => 'sometimes|integer|exists:unit_groups,id',
+        ]);
 
-        // $query = Unit::with(['group', 'currentOrder'])
-        //     ->orderBy('position');
+        $query = Unit::with(['group', 'currentOrder'])
+            ->orderBy('position');
 
-        // if ($request->filled('unit_group_id')) {
-        //     $query->where('unit_group_id', $request->integer('unit_group_id'));
-        // }
+        if ($request->filled('unit_group_id')) {
+            $query->where('unit_group_id', $request->integer('unit_group_id'));
+        }
 
-        // $units = $query->paginate($request->integer('per_page', 10));
+        $units = $query->paginate($request->integer('per_page', 10));
 
-        // return new UnitCollection($units);
+        return new UnitCollection($units);
     }
 
     public function show(string $id)
@@ -47,8 +47,7 @@ class UnitController extends Controller
             'type' => 'nullable|string|max:255',
             'color' => 'nullable|string|max:20',
             'properties' => 'nullable|array',
-            'is_active' => 'required|boolean',
-            'is_available' => 'nullable|boolean',
+            'status' => 'required|in:available,reserved,occupied,inactive',
             'reserved_at' => 'nullable|date',
             'current_order_id' => 'nullable|integer',
             'position' => 'nullable|integer',
@@ -68,8 +67,7 @@ class UnitController extends Controller
             'type' => 'nullable|string|max:255',
             'color' => 'nullable|string|max:20',
             'properties' => 'nullable|array',
-            'is_active' => 'sometimes|boolean',
-            'is_available' => 'sometimes|boolean',
+            'status' => 'sometimes|in:available,reserved,occupied,inactive',
             'reserved_at' => 'nullable|date',
             'current_order_id' => 'nullable|integer',
             'position' => 'nullable|integer',
