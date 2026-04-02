@@ -30,16 +30,25 @@ const routes = [
         component: () => import("./pages/categories/[id].vue"),
     },
     {
-        path: "/unit-groups",
+        path: "/unit-groups-setup",
         component: () => import("./pages/unitGroups/index.vue"),
     },
     {
-        path: "/unit-groups/create",
+        path: "/unit-groups-setup/create",
         component: () => import("./pages/unitGroups/create.vue"),
     },
     {
-        path: "/unit-groups/:id",
+        path: "/unit-groups-setup/:id",
         component: () => import("./pages/unitGroups/[id].vue"),
+    },
+
+    {
+        path: "/units/create",
+        component: () => import("./pages/units/create.vue"),
+    },
+    {
+        path: "/units/:id",
+        component: () => import("./pages/units/[id].vue"),
     },
 ];
 

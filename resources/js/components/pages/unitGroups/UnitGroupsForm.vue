@@ -187,7 +187,7 @@ const onSubmit = async () => {
             });
         }
 
-        router.push("/unit-groups");
+        router.push("/unit-groups-setup");
     } catch (error: unknown) {
         if (isAxiosError(error) && error.response?.status === 422) {
             const data = error.response?.data as
@@ -226,7 +226,7 @@ onMounted(async () => {
             summary: t("UnitGroupsForm.LoadError"),
             life: 4000,
         });
-        router.push("/unit-groups");
+        router.push("/unit-groups-setup");
     } finally {
         isLoading.value = false;
     }

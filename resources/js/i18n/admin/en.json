@@ -3,6 +3,7 @@
     "Add User": "Add User",
     "Add Category": "Add Category",
     "Add Unit Group": "Add Unit Group",
+    "Add Unit": "Add Unit",
     "Edit": "Edit",
     "Cancel": "Cancel",
     "Delete": "Delete",
@@ -70,6 +71,53 @@
         "ValidationError": "Please fix the errors and try again.",
         "SaveError": "Something went wrong. Please try again.",
         "LoadError": "Could not load this unit group."
+    },
+    "Units": {
+        "Type": "Type",
+        "Position": "Position",
+        "Capacity": "Capacity",
+        "Status": "Status",
+        "EmptyInGroup": "No units in this group.",
+        "DeleteTitle": "Delete unit",
+        "DeleteMessage": "Are you sure you want to delete {name}? This cannot be undone.",
+        "DeleteSuccess": "Unit deleted successfully.",
+        "DeleteError": "Could not delete the unit.",
+        "ThisUnit": "this unit",
+        "Types": {
+            "table": "Table",
+            "room": "Room",
+            "unknown": "-"
+        },
+        "Statuses": {
+            "available": "Available",
+            "reserved": "Reserved",
+            "occupied": "Occupied",
+            "inactive": "Inactive"
+        },
+        "ActiveStates": {
+            "active": "Active",
+            "inactive": "Inactive"
+        }
+    },
+    "UnitsForm": {
+        "Create": "Create unit",
+        "Edit": "Edit unit",
+        "Name": "Name",
+        "UnitGroup": "Unit group",
+        "Type": "Type",
+        "Capacity": "Capacity",
+        "Position": "Position",
+        "FeePerHour": "Fee per hour",
+        "Status": "Status",
+        "Active": "Active",
+        "Inactive": "Inactive",
+        "SubmitCreate": "Create",
+        "SubmitUpdate": "Update",
+        "CreatedSuccess": "Unit created successfully.",
+        "UpdatedSuccess": "Unit updated successfully.",
+        "ValidationError": "Please fix the errors and try again.",
+        "SaveError": "Something went wrong. Please try again.",
+        "LoadError": "Could not load this unit."
     },
     "CategoriesList": {
         "DeleteTitle": "Delete category",

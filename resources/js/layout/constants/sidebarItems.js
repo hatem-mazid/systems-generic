@@ -21,7 +21,7 @@ export const sidebarItems = [
     {
         icon: "pi pi-th-large",
         title: SIDEBAR_TITLES.UnitGroups,
-        to: "/unit-groups",
+        to: "/unit-groups-setup",
         permission: null,
     },
     {

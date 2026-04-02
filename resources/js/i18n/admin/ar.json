@@ -3,6 +3,7 @@
     "Add User": "إضافة مستخدم",
     "Add Category": "إضافة تصنيف",
     "Add Unit Group": "إضافة مجموعة وحدات",
+    "Add Unit": "إضافة وحدة",
     "Edit": "تعديل",
     "Cancel": "إلغاء",
     "Delete": "حذف",
@@ -70,6 +71,53 @@
         "ValidationError": "يرجى تصحيح الأخطاء والمحاولة مرة أخرى.",
         "SaveError": "حدث خطأ. يرجى المحاولة مرة أخرى.",
         "LoadError": "تعذر تحميل مجموعة الوحدات."
+    },
+    "Units": {
+        "Type": "النوع",
+        "Position": "الترتيب",
+        "Capacity": "السعة",
+        "Status": "الحالة",
+        "EmptyInGroup": "لا توجد وحدات في هذه المجموعة.",
+        "DeleteTitle": "حذف وحدة",
+        "DeleteMessage": "هل أنت متأكد من حذف {name}؟ لا يمكن التراجع عن هذا الإجراء.",
+        "DeleteSuccess": "تم حذف الوحدة بنجاح.",
+        "DeleteError": "تعذر حذف الوحدة.",
+        "ThisUnit": "هذه الوحدة",
+        "Types": {
+            "table": "طاولة",
+            "room": "غرفة",
+            "unknown": "-"
+        },
+        "Statuses": {
+            "available": "متاحة",
+            "reserved": "محجوزة",
+            "occupied": "مشغولة",
+            "inactive": "غير نشطة"
+        },
+        "ActiveStates": {
+            "active": "نشط",
+            "inactive": "غير نشط"
+        }
+    },
+    "UnitsForm": {
+        "Create": "إنشاء وحدة",
+        "Edit": "تعديل وحدة",
+        "Name": "الاسم",
+        "UnitGroup": "مجموعة الوحدات",
+        "Type": "النوع",
+        "Capacity": "السعة",
+        "Position": "الترتيب",
+        "FeePerHour": "السعر لكل ساعة",
+        "Status": "الحالة",
+        "Active": "نشط",
+        "Inactive": "غير نشط",
+        "SubmitCreate": "إنشاء",
+        "SubmitUpdate": "تحديث",
+        "CreatedSuccess": "تم إنشاء الوحدة بنجاح.",
+        "UpdatedSuccess": "تم تحديث الوحدة بنجاح.",
+        "ValidationError": "يرجى تصحيح الأخطاء والمحاولة مرة أخرى.",
+        "SaveError": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+        "LoadError": "تعذر تحميل هذه الوحدة."
     },
     "CategoriesList": {
         "DeleteTitle": "حذف تصنيف",

@@ -1,12 +1,14 @@
 <template>
     <div>
         <div class="flex justify-between">
-            <h1 class="text-2xl text-surface-800 font-semibold dark:text-surface-100">
+            <h1
+                class="text-2xl text-surface-800 font-semibold dark:text-surface-100"
+            >
                 {{ $t("Sidebar.UnitGroups") }}
             </h1>
 
             <Button
-                to="/unit-groups/create"
+                to="/unit-groups-setup/create"
                 as="router-link"
                 size="lg"
                 :label="$t('Add Unit Group')"
@@ -14,15 +16,13 @@
             />
         </div>
 
-        <div
-            class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-        >
+        <div class="mt-4 space-y-6">
             <Skeleton
                 v-if="isLoading"
-                v-for="n in paginator.per_page"
+                v-for="n in 4"
                 :key="'sk-' + n"
                 width="100%"
-                height="180px"
+                height="220px"
                 class="rounded-2xl"
             />
 
@@ -36,7 +36,7 @@
 
                 <div
                     v-if="!unitGroups.length"
-                    class="col-span-full rounded-xl border border-dashed border-surface-300 p-6 text-center text-surface-600 dark:border-surface-600 dark:text-surface-300"
+                    class="rounded-xl border border-dashed border-surface-300 p-6 text-center text-surface-600 dark:border-surface-600 dark:text-surface-300"
                 >
                     {{ $t("UnitGroupsList.Empty") }}
                 </div>
