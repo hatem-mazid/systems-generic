@@ -13,6 +13,7 @@ class Unit extends Model
         'capacity',
         'type',
         'color',
+        'active',
         'properties',
         'status',
         'reserved_at',
@@ -21,6 +22,7 @@ class Unit extends Model
     ];
 
     protected $casts = [
+        'active' => 'boolean',
         'properties' => 'array',
         'reserved_at' => 'datetime',
     ];

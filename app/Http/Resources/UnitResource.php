@@ -17,6 +17,7 @@ class UnitResource extends JsonResource
             'type' => $this->type,
             'color' => $this->color,
             'properties' => $this->properties,
+            'active' => $this->active,
             'status' => $this->status,
             'reserved_at' => $this->reserved_at,
             'current_order_id' => $this->current_order_id,

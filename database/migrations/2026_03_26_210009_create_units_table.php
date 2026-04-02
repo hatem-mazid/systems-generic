@@ -23,6 +23,7 @@ return new class extends Migration
             $table->json('properties')->nullable();
 
             $table->string('status')->default('available'); // available, reserved, occupied, inactive
+            $table->boolean('active')->default(true);
             $table->timestamp('reserved_at')->nullable();
 
             // Core logic
