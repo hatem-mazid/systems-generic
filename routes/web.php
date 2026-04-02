@@ -29,7 +29,12 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/api/categories/{category}/media', [CategoryController::class, 'destroyMedia']);
 
     Route::resource('/api/unit-groups', UnitGroupController::class);
+    
     Route::resource('/api/units', UnitController::class);
+    Route::post('/api/units/{id}/start-order', [UnitController::class, 'startOrder']);
+    Route::post('/api/units/{id}/reserve', [UnitController::class, 'reserve']);
+    Route::post('/api/units/{id}/close', [UnitController::class, 'close']);
+    Route::post('/api/units/{id}/cancel-reservation', [UnitController::class, 'cancelReservation']);
 
     Route::get('/{any}', function () {
         return view('welcome');

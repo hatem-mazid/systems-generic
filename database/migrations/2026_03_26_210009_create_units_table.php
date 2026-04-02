@@ -18,13 +18,14 @@ return new class extends Migration
 
             $table->string('name'); // fallback
             $table->integer('capacity')->nullable();
-            $table->string('type')->nullable(); // table, game, room, ...
+            $table->string('type')->nullable(); // table, room
             $table->string('color', 20)->nullable();
             $table->json('properties')->nullable();
 
             $table->string('status')->default('available'); // available, reserved, occupied, inactive
             $table->boolean('active')->default(true);
             $table->timestamp('reserved_at')->nullable();
+            $table->string('reserved_by')->nullable(); // note: customer name / who reserved
 
             // Core logic
             $table->foreignId('current_order_id')
@@ -33,6 +34,8 @@ return new class extends Migration
                 // ->nullOnDelete();
 
             $table->integer('position')->default(0);
+
+            $table->decimal('fee_per_hour', 10, 2)->default(0);
 
             $table->timestamps();
         });
