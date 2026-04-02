@@ -21,7 +21,7 @@ class Unit extends Model
         'reserved_by',
         'current_order_id',
         'position',
-        'fee_per_hour',
+        'price_per_hour',
     ];
 
     protected $casts = [
@@ -29,7 +29,7 @@ class Unit extends Model
         'active' => 'boolean',
         'properties' => 'array',
         'reserved_at' => 'datetime',
-        'fee_per_hour' => 'decimal:2',
+        'price_per_hour' => 'decimal:2',
     ];
 
     /*
@@ -75,11 +75,16 @@ class Unit extends Model
         return $this->type === UnitType::Room;
     }
 
-    /**
-     * Total fee for a duration in hours (e.g. order billing).
-     */
-    public function feeForHours(float $hours): float
+    public function isBilliard(): bool
     {
-        return round((float) $this->fee_per_hour * $hours, 2);
+        return $this->type === UnitType::Billiard;
+    }
+
+    /**
+     * Total price for a duration in hours (e.g. order billing).
+     */
+    public function priceForHours(float $hours): float
+    {
+        return round((float) $this->price_per_hour * $hours, 2);
     }
 }

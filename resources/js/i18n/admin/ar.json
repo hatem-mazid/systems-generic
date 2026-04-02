@@ -86,6 +86,7 @@
         "Types": {
             "table": "طاولة",
             "room": "غرفة",
+            "billiard": "بلياردو",
             "unknown": "-"
         },
         "Statuses": {

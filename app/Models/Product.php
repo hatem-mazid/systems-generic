@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\ProductType;
+use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-
-use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model implements HasMedia
 {
@@ -16,15 +16,32 @@ class Product extends Model implements HasMedia
         'description',
         'type',
         'price',
-        'price_per_hour',
         'is_limited',
         'stock_quantity',
-        'is_available'
+        'active',
+    ];
+
+    protected $casts = [
+        'type' => ProductType::class,
+        'price' => 'decimal:2',
+        'is_limited' => 'boolean',
+        'stock_quantity' => 'integer',
+        'active' => 'boolean',
     ];
 
     public function translations()
     {
         return $this->morphMany(Translation::class, 'translatable');
+    }
+
+    public function categories()
+    {
+        return $this->morphToMany(Category::class, 'categorizable');
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('default');
     }
 
     // 🔥 Helper

@@ -19,9 +19,9 @@ class Category extends Model implements HasMedia
 
     use InteractsWithMedia;
 
-    public function categories()
+    public function products()
     {
-        return $this->morphToMany(Category::class, 'categorizable');
+        return $this->morphedByMany(Product::class, 'categorizable');
     }
 
     // Translations for this model (e.g. `description` by locale).

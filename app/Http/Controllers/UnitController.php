@@ -56,7 +56,7 @@ class UnitController extends Controller
             // 'reserved_by' => 'nullable|string|max:255',
             // 'current_order_id' => 'nullable|integer',
             'position' => 'nullable|integer',
-            'fee_per_hour' => 'nullable|numeric|min:0|max:99999999.99',
+            'price_per_hour' => 'nullable|numeric|min:0|max:99999999.99',
         ]);
 
         if ($validated instanceof JsonResponse) {
@@ -83,7 +83,7 @@ class UnitController extends Controller
             // 'reserved_by' => 'nullable|string|max:255',
             // 'current_order_id' => 'nullable|integer',
             'position' => 'nullable|integer',
-            'fee_per_hour' => 'nullable|numeric|min:0|max:99999999.99',
+            'price_per_hour' => 'nullable|numeric|min:0|max:99999999.99',
         ]);
 
         if ($validated instanceof JsonResponse) {

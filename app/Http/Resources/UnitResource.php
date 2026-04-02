@@ -23,7 +23,7 @@ class UnitResource extends JsonResource
             'reserved_by' => $this->reserved_by,
             'current_order_id' => $this->current_order_id,
             'position' => $this->position,
-            'fee_per_hour' => $this->fee_per_hour,
+            'price_per_hour' => $this->price_per_hour,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'group' => $this->whenLoaded('group', function () {

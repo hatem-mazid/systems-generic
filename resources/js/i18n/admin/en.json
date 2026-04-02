@@ -86,6 +86,7 @@
         "Types": {
             "table": "Table",
             "room": "Room",
+            "billiard": "Billiard",
             "unknown": "-"
         },
         "Statuses": {
@@ -107,7 +108,7 @@
         "Type": "Type",
         "Capacity": "Capacity",
         "Position": "Position",
-        "FeePerHour": "Fee per hour",
+        "FeePerHour": "Price per hour",
         "Status": "Status",
         "Active": "Active",
         "Inactive": "Inactive",

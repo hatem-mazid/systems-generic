@@ -140,24 +140,24 @@
                     }}</label>
                     <InputNumber
                         id="unit-fee"
-                        v-model="form.fee_per_hour"
+                        v-model="form.price_per_hour"
                         class="w-full"
                         fluid
                         :min="0"
                         mode="decimal"
                         :min-fraction-digits="0"
                         :max-fraction-digits="2"
-                        :invalid="!!validation.fee_per_hour"
+                        :invalid="!!validation.price_per_hour"
                         :placeholder="$t('UnitsForm.FeePerHour')"
                     />
                     <Message
-                        v-if="validation.fee_per_hour"
+                        v-if="validation.price_per_hour"
                         severity="error"
                         size="small"
                         variant="simple"
                         class="mt-1"
                     >
-                        {{ validation.fee_per_hour[0] }}
+                        {{ validation.price_per_hour[0] }}
                     </Message>
                 </div>
 
@@ -246,7 +246,7 @@ type UnitFormState = {
     active: boolean;
     capacity: number | null;
     position: number | null;
-    fee_per_hour: number | null;
+    price_per_hour: number | null;
 };
 
 const form = ref<UnitFormState>({
@@ -256,12 +256,13 @@ const form = ref<UnitFormState>({
     active: true,
     capacity: null,
     position: 0,
-    fee_per_hour: null,
+    price_per_hour: null,
 });
 
 const typeOptions = computed(() => [
     { label: t("Units.Types.table"), value: UnitType.Table },
     { label: t("Units.Types.room"), value: UnitType.Room },
+    { label: t("Units.Types.billiard"), value: UnitType.Billiard },
 ]);
 
 const rawPrefillGroupId = route.query.unit_group_id;
@@ -291,10 +292,10 @@ function buildPayload(): UnitWritePayload {
         active: Boolean(form.value.active),
         capacity: normalizeOptionalNumber(form.value.capacity),
         position: normalizeOptionalNumber(form.value.position),
-        fee_per_hour: normalizeOptionalNumber(
-            form.value.fee_per_hour === null
+        price_per_hour: normalizeOptionalNumber(
+            form.value.price_per_hour === null
                 ? null
-                : Number(form.value.fee_per_hour)
+                : Number(form.value.price_per_hour)
         ),
     };
 }
@@ -307,10 +308,10 @@ function applyUnit(data: any) {
         active: Boolean(data.active),
         capacity: data.capacity ?? null,
         position: data.position ?? 0,
-        fee_per_hour:
-            data.fee_per_hour === null || data.fee_per_hour === undefined
+        price_per_hour:
+            data.price_per_hour === null || data.price_per_hour === undefined
                 ? null
-                : Number(data.fee_per_hour),
+                : Number(data.price_per_hour),
     };
 }
 

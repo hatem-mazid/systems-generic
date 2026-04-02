@@ -1,7 +1,8 @@
-Categories (polymorphic) (categorizables)
+# Categories (polymorphic) (categorizables)
+# Users
 Product
-Unit
-Unit groups
+# Unit
+# Unit groups
 Order
 OrderItem
 TimerSession

@@ -19,6 +19,8 @@ class OrderItem extends Model
     ];
 
     protected $casts = [
+        'price' => 'decimal:2',
+        'total' => 'decimal:2',
         'meta' => 'array',
     ];
 

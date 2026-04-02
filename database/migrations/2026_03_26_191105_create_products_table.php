@@ -24,12 +24,13 @@ return new class extends Migration
             ]);
 
             $table->decimal('price', 10, 2)->nullable();
-            $table->decimal('price_per_hour', 10, 2)->nullable();
+            // $table->decimal('price_per_hour', 10, 2)->nullable();
 
             $table->boolean('is_limited')->default(false);
             $table->integer('stock_quantity')->nullable();
 
-            $table->boolean('is_available')->default(true);
+            // $table->boolean('is_available')->default(true);
+            $table->boolean('active')->default(true);
 
             $table->timestamps();
         });

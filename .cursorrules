@@ -1,150 +1,254 @@
-# Spark Systems — Cafe POS
+# Spark Cafe System — Cursor Rules
 
-## Core System
+## 🧠 System Philosophy
 
-- Productized POS system for cafes/restaurants
-- Fast, touch-first interface
-- Minimal customization
-- Single-tenant now, multi-tenant later
-
----
-
-## Stack
-
-### Backend
-- Laravel (monolith)
-- Session-based authentication (Laravel Breeze)
-- Web routes for app
-- API routes only for testing/integrations
-
-### Frontend
-- Vue 3 (Composition API)
-- Vite
-- PrimeVue + Tailwind
-- SPA mounted inside Blade
+* Build fast, simple, repeatable systems
+* Avoid overengineering
+* Prefer clarity over flexibility
+* Backend = source of truth
+* Frontend = UI/UX only
 
 ---
 
-## Roles
+## ⚙️ Architecture
 
-- admin
-- accounting
-- waiter
-
-Use spatie/laravel-permission
-
-- Treat user as having one role
-- Always use `$user->roles`
-- Do not define custom role relations
+* Laravel (monolith)
+* Vue 3 SPA inside Blade
+* Session-based auth
+* No API tokens (for now)
 
 ---
 
-## Core Models
+## 🔐 Auth Rules
 
-### UnitGroup
-- id
-- name
-- position
-- is_active
+* Use Laravel session auth
+* All routes protected with `auth` middleware
+* Roles handled via spatie/laravel-permission
+* Vue Router guards are UX only (not security)
 
-### Unit
-- id
-- unit_group_id
-- name
-- capacity
-- is_active
-- is_available
-- current_order_id (nullable, no FK required)
-- position
+---
 
-### Order
-- id
-- unit_id
-- user_id
-- status (open, closed, cancelled)
-- total
-- opened_at
-- closed_at
+## 👥 Roles
 
-### OrderItem
-- id
-- order_id
-- product_id (nullable)
-- name (snapshot)
-- price (snapshot)
-- quantity
-- total
-- type (product, service, timer)
-- notes (nullable)
-- meta (json)
+* admin → full access
+* accounting → reports only
+* waiter → orders only
+
+---
+
+## 🧱 Core Models
 
 ### Product
-- id
-- name
-- description
-- type (physical, service_fixed, service_timer)
-- price
-- price_per_hour
-- is_available
-- is_limited
-- stock_quantity
 
-### TimerSession
-- id
-- unit_id
-- order_id
-- product_id
-- started_at
-- ended_at
-- duration_minutes
-- calculated_total
-
-### Expense
-- id
-- title
-- amount
-- spent_at
-- notes
-- user_id
-
-### Setting
-- id
-- key
-- value
-
-### Media
-- use spatie/laravel-medialibrary
+* type: physical | service_fixed | service_timer
+* optional stock (is_limited + stock_quantity)
+* has translations
+* has categories (polymorphic)
+* has media
 
 ---
 
-## Core Logic
+### Unit
 
-- Unit holds current active order via `current_order_id`
-- Order is the main entity
-- OrderItem stores final billing data (snapshot)
-- TimerSession tracks time only, not billing
-- On timer stop → create OrderItem
-
----
-
-## Translations
-
-- Use polymorphic `translations` table
-- Fields:
-  - locale
-  - key
-  - value
-  - translatable_type
-  - translatable_id
-
-- Always keep fallback value in main table
+* type: table | room | billiard
+* belongs to unit_group
+* has optional price_per_hour
+* represents physical place
 
 ---
 
-## Backend Rules
+### Order
 
-- Keep controllers thin
-- Use Eloquent relationships
-- Use helper methods for logic (e.g. isFree, isBusy)
-- Avoid complex queries in POS flow
-- Avoid unnecessary foreign keys during early development
+* belongs to unit
+* belongs to user (waiter)
+* hasMany OrderItems
+* hasMany TimerSessions
+* status: open | closed
+
+---
+
+### OrderItem
+
+* final invoice line
+* stores:
+
+  * product_id
+  * quantity
+  * price (snapshot)
+  * type
+
+---
+
+### TimerSession (CRITICAL)
+
+Represents time-based usage.
+
+Rules:
+
+* MUST belong to order
+* MUST have ONLY ONE of:
+
+  * product_id
+  * unit_id
+
+Fields:
+
+* start_time
+* end_time (nullable)
+* duration (nullable)
+* price_per_hour_snapshot
+* total_price (nullable)
+
+---
+
+## ⏱ Timer Logic
+
+### Start Timer
+
+* create TimerSession
+* set:
+
+  * order_id
+  * product_id OR unit_id
+  * start_time = now
+  * price_per_hour_snapshot
+
+---
+
+### Stop Timer
+
+* set end_time
+* calculate:
+
+  * duration (minutes)
+  * total_price = price_per_hour * duration
+
+---
+
+### Convert to OrderItem
+
+* create OrderItem:
+
+  * price = total_price
+  * type = "timer"
+
+* DO NOT depend on product/unit price later
+
+---
+
+## 🧾 Order Flow
+
+### 1. Create Order
+
+* created by waiter
+* linked to unit
+* status = open
+
+---
+
+### 2. Add Product
+
+* create OrderItem
+* snapshot price
+* decrease stock if limited
+
+---
+
+### 3. Start Timer
+
+* create TimerSession
+
+---
+
+### 4. Stop Timer
+
+* update TimerSession
+* calculate price
+
+---
+
+### 5. Add Timer to Invoice
+
+* convert TimerSession → OrderItem
+
+---
+
+### 6. Close Order
+
+* set status = closed
+* set closed_at
+
+---
+
+## 🌍 Translations System
+
+* single `translations` table (polymorphic)
+
+Fields:
+
+* locale
+* key (name, description)
+* value
+
+Rules:
+
+* always keep fallback fields in main table
+* only translate:
+
+  * name
+  * description
+
+---
+
+## 🧩 Categories
+
+* polymorphic (categorizables)
+* used mainly for products
+* flat structure (no nesting)
+
+---
+
+## 💰 Stock Rules
+
+* only apply if `is_limited = true`
+* check before adding to order
+* decrement on add
+
+---
+
+## 🚫 What NOT to Build
+
+* no inventory system
+* no payments system
+* no discounts system
+* no multi-warehouse
+* no complex permissions
+
+---
+
+## 🎯 Frontend Rules (Vue)
+
+* use router for navigation only
+* no business logic in frontend
+* use big touch-friendly UI
+* no hover-based interactions
+* keep actions immediate
+
+---
+
+## 🧭 Development Priority
+
+1. Units screen (POS entry)
+2. Orders flow
+3. Timer logic
+4. Product management
+5. Categories
+6. Reports (later)
+
+---
+
+## ⚡ Key Principle
+
+"Everything must lead to a fast POS flow."
+
+If something slows the waiter → remove or simplify it.

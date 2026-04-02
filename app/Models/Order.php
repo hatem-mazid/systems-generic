@@ -16,6 +16,7 @@ class Order extends Model
     ];
 
     protected $casts = [
+        'total' => 'decimal:2',
         'opened_at' => 'datetime',
         'closed_at' => 'datetime',
     ];
@@ -34,6 +35,11 @@ class Order extends Model
     public function items()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function timerSessions()
+    {
+        return $this->hasMany(TimerSession::class);
     }
 
     public function user()

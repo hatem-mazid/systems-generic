@@ -12,7 +12,7 @@ export interface Unit {
     reserved_by?: string;
     current_order_id?: number;
     position?: number;
-    fee_per_hour?: string;
+    price_per_hour?: string;
     created_at?: string;
     updated_at?: string;
     group?: {
@@ -30,6 +30,7 @@ export interface Unit {
 export enum UnitType {
     Table = "table",
     Room = "room",
+    Billiard = "billiard",
 }
 
 export enum UnitStatus {
@@ -47,5 +48,5 @@ export interface UnitWritePayload {
     active: boolean;
     capacity?: number | null;
     position?: number | null;
-    fee_per_hour?: number | string | null;
+    price_per_hour?: number | string | null;
 }

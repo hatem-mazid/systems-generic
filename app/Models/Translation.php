@@ -8,8 +8,10 @@ class Translation extends Model
 {
     protected $fillable = [
         'locale',
+        'translatable_type',
+        'translatable_id',
         'key',
-        'value'
+        'value',
     ];
 
     public function translatable()
