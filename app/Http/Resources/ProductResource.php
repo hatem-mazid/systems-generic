@@ -31,17 +31,21 @@ class ProductResource extends JsonResource
                 })->values()->all();
             }),
             'media' => $this->whenLoaded('media', function () {
-                return $this->media->map(function ($item) {
-                    return [
-                        'id' => $item->id,
-                        'collection_name' => $item->collection_name,
-                        'name' => $item->name,
-                        'file_name' => $item->file_name,
-                        'mime_type' => $item->mime_type,
-                        'size' => $item->size,
-                        'url' => $item->getUrl(),
-                    ];
-                })->values()->all();
+                return $this->media
+                    ->sortByDesc(fn ($item) => (bool) $item->getCustomProperty('is_default'))
+                    ->values()
+                    ->map(function ($item) {
+                        return [
+                            'id' => $item->id,
+                            'collection_name' => $item->collection_name,
+                            'name' => $item->name,
+                            'file_name' => $item->file_name,
+                            'mime_type' => $item->mime_type,
+                            'size' => $item->size,
+                            'url' => $item->getUrl(),
+                            'is_default' => (bool) $item->getCustomProperty('is_default'),
+                        ];
+                    })->all();
             }),
             'categories' => $this->whenLoaded('categories', function () {
                 return $this->categories->map(function ($category) {

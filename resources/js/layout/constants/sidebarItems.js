@@ -1,6 +1,7 @@
 export const SIDEBAR_TITLES = {
     Dashboard: "Sidebar.Dashboard",
     Categories: "Sidebar.Categories",
+    Products: "Sidebar.Products",
     UnitGroups: "Sidebar.UnitGroups",
     UnitsManagement: "Sidebar.UnitsManagement",
     Users: "Sidebar.Users",
@@ -17,6 +18,12 @@ export const sidebarItems = [
         icon: "pi pi-tags",
         title: SIDEBAR_TITLES.Categories,
         to: "/categories",
+        permission: null,
+    },
+    {
+        icon: "pi pi-shopping-bag",
+        title: SIDEBAR_TITLES.Products,
+        to: "/products",
         permission: null,
     },
     {

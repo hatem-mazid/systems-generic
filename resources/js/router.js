@@ -30,6 +30,18 @@ const routes = [
         component: () => import("./pages/categories/[id].vue"),
     },
     {
+        path: "/products",
+        component: () => import("./pages/products/index.vue"),
+    },
+    {
+        path: "/products/create",
+        component: () => import("./pages/products/create.vue"),
+    },
+    {
+        path: "/products/:id(\\d+)",
+        component: () => import("./pages/products/[id].vue"),
+    },
+    {
         path: "/unit-groups-setup",
         component: () => import("./pages/unitGroups/index.vue"),
     },

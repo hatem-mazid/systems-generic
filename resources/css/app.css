@@ -4,5 +4,8 @@
 @tailwind base;
 @tailwind components;
 
+:root {
+    --p-card-body-padding: 0.75rem !important;
+}
 
 @tailwind utilities;

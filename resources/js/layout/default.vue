@@ -1,11 +1,7 @@
 <template>
     <div class="default-layout">
         <!-- TODO lang: based on dir -->
-        <sidebar
-            v-model:minimize="minimize"
-            :is-modal="isModal"
-            v-model:show="show"
-        />
+        <sidebar />
 
         <div :class="['ps-20 min-h-screen flex flex-col transition-all']">
             <div class="p-4">

@@ -61,18 +61,6 @@ import { useUserStore } from "@/stores/user";
 
 const { hasPermission } = useUserStore();
 
-const props = defineProps({
-    isModal: {
-        type: Boolean,
-        requierd: true,
-    },
-});
-
 const show = defineModel("show");
-// const minimize = defineModel('minimize');
 const minimize = false;
-
-const closeDrawer = () => {
-    if (props.isModal) show.value = false;
-};
 </script>
