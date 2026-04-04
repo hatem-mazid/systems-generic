@@ -41,5 +41,6 @@ class DatabaseSeeder extends Seeder
         $account->assignRole('accounting');
         $waiter->assignRole('waiter');
 
+        $this->call(OrdersSeeder::class);
     }
 }
