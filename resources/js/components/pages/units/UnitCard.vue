@@ -1,19 +1,14 @@
 <template>
     <div
-        class="rounded-lg border bg-white border-surface-200 p-3 dark:border-surface-700 dark:bg-surface-800"
+        class="rounded-lg border bg-white border-surface-200 p-3 dark:border-surface-700 dark:bg-surface-800 flex flex-col gap-2"
+        :class="{ 'opacity-75': !canEditOrDelete }"
     >
         <div class="flex items-center justify-between gap-3">
-            <div class="min-w-0 flex items-center gap-2">
-                <i
-                    :class="typeIconClass"
-                    class="text-lg text-surface-700 dark:text-surface-200"
-                />
-                <p
-                    class="truncate font-medium text-surface-900 dark:text-surface-0"
-                >
-                    {{ unit.name || "-" }}
-                </p>
-            </div>
+            <p
+                class="truncate font-medium text-surface-900 dark:text-surface-0"
+            >
+                {{ unit.name || "-" }}
+            </p>
             <Tag
                 :value="$t(`Units.ActiveStates.${activeLabel}`)"
                 :severity="activeSeverity"
@@ -21,30 +16,46 @@
             />
         </div>
 
-        <div class="mt-2 flex items-center gap-2">
-            <span class="text-xs text-surface-500 dark:text-surface-400"
+        <div class="flex items-center gap-2">
+            <!-- <span class="text-xs text-surface-500 dark:text-surface-400"
                 >{{ $t("Units.Type") }}:</span
-            >
+            > -->
+            <i
+                :class="typeIconClass"
+                class="!text-xl text-surface-700 dark:text-surface-200"
+            />
             <Tag
+                class="shrink-0 !text-xs"
                 :value="$t(`Units.Types.${typeLabel}`)"
                 :severity="typeSeverity"
                 rounded
             />
         </div>
 
-        <div
-            class="mt-2 space-y-1 text-sm text-surface-600 dark:text-surface-300"
-        >
-            <p>{{ $t("Units.Position") }}: {{ unit.position ?? "-" }}</p>
-            <p>{{ $t("Units.Capacity") }}: {{ unit.capacity ?? "-" }}</p>
-            <p>
-                {{ $t("Units.Status") }}:
-                {{ $t(`Units.Statuses.${statusLabel}`) }}
+        <div class="flex items-center gap-2">
+            <span class="text-sm text-surface-600 dark:text-surface-300"
+                >{{ $t("Units.Status") }}:</span
+            >
+            <Tag
+                class="shrink-0 !text-xs"
+                :value="statusTagDisplay"
+                :severity="statusTagSeverity"
+                rounded
+            />
+        </div>
+
+        <div class="space-y-1 text-sm text-surface-600 dark:text-surface-300">
+            <p v-if="unit.position != null">
+                {{ $t("Units.Position") }}: {{ unit.position }}
+            </p>
+            <p v-if="unit.capacity != null">
+                {{ $t("Units.Capacity") }}: {{ unit.capacity }}
             </p>
         </div>
 
-        <div class="mt-3 flex items-center justify-end gap-2">
+        <div class="flex items-center justify-end gap-2">
             <Button
+                v-if="canEditOrDelete"
                 as="router-link"
                 :to="`/units/${unit.id}`"
                 size="large"
@@ -54,15 +65,32 @@
                 icon="pi pi-pencil"
                 :aria-label="$t('Edit')"
             />
-            <DeleteUnitButton :unit="unit" @deleted="$emit('deleted')" />
+            <Button
+                v-else
+                size="large"
+                rounded
+                outlined
+                severity="info"
+                icon="pi pi-pencil"
+                disabled
+                :aria-label="$t('Edit')"
+            />
+            <DeleteUnitButton
+                :unit="unit"
+                :disabled="!canEditOrDelete"
+                @deleted="$emit('deleted')"
+            />
         </div>
     </div>
 </template>
 
 <script setup>
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { UnitStatus, UnitType } from "../../../apis/services/units/units.type";
 import DeleteUnitButton from "./DeleteUnitButton.vue";
+
+const { t } = useI18n();
 
 const props = defineProps({
     unit: {
@@ -89,6 +117,15 @@ const typeIconClass = computed(() => {
     return "pi pi-box";
 });
 
+/** Edit/delete only when operational status is available. */
+const canEditOrDelete = computed(() => {
+    const raw = props.unit?.status;
+    if (raw === undefined || raw === null || String(raw).trim() === "") {
+        return true;
+    }
+    return String(raw).trim().toLowerCase() === UnitStatus.Available;
+});
+
 const statusLabel = computed(() => {
     const value = props.unit?.status;
     if (value !== undefined && value !== null && String(value).trim() !== "") {
@@ -108,6 +145,37 @@ const statusLabel = computed(() => {
         return String(value);
     }
     return props.unit?.active ? "available" : "inactive";
+});
+
+const statusTagKey = computed(() => {
+    const known = ["available", "reserved", "occupied", "inactive"];
+    const lower = String(statusLabel.value).trim().toLowerCase();
+    if (known.includes(lower)) {
+        return lower;
+    }
+    return "unknown";
+});
+
+const statusTagDisplay = computed(() => {
+    if (statusTagKey.value === "unknown") {
+        return String(props.unit?.status ?? statusLabel.value ?? "-");
+    }
+    return t(`Units.Statuses.${statusTagKey.value}`);
+});
+
+const statusTagSeverity = computed(() => {
+    switch (statusTagKey.value) {
+        case "available":
+            return "success";
+        case "reserved":
+            return "warn";
+        case "occupied":
+            return "danger";
+        case "inactive":
+            return "info";
+        default:
+            return "secondary";
+    }
 });
 
 const activeLabel = computed(() =>

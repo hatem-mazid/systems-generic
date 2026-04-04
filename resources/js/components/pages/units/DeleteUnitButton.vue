@@ -6,7 +6,7 @@
         severity="danger"
         icon="pi pi-trash"
         :loading="deleting"
-        :disabled="deleting || !unit?.id"
+        :disabled="disabled || deleting || !unit?.id"
         :aria-label="$t('Delete')"
         @click="onDelete"
     />
@@ -24,6 +24,10 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    disabled: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const emit = defineEmits(["deleted"]);
@@ -34,6 +38,9 @@ const { t } = useI18n();
 const deleting = ref(false);
 
 const onDelete = () => {
+    if (props.disabled) {
+        return;
+    }
     confirm.require({
         message: t("Units.DeleteMessage", {
             name: props.unit?.name || t("Units.ThisUnit"),
