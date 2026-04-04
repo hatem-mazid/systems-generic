@@ -39,6 +39,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('/api/products', ProductController::class);
 
+    Route::resource('/api/orders', OrderController::class);
+
     Route::get('/{any}', function () {
         return view('welcome');
     })->where('any', '.*');
