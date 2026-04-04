@@ -24,10 +24,11 @@ return new class extends Migration
                 ->nullOnDelete();
 
             $table->string('status')->default('open');
-            // open | closed | cancelled
+            // open | pending | closed | cancelled
 
             $table->decimal('total', 10, 2)->default(0);
 
+            $table->timestamp('reserved_at')->nullable();
             $table->timestamp('opened_at')->nullable();
             $table->timestamp('closed_at')->nullable();
 
