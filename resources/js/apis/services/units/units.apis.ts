@@ -28,18 +28,18 @@ export const unitsService = {
     deleteUnit: async (id: string | number): Promise<AxiosResponse<void>> => {
         return http.delete(`/api/units/${id}`);
     },
-    // startOrder: async (id: string | number): Promise<AxiosResponse<unknown>> => {
-    //     return http.post(`/api/units/${id}/start-order`);
-    // },
-    // reserveUnit: async (id: string | number): Promise<AxiosResponse<unknown>> => {
-    //     return http.post(`/api/units/${id}/reserve`);
-    // },
-    // closeUnit: async (id: string | number): Promise<AxiosResponse<unknown>> => {
-    //     return http.post(`/api/units/${id}/close`);
-    // },
-    // cancelUnitReservation: async (
-    //     id: string | number
-    // ): Promise<AxiosResponse<unknown>> => {
-    //     return http.post(`/api/units/${id}/cancel-reservation`);
-    // },
+    startOrder: async (id: string | number): Promise<AxiosResponse<unknown>> => {
+        return http.post(`/api/units/${id}/start-order`);
+    },
+    reserveUnit: async (id: string | number): Promise<AxiosResponse<unknown>> => {
+        return http.post(`/api/units/${id}/reserve`);
+    },
+    closeUnit: async (id: string | number): Promise<AxiosResponse<unknown>> => {
+        return http.post(`/api/units/${id}/close`);
+    },
+    cancelUnitReservation: async (
+        id: string | number
+    ): Promise<AxiosResponse<unknown>> => {
+        return http.post(`/api/units/${id}/cancel-reservation`);
+    },
 };

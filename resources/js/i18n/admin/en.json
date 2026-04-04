@@ -46,7 +46,33 @@
         "Dashboard": "Dashboard",
         "Categories": "Categories",
         "UnitGroups": "Unit Settings",
+        "UnitsManagement": "Units Management",
         "Users": "Users"
+    },
+    "UnitsManagement": {
+        "more": "More actions",
+        "actionError": "Action could not be completed.",
+        "noCurrentOrder": "No order linked to this unit.",
+        "transferPlaceholder": "Transfer guests — this screen will be expanded later.",
+        "actions": {
+            "addReservation": "Add reservation",
+            "startOrder": "Start order",
+            "editReservationTime": "Edit reservation time",
+            "cancelReservation": "Cancel reservation",
+            "start": "Start",
+            "viewOrder": "View order",
+            "changeStatus": "Change status",
+            "editDetails": "Edit details",
+            "removeUnit": "Remove unit",
+            "completeCheckout": "Complete checkout",
+            "transferGuests": "Transfer guests"
+        }
+    },
+    "Orders": {
+        "PlaceholderTitle": "Order #{id}"
+    },
+    "Reservations": {
+        "PlaceholderTitle": "Reservation (create)"
     },
     "UnitGroupsList": {
         "DeleteTitle": "Delete unit group",

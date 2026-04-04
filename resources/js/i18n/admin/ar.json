@@ -46,7 +46,33 @@
         "Dashboard": "لوحة التحكم",
         "Categories": "التصنيفات",
         "UnitGroups": "إعدادات الوحدات",
+        "UnitsManagement": "إدارة الوحدات",
         "Users": "المستخدمين"
+    },
+    "UnitsManagement": {
+        "more": "المزيد من الإجراءات",
+        "actionError": "تعذر تنفيذ الإجراء.",
+        "noCurrentOrder": "لا يوجد طلب مرتبط بهذه الوحدة.",
+        "transferPlaceholder": "نقل الضيوف — ستُضاف الشاشة لاحقًا.",
+        "actions": {
+            "addReservation": "إضافة حجز",
+            "startOrder": "بدء طلب",
+            "editReservationTime": "تعديل وقت الحجز",
+            "cancelReservation": "إلغاء الحجز",
+            "start": "بدء",
+            "viewOrder": "عرض الطلب",
+            "changeStatus": "تغيير الحالة",
+            "editDetails": "تعديل التفاصيل",
+            "removeUnit": "إزالة الوحدة",
+            "completeCheckout": "إتمام الدفع",
+            "transferGuests": "نقل الضيوف"
+        }
+    },
+    "Orders": {
+        "PlaceholderTitle": "طلب رقم {id}"
+    },
+    "Reservations": {
+        "PlaceholderTitle": "حجز (إنشاء)"
     },
     "UnitGroupsList": {
         "DeleteTitle": "حذف مجموعة وحدات",

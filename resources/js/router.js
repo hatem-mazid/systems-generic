@@ -41,10 +41,25 @@ const routes = [
         path: "/unit-groups-setup/:id",
         component: () => import("./pages/unitGroups/[id].vue"),
     },
-
+    {
+        path: "/units-management",
+        component: () => import("./pages/unitsManagement/index.vue"),
+    },
+    {
+        path: "/orders/:id",
+        component: () => import("./pages/orders/[id].vue"),
+    },
+    {
+        path: "/reservations/create",
+        component: () => import("./pages/reservations/create.vue"),
+    },
     {
         path: "/units/create",
         component: () => import("./pages/units/create.vue"),
+    },
+    {
+        path: "/units/transfer",
+        component: () => import("./pages/units/transfer.vue"),
     },
     {
         path: "/units/:id",
