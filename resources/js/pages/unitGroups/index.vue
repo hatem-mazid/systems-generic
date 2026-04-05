@@ -1,8 +1,10 @@
 <template>
-    <div>
-        <div class="flex justify-between">
+    <div class="touch-manipulation">
+        <div
+            class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+        >
             <h1
-                class="text-2xl text-surface-800 font-semibold dark:text-surface-100"
+                class="text-2xl text-surface-800 font-semibold dark:text-surface-100 sm:text-3xl"
             >
                 {{ $t("Sidebar.UnitGroups") }}
             </h1>
@@ -10,13 +12,14 @@
             <Button
                 to="/unit-groups-setup/create"
                 as="router-link"
-                size="lg"
+                size="large"
+                class="min-h-[48px] w-full shrink-0 sm:w-auto"
                 :label="$t('Add Unit Group')"
                 icon="pi pi-plus"
             />
         </div>
 
-        <div class="mt-4 space-y-6">
+        <div class="mt-8 min-w-0 space-y-6">
             <Skeleton
                 v-if="isLoading"
                 v-for="n in 4"
@@ -36,7 +39,7 @@
 
                 <div
                     v-if="!unitGroups.length"
-                    class="rounded-xl border border-dashed border-surface-300 p-6 text-center text-surface-600 dark:border-surface-600 dark:text-surface-300"
+                    class="rounded-xl border border-dashed border-surface-300 p-8 text-center text-surface-600 dark:border-surface-600 dark:text-surface-300"
                 >
                     {{ $t("UnitGroupsList.Empty") }}
                 </div>
@@ -44,9 +47,9 @@
         </div>
 
         <Paginator
-            class="mt-5 bg-transparent"
+            class="pagination-touch mt-6 bg-transparent"
             :rows="paginator.per_page"
-            :totalRecords="paginator.total"
+            :total-records="paginator.total"
             :first="(paginator.current_page - 1) * paginator.per_page"
             @page="onPageChange"
         />

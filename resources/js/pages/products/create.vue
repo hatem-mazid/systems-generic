@@ -1,5 +1,7 @@
 <template>
-    <ProductForm />
+    <div class="touch-manipulation">
+        <ProductForm />
+    </div>
 </template>
 
 <script setup>

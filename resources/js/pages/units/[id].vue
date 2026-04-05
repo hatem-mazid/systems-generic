@@ -1,5 +1,7 @@
 <template>
-    <UnitForm :unit-id="unitId" />
+    <div class="touch-manipulation">
+        <UnitForm :unit-id="unitId" />
+    </div>
 </template>
 
 <script setup lang="ts">

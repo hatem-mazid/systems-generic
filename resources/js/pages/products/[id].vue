@@ -1,5 +1,7 @@
 <template>
-    <ProductForm :product-id="productId" />
+    <div class="touch-manipulation">
+        <ProductForm :product-id="productId" />
+    </div>
 </template>
 
 <script setup>

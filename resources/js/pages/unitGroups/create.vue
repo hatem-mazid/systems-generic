@@ -3,5 +3,7 @@ import UnitGroupsForm from "../../components/pages/unitGroups/UnitGroupsForm.vue
 </script>
 
 <template>
-    <UnitGroupsForm />
+    <div class="touch-manipulation">
+        <UnitGroupsForm />
+    </div>
 </template>

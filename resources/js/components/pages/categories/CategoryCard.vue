@@ -5,7 +5,7 @@
         <template #content>
             <div class="flex flex-col gap-3 p-1">
                 <div
-                    class="h-36 w-full overflow-hidden rounded-lg bg-surface-200 dark:bg-surface-700"
+                    class="aspect-video w-full overflow-hidden rounded-lg bg-surface-200 dark:bg-surface-700"
                 >
                     <img
                         v-if="categoryImage"

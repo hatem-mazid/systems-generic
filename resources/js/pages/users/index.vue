@@ -1,8 +1,10 @@
 <template>
-    <div class="">
-        <div class="flex justify-between">
+    <div class="touch-manipulation">
+        <div
+            class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+        >
             <h1
-                class="text-2xl text-surface-800 font-semibold dark:text-surface-100"
+                class="text-2xl text-surface-800 font-semibold dark:text-surface-100 sm:text-3xl"
             >
                 {{ $t("Users") }}
             </h1>
@@ -10,41 +12,47 @@
             <Button
                 to="/users/create"
                 as="router-link"
-                size="lg"
+                size="large"
+                class="min-h-[48px] w-full shrink-0 sm:w-auto"
                 :label="$t('Add User')"
                 icon="pi pi-plus"
             />
         </div>
-        <div
-            class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-        >
-            <Skeleton
-                v-if="isLoading"
-                v-for="n in paginator.per_page"
-                :key="'sk-' + n"
-                width="100%"
-                height="220px"
-                class="rounded-2xl"
-            />
 
-            <UserCard
-                v-else
-                v-for="user in users"
-                :key="user.id"
-                :user="user"
-                :deleting="deletingId === user.id"
-                :disable-delete="deletingId !== null && deletingId !== user.id"
-                @delete="confirmDelete"
+        <div class="mt-8 min-w-0">
+            <div
+                class="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4"
+            >
+                <Skeleton
+                    v-if="isLoading"
+                    v-for="n in paginator.per_page"
+                    :key="'sk-' + n"
+                    width="100%"
+                    height="220px"
+                    class="rounded-2xl"
+                />
+
+                <UserCard
+                    v-else
+                    v-for="user in users"
+                    :key="user.id"
+                    :user="user"
+                    :deleting="deletingId === user.id"
+                    :disable-delete="
+                        deletingId !== null && deletingId !== user.id
+                    "
+                    @delete="confirmDelete"
+                />
+            </div>
+
+            <Paginator
+                class="pagination-touch mt-6 bg-transparent"
+                :rows="paginator.per_page"
+                :total-records="paginator.total"
+                :first="(paginator.current_page - 1) * paginator.per_page"
+                @page="onPageChange"
             />
         </div>
-
-        <Paginator
-            class="mt-5 bg-transparent"
-            :rows="paginator.per_page"
-            :totalRecords="paginator.total"
-            :first="(paginator.current_page - 1) * paginator.per_page"
-            @page="onPageChange"
-        />
     </div>
 </template>
 

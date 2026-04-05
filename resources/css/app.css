@@ -9,3 +9,30 @@
 }
 
 @tailwind utilities;
+
+/*
+|--------------------------------------------------------------------------
+| Touch / kiosk (shared)
+|--------------------------------------------------------------------------
+| Use class "pagination-touch" on PrimeVue Paginator for larger tap targets.
+*/
+.pagination-touch [data-pc-group-section="pagebutton"] {
+    min-height: 3rem;
+    min-width: 3rem;
+}
+
+.pagination-touch [data-pc-group-section="pagebutton"] svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.pagination-touch .p-paginator-pages button {
+    min-height: 3rem;
+    min-width: 3rem;
+    font-size: 1rem;
+}
+
+/* Used on page roots; keeps Tailwind-free fallback for touch-action */
+.touch-manipulation {
+    touch-action: manipulation;
+}

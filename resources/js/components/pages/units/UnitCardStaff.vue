@@ -19,7 +19,12 @@
                 :disabled="!menuItems.length"
                 @click="toggleMenu"
             />
-            <Menu ref="menuRef" :model="menuItems" popup />
+            <Menu
+                ref="menuRef"
+                :model="menuItems"
+                popup
+                :pt="touchMenuPt"
+            />
         </div>
 
         <div class="flex items-center gap-2">
@@ -82,6 +87,22 @@ const confirm = useConfirm();
 const toast = useToast();
 
 const menuRef = ref();
+
+/** Larger rows / hit targets for touch screens (popup menu is portaled). */
+const touchMenuPt = {
+    root: { class: "touch-manipulation" },
+    list: { class: "min-w-[min(100vw-2rem,20rem)] py-1" },
+    item: { class: "my-0.5" },
+    itemLink: {
+        class: "min-h-[48px] items-center gap-3 py-3 pe-4 ps-3 text-base leading-snug",
+    },
+    itemIcon: {
+        class: "!text-xl !leading-none",
+    },
+    itemLabel: {
+        class: "!text-base",
+    },
+};
 
 const toggleMenu = (event) => {
     menuRef.value?.toggle(event);

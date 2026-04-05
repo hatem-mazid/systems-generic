@@ -1,5 +1,7 @@
 <template>
-    <CategoryForm :category-id="categoryId" />
+    <div class="touch-manipulation">
+        <CategoryForm :category-id="categoryId" />
+    </div>
 </template>
 
 <script setup lang="ts">

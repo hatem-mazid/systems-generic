@@ -3,5 +3,7 @@ import UserForm from "../../components/pages/users/userForm.vue";
 </script>
 
 <template>
-    <UserForm />
+    <div class="touch-manipulation">
+        <UserForm />
+    </div>
 </template>

@@ -3,5 +3,7 @@ import UnitForm from "../../components/pages/units/UnitForm.vue";
 </script>
 
 <template>
-    <UnitForm />
+    <div class="touch-manipulation">
+        <UnitForm />
+    </div>
 </template>

@@ -5,7 +5,7 @@
         <template #content>
             <div class="flex touch-manipulation flex-col gap-3 p-2 sm:p-3">
                 <div
-                    class="relative aspect-square w-full overflow-hidden rounded-lg bg-surface-200 dark:bg-surface-700"
+                    class="relative aspect-video w-full overflow-hidden rounded-lg bg-surface-200 dark:bg-surface-700"
                 >
                     <div
                         v-if="galleryItems.length > 1"

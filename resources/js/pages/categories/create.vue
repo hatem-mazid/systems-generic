@@ -3,5 +3,7 @@ import CategoryForm from "../../components/pages/categories/CategoryForm.vue";
 </script>
 
 <template>
-    <CategoryForm />
+    <div class="touch-manipulation">
+        <CategoryForm />
+    </div>
 </template>

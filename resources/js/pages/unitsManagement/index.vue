@@ -1,8 +1,10 @@
 <template>
-    <div>
-        <div class="flex justify-between">
+    <div class="touch-manipulation">
+        <div
+            class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+        >
             <h1
-                class="text-2xl text-surface-800 font-semibold dark:text-surface-100"
+                class="text-2xl text-surface-800 font-semibold dark:text-surface-100 sm:text-3xl"
             >
                 {{ $t("Sidebar.UnitsManagement") }}
             </h1>
@@ -11,13 +13,14 @@
                 v-if="isAdmin"
                 to="/unit-groups-setup/create"
                 as="router-link"
-                size="lg"
+                size="large"
+                class="min-h-[48px] w-full shrink-0 sm:w-auto"
                 :label="$t('Add Unit Group')"
                 icon="pi pi-plus"
             />
         </div>
 
-        <div class="mt-4">
+        <div class="mt-8 min-w-0">
             <Skeleton
                 v-if="isLoading"
                 v-for="n in 4"
@@ -28,20 +31,25 @@
             />
 
             <template v-else-if="unitGroups.length">
-                <Tabs v-model:value="activeTab" class="units-management-tabs">
-                    <TabList class="flex flex-wrap gap-1">
+                <Tabs
+                    v-model:value="activeTab"
+                    class="units-management-tabs touch-manipulation"
+                >
+                    <TabList class="flex flex-wrap gap-2">
                         <Tab
                             v-for="g in unitGroups"
                             :key="g.id"
                             :value="String(g.id)"
-                            class="max-w-[min(100%,14rem)]"
+                            class="max-w-[min(100%,16rem)]"
                         >
                             <span class="block truncate" :title="g.name">{{
                                 g.name || "—"
                             }}</span>
                         </Tab>
                     </TabList>
-                    <TabPanels class="mt-4 rounded-xl border border-surface-200 bg-surface-0 p-4 dark:border-surface-700 dark:bg-surface-900">
+                    <TabPanels
+                        class="mt-4 rounded-xl border border-surface-200 bg-surface-0 p-4 sm:p-5 dark:border-surface-700 dark:bg-surface-900"
+                    >
                         <TabPanel
                             v-for="g in unitGroups"
                             :key="'p-' + g.id"
@@ -60,16 +68,16 @@
 
             <div
                 v-else
-                class="rounded-xl border border-dashed border-surface-300 p-6 text-center text-surface-600 dark:border-surface-600 dark:text-surface-300"
+                class="rounded-xl border border-dashed border-surface-300 p-8 text-center text-surface-600 dark:border-surface-600 dark:text-surface-300"
             >
                 {{ $t("UnitGroupsList.Empty") }}
             </div>
         </div>
 
         <Paginator
-            class="mt-5 bg-transparent"
+            class="pagination-touch mt-6 bg-transparent"
             :rows="paginator.per_page"
-            :totalRecords="paginator.total"
+            :total-records="paginator.total"
             :first="(paginator.current_page - 1) * paginator.per_page"
             @page="onPageChange"
         />
@@ -158,3 +166,15 @@ onMounted(() => {
     fetchUnitGroups();
 });
 </script>
+
+<style scoped>
+.units-management-tabs :deep(.p-tablist-tab-list) {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.units-management-tabs :deep(.p-tab) {
+    min-height: 3rem;
+    padding-inline: 1rem;
+}
+</style>

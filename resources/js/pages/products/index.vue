@@ -138,7 +138,7 @@
 
     <div class="mt-8 min-w-0">
       <div
-        class="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3"
+        class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 sm:gap-5"
       >
         <Skeleton
           v-if="isLoading"
@@ -177,23 +177,6 @@
     </div>
   </div>
 </template>
-
-<style scoped>
-/* Touch / kiosk: larger paginator hit targets (first/prev/next/last + page numbers). */
-.pagination-touch :deep([data-pc-group-section="pagebutton"]) {
-  min-height: 3rem;
-  min-width: 3rem;
-}
-.pagination-touch :deep([data-pc-group-section="pagebutton"] svg) {
-  width: 1.25rem;
-  height: 1.25rem;
-}
-.pagination-touch :deep(.p-paginator-pages button) {
-  min-height: 3rem;
-  min-width: 3rem;
-  font-size: 1rem;
-}
-</style>
 
 <script setup>
 import { useDebounceFn } from "@vueuse/core";

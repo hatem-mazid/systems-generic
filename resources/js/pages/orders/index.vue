@@ -145,22 +145,6 @@
     </div>
 </template>
 
-<style scoped>
-.pagination-touch :deep([data-pc-group-section="pagebutton"]) {
-    min-height: 3rem;
-    min-width: 3rem;
-}
-.pagination-touch :deep([data-pc-group-section="pagebutton"] svg) {
-    width: 1.25rem;
-    height: 1.25rem;
-}
-.pagination-touch :deep(.p-paginator-pages button) {
-    min-height: 3rem;
-    min-width: 3rem;
-    font-size: 1rem;
-}
-</style>
-
 <script setup>
 import { Button } from "primevue";
 import DatePicker from "primevue/datepicker";

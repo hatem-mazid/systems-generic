@@ -84,7 +84,7 @@
 
             <Column
                 :header="$t('OrdersList.ColumnActions')"
-                class="w-[4.5rem] text-end"
+                class="w-20 min-w-[5rem] text-end sm:w-24"
                 :exportable="false"
             >
                 <template #body="{ data }">
@@ -96,9 +96,8 @@
                             outlined
                             severity="secondary"
                             icon="pi pi-ellipsis-v"
-                            class="shrink-0"
+                            class="touch-manipulation min-h-[48px] min-w-[48px] shrink-0"
                             :aria-label="$t('OrdersList.MoreActions')"
-                            v-tooltip.top="$t('OrdersList.MoreActions')"
                             @click="openRowMenu($event, data)"
                         />
                     </div>
@@ -106,7 +105,12 @@
             </Column>
         </DataTable>
 
-        <Menu ref="rowMenu" :model="rowMenuItems" popup />
+        <Menu
+            ref="rowMenu"
+            :model="rowMenuItems"
+            popup
+            :pt="touchMenuPt"
+        />
     </div>
 </template>
 
@@ -142,6 +146,22 @@ const { t } = useI18n();
 
 const rowMenu = ref();
 const activeRow = ref(null);
+
+/** Larger rows / hit targets for touch (popup menu is portaled). */
+const touchMenuPt = {
+    root: { class: "touch-manipulation" },
+    list: { class: "min-w-[min(100vw-2rem,20rem)] py-1" },
+    item: { class: "my-0.5" },
+    itemLink: {
+        class: "min-h-[48px] items-center gap-3 py-3 pe-4 ps-3 text-base leading-snug",
+    },
+    itemIcon: {
+        class: "!text-xl !leading-none",
+    },
+    itemLabel: {
+        class: "!text-base",
+    },
+};
 
 const rowMenuItems = computed(() => {
     if (!activeRow.value) {
@@ -237,7 +257,7 @@ function statusSeverity(status) {
 
 .orders-table :deep(.p-datatable-tbody > tr > td) {
     vertical-align: middle;
-    padding-top: 0.375rem;
-    padding-bottom: 0.375rem;
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
 }
 </style>
