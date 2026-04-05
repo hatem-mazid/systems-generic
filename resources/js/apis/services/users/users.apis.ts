@@ -7,6 +7,7 @@ export const usersService = {
     getUsers: async (params?: {
         page?: number;
         per_page?: number;
+        role?: string;
     }): Promise<AxiosResponse<Items<User>>> => {
         return http.get<Items<User>>("/api/users", { params });
     },

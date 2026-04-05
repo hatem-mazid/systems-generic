@@ -49,6 +49,7 @@
         "Products": "المنتجات",
         "UnitGroups": "إعدادات الوحدات",
         "UnitsManagement": "إدارة الوحدات",
+        "Orders": "الطلبات",
         "Users": "المستخدمين"
     },
     "UnitsManagement": {
@@ -72,6 +73,62 @@
     },
     "Orders": {
         "PlaceholderTitle": "طلب رقم {id}"
+    },
+    "OrderDetail": {
+        "BackToList": "العودة إلى الطلبات",
+        "Title": "طلب #{id}",
+        "LoadError": "تعذر تحميل هذا الطلب.",
+        "SummaryTitle": "ملخص",
+        "LineItemsTitle": "بنود الطلب",
+        "GrandTotal": "الإجمالي",
+        "Qty": "الكمية",
+        "Notes": "ملاحظات",
+        "OpenedAt": "تاريخ الفتح",
+        "ClosedAt": "تاريخ الإغلاق",
+        "CreatedAt": "تاريخ الإنشاء",
+        "EmptyItems": "لا توجد بنود في هذا الطلب.",
+        "ItemTypes": {
+            "product": "منتج",
+            "service": "خدمة",
+            "timer": "مؤقت"
+        }
+    },
+    "OrdersList": {
+        "Title": "الطلبات",
+        "Empty": "لا توجد طلبات تطابق عوامل التصفية الحالية.",
+        "FilterDateFrom": "من تاريخ",
+        "FilterDateTo": "إلى تاريخ",
+        "FilterStatus": "الحالة",
+        "FilterStatusPlaceholder": "كل الحالات",
+        "FilterWaiter": "النادل",
+        "FilterWaiterPlaceholder": "كل النُدل",
+        "ClearFilters": "مسح عوامل التصفية",
+        "ColumnId": "المعرّف",
+        "ColumnUnit": "الوحدة",
+        "ColumnTotal": "الإجمالي",
+        "ColumnWaiter": "النادل",
+        "ColumnUserName": "اسم النادل",
+        "ColumnStatus": "الحالة",
+        "ColumnOpenedCreated": "الفتح / الإنشاء",
+        "OpenedShort": "فُتح",
+        "CreatedShort": "أُنشئ",
+        "ColumnActions": "إجراءات",
+        "MoreActions": "المزيد من الإجراءات",
+        "ViewOrder": "عرض الطلب",
+        "PrintInvoice": "طباعة الطلب كفاتورة",
+        "InvoiceTitle": "فاتورة طلب",
+        "LineName": "الصنف",
+        "LineQty": "الكمية",
+        "LinePrice": "السعر",
+        "LineTotal": "إجمالي السطر",
+        "AllStatuses": "كل الحالات",
+        "AllWaiters": "كل النُدل",
+        "Statuses": {
+            "open": "مفتوح",
+            "pending": "قيد الانتظار",
+            "closed": "مغلق",
+            "cancelled": "ملغى"
+        }
     },
     "Reservations": {
         "PlaceholderTitle": "حجز (إنشاء)"

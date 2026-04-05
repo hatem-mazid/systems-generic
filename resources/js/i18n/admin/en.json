@@ -49,6 +49,7 @@
         "Products": "Products",
         "UnitGroups": "Unit Settings",
         "UnitsManagement": "Units Management",
+        "Orders": "Orders",
         "Users": "Users"
     },
     "UnitsManagement": {
@@ -72,6 +73,62 @@
     },
     "Orders": {
         "PlaceholderTitle": "Order #{id}"
+    },
+    "OrderDetail": {
+        "BackToList": "Back to orders",
+        "Title": "Order #{id}",
+        "LoadError": "We could not load this order.",
+        "SummaryTitle": "Summary",
+        "LineItemsTitle": "Line items",
+        "GrandTotal": "Grand total",
+        "Qty": "Qty",
+        "Notes": "Notes",
+        "OpenedAt": "Opened",
+        "ClosedAt": "Closed",
+        "CreatedAt": "Created",
+        "EmptyItems": "No line items on this order.",
+        "ItemTypes": {
+            "product": "Product",
+            "service": "Service",
+            "timer": "Timer"
+        }
+    },
+    "OrdersList": {
+        "Title": "Orders",
+        "Empty": "No orders match the current filters.",
+        "FilterDateFrom": "From date",
+        "FilterDateTo": "To date",
+        "FilterStatus": "Status",
+        "FilterStatusPlaceholder": "All statuses",
+        "FilterWaiter": "Waiter",
+        "FilterWaiterPlaceholder": "All waiters",
+        "ClearFilters": "Clear filters",
+        "ColumnId": "ID",
+        "ColumnUnit": "Unit",
+        "ColumnTotal": "Total",
+        "ColumnWaiter": "Waiter",
+        "ColumnUserName": "User name",
+        "ColumnStatus": "Status",
+        "ColumnOpenedCreated": "Opened / created",
+        "OpenedShort": "Opened",
+        "CreatedShort": "Created",
+        "ColumnActions": "Actions",
+        "MoreActions": "More actions",
+        "ViewOrder": "View Order",
+        "PrintInvoice": "Print Order as Invoice",
+        "InvoiceTitle": "Order invoice",
+        "LineName": "Item",
+        "LineQty": "Qty",
+        "LinePrice": "Price",
+        "LineTotal": "Line total",
+        "AllStatuses": "All statuses",
+        "AllWaiters": "All waiters",
+        "Statuses": {
+            "open": "Open",
+            "pending": "Pending",
+            "closed": "Closed",
+            "cancelled": "Cancelled"
+        }
     },
     "Reservations": {
         "PlaceholderTitle": "Reservation (create)"

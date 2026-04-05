@@ -4,6 +4,7 @@ export const SIDEBAR_TITLES = {
     Products: "Sidebar.Products",
     UnitGroups: "Sidebar.UnitGroups",
     UnitsManagement: "Sidebar.UnitsManagement",
+    Orders: "Sidebar.Orders",
     Users: "Sidebar.Users",
 };
 
@@ -37,6 +38,12 @@ export const sidebarItems = [
         title: SIDEBAR_TITLES.UnitsManagement,
         to: "/units-management",
         permission: null,
+    },
+    {
+        icon: "pi pi-shopping-cart",
+        title: SIDEBAR_TITLES.Orders,
+        to: "/orders",
+        permission: "order index",
     },
     {
         icon: "pi pi-user",

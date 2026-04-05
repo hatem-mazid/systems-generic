@@ -58,6 +58,10 @@ const routes = [
         component: () => import("./pages/unitsManagement/index.vue"),
     },
     {
+        path: "/orders",
+        component: () => import("./pages/orders/index.vue"),
+    },
+    {
         path: "/orders/:id",
         component: () => import("./pages/orders/[id].vue"),
     },
