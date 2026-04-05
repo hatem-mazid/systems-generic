@@ -23,6 +23,25 @@ class OrderResource extends JsonResource
             'unit_name' => $this->whenLoaded('unit', fn () => $this->unit?->name),
             'items' => $this->whenLoaded('items', function () {
                 return $this->items->map(function ($item) {
+                    $product = $item->relationLoaded('product') ? $item->product : null;
+                    $primary = null;
+                    if ($product && $product->relationLoaded('media')) {
+                        $m = $product->media
+                            ->sortByDesc(fn ($x) => (bool) $x->getCustomProperty('is_default'))
+                            ->first();
+                        if ($m) {
+                            $primary = [
+                                'id' => $m->id,
+                                'collection_name' => $m->collection_name,
+                                'name' => $m->name,
+                                'file_name' => $m->file_name,
+                                'mime_type' => $m->mime_type,
+                                'size' => $m->size,
+                                'url' => $m->getUrl(),
+                            ];
+                        }
+                    }
+
                     return [
                         'id' => $item->id,
                         'product_id' => $item->product_id,
@@ -33,6 +52,7 @@ class OrderResource extends JsonResource
                         'total' => $item->total,
                         'type' => $item->type,
                         'meta' => $item->meta,
+                        'image' => $primary,
                         'created_at' => $item->created_at,
                         'updated_at' => $item->updated_at,
                     ];

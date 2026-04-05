@@ -28,7 +28,11 @@ class OrderController extends Controller
 
         $perPage = (int) ($validated['per_page'] ?? $request->integer('per_page', 15));
 
-        $query = Order::with(['user:id,name', 'unit:id,name', 'items']);
+        $query = Order::with([
+            'user:id,name',
+            'unit:id,name',
+            'items.product.media',
+        ]);
 
         if (array_key_exists('user_id', $validated) && $validated['user_id'] !== null) {
             $query->where('user_id', $validated['user_id']);
@@ -53,6 +57,10 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        return new OrderResource($order->load(['user:id,name', 'unit:id,name', 'items']));
+        return new OrderResource($order->load([
+            'user:id,name',
+            'unit:id,name',
+            'items.product.media',
+        ]));
     }
 }
