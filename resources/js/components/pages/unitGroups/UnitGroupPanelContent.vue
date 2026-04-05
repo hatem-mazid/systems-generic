@@ -78,7 +78,7 @@
 
 <script setup>
 import { computed } from "vue";
-import { UserRole } from "../../../apis/services/users.type";
+import { UserRole } from "../../../apis/services/users/users.type";
 import UnitCard from "../units/UnitCard.vue";
 import UnitCardStaff from "../units/UnitCardStaff.vue";
 import DeleteUnitGroupButton from "./DeleteUnitGroupButton.vue";

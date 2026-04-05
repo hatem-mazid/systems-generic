@@ -205,7 +205,7 @@ import { useToast } from "primevue/usetoast";
 import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
-import { usersService } from "../../../apis/services/users.apis";
+import { usersService } from "../../../apis/services/users/users.apis";
 import ResetPasswordDialog from "./ResetPasswordDialog.vue";
 import type { User } from "../../../types/users";
 import { UserRole } from "../../../types/users";

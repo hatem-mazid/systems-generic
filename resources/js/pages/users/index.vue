@@ -54,7 +54,7 @@ import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { usersService } from "../../apis/services/users.apis";
+import { usersService } from "../../apis/services/users/users.apis";
 import UserCard from "../../components/pages/users/UserCard.vue";
 
 const { t } = useI18n();

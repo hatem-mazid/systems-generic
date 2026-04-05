@@ -85,7 +85,7 @@ import TabPanels from "primevue/tabpanels";
 import Tabs from "primevue/tabs";
 import { computed, onMounted, ref, watch } from "vue";
 import { unitGroupsService } from "../../apis/services/unitGroups/unitGroups.apis";
-import { UserRole } from "../../apis/services/users.type";
+import { UserRole } from "../../apis/services/users/users.type";
 import UnitGroupPanelContent from "../../components/pages/unitGroups/UnitGroupPanelContent.vue";
 import { useUserStore } from "../../stores/user";
 

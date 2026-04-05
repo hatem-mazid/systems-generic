@@ -1,6 +1,6 @@
 import type { AxiosResponse } from "axios";
-import http from "../http";
-import { Items } from "../types";
+import http from "../../http";
+import { Items } from "../../types";
 import { User } from "./users.type";
 
 export const usersService = {

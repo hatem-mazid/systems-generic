@@ -101,7 +101,7 @@ import { isAxiosError } from "axios";
 import { useToast } from "primevue/usetoast";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { usersService } from "../../../apis/services/users.apis";
+import { usersService } from "../../../apis/services/users/users.apis";
 
 const props = defineProps<{
     userId: string;
