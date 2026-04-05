@@ -14,7 +14,20 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $users = User::with('roles')->paginate($request->integer('per_page', 10));
+        $validated = $request->validate([
+            'per_page' => 'sometimes|integer|min:1|max:100',
+            'role' => 'sometimes|nullable|string|exists:roles,name',
+        ]);
+
+        $perPage = (int) ($validated['per_page'] ?? $request->integer('per_page', 10));
+
+        $query = User::with('roles');
+
+        if (! empty($validated['role'] ?? null)) {
+            $query->role($validated['role']);
+        }
+
+        $users = $query->paginate($perPage);
 
         return new UserCollection($users);
     }
