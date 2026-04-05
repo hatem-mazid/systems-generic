@@ -44,6 +44,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('/api/products', ProductController::class);
 
     Route::resource('/api/orders', OrderController::class);
+    Route::post('/api/orders/{order}/items', [OrderController::class, 'storeItem']);
+    Route::delete('/api/orders/{order}/items/{item}', [OrderController::class, 'destroyItem']);
 
     Route::get('/{any}', function () {
         return view('welcome');

@@ -11,12 +11,14 @@ class Order extends Model
         'user_id',
         'status',
         'total',
+        'reserved_at',
         'opened_at',
         'closed_at',
     ];
 
     protected $casts = [
         'total' => 'decimal:2',
+        'reserved_at' => 'datetime',
         'opened_at' => 'datetime',
         'closed_at' => 'datetime',
     ];

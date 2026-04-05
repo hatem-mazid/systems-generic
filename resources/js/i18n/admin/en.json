@@ -59,6 +59,7 @@
         "transferPlaceholder": "Transfer guests — this screen will be expanded later.",
         "actions": {
             "addReservation": "Add reservation",
+            "openTable": "Open table",
             "startOrder": "Start order",
             "editReservationTime": "Edit reservation time",
             "cancelReservation": "Cancel reservation",
@@ -87,6 +88,13 @@
         "ClosedAt": "Closed",
         "CreatedAt": "Created",
         "EmptyItems": "No line items on this order.",
+        "OpenFullPage": "Open full page",
+        "AddProduct": "Add product",
+        "AddToOrder": "Add to order",
+        "SelectProduct": "Select product",
+        "RemoveLineTitle": "Remove item",
+        "ConfirmRemoveLine": "Remove this item from the order?",
+        "NotEditable": "This order cannot be edited.",
         "ItemTypes": {
             "product": "Product",
             "service": "Service",

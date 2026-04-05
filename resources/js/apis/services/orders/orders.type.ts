@@ -33,6 +33,7 @@ export interface Order {
     user_id?: number;
     status?: OrderStatus | string;
     total?: string | number;
+    reserved_at?: string;
     opened_at?: string;
     closed_at?: string;
     created_at?: string;

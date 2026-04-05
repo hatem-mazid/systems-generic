@@ -21,4 +21,20 @@ export const ordersService = {
     ): Promise<AxiosResponse<Order>> => {
         return http.get<Order>(`/api/orders/${id}`);
     },
+    addOrderItem: async (
+        orderId: string | number,
+        payload: {
+            product_id: number;
+            quantity?: number;
+            notes?: string | null;
+        }
+    ): Promise<AxiosResponse<Order>> => {
+        return http.post<Order>(`/api/orders/${orderId}/items`, payload);
+    },
+    removeOrderItem: async (
+        orderId: string | number,
+        itemId: string | number
+    ): Promise<AxiosResponse<Order>> => {
+        return http.delete<Order>(`/api/orders/${orderId}/items/${itemId}`);
+    },
 };

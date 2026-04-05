@@ -59,6 +59,7 @@
         "transferPlaceholder": "نقل الضيوف — ستُضاف الشاشة لاحقًا.",
         "actions": {
             "addReservation": "إضافة حجز",
+            "openTable": "فتح الطاولة",
             "startOrder": "بدء طلب",
             "editReservationTime": "تعديل وقت الحجز",
             "cancelReservation": "إلغاء الحجز",
@@ -87,6 +88,13 @@
         "ClosedAt": "تاريخ الإغلاق",
         "CreatedAt": "تاريخ الإنشاء",
         "EmptyItems": "لا توجد بنود في هذا الطلب.",
+        "OpenFullPage": "فتح الصفحة كاملة",
+        "AddProduct": "إضافة منتج",
+        "AddToOrder": "إضافة للطلب",
+        "SelectProduct": "اختر منتجًا",
+        "RemoveLineTitle": "إزالة البند",
+        "ConfirmRemoveLine": "إزالة هذا البند من الطلب؟",
+        "NotEditable": "لا يمكن تعديل هذا الطلب.",
         "ItemTypes": {
             "product": "منتج",
             "service": "خدمة",

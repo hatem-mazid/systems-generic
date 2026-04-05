@@ -32,12 +32,11 @@
                 :class="typeIconClass"
                 class="!text-xl text-surface-700 dark:text-surface-200"
             />
-            <Tag
-                class="shrink-0 !text-xs"
-                :value="$t(`Units.Types.${typeLabel}`)"
-                :severity="typeSeverity"
-                rounded
-            />
+            <h3
+                class="shrink-0 !text-md font-medium text-surface-900 dark:text-surface-0"
+            >
+                {{ $t(`Units.Types.${typeLabel}`) }}
+            </h3>
         </div>
 
         <div class="flex items-center gap-2">
@@ -60,6 +59,12 @@
                 {{ $t("Units.Capacity") }}: {{ unit.capacity }}
             </p>
         </div>
+
+        <OrderDetailDrawer
+            v-model:visible="orderDrawerVisible"
+            :order-id="orderDrawerOrderId"
+            @updated="notifyAction"
+        />
     </div>
 </template>
 
@@ -71,6 +76,7 @@ import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { UnitStatus, UnitType } from "../../../apis/services/units/units.type";
 import { unitsService } from "../../../apis/services/units/units.apis";
+import OrderDetailDrawer from "../orders/OrderDetailDrawer.vue";
 
 const props = defineProps({
     unit: {
@@ -87,6 +93,9 @@ const confirm = useConfirm();
 const toast = useToast();
 
 const menuRef = ref();
+
+const orderDrawerVisible = ref(false);
+const orderDrawerOrderId = ref(null);
 
 /** Larger rows / hit targets for touch screens (popup menu is portaled). */
 const touchMenuPt = {
@@ -238,29 +247,51 @@ const menuItems = computed(() => {
     });
 
     if (key === "available") {
+        const addReservation =
+            normalizedType.value === UnitType.Table
+                ? menuEntry(
+                      "UnitsManagement.actions.addReservation",
+                      "pi pi-calendar-plus",
+                      () =>
+                          runApi(
+                              t("UnitsManagement.actions.addReservation"),
+                              () => unitsService.reserveUnit(id)
+                          )
+                  )
+                : menuEntry(
+                      "UnitsManagement.actions.addReservation",
+                      "pi pi-calendar-plus",
+                      () => {
+                          router.push({
+                              path: "/reservations/create",
+                              query: { unit_id: String(id) },
+                          });
+                      }
+                  );
+
+        const startService = () => unitsService.startOrder(id);
+
         return [
-            menuEntry(
-                "UnitsManagement.actions.addReservation",
-                "pi pi-calendar-plus",
-                () => {
-                    router.push({
-                        path: "/reservations/create",
-                        query: { unit_id: String(id) },
-                    });
-                }
-            ),
-            menuEntry(
-                "UnitsManagement.actions.startOrder",
-                "pi pi-shopping-cart",
-                () =>
-                    runApi(t("UnitsManagement.actions.startOrder"), () =>
-                        unitsService.startOrder(id)
-                    )
-            ),
+            addReservation,
+            normalizedType.value === UnitType.Table
+                ? menuEntry(
+                      "UnitsManagement.actions.openTable",
+                      "pi pi-unlock",
+                      () =>
+                          runApi(t("UnitsManagement.actions.openTable"), startService)
+                  )
+                : menuEntry(
+                      "UnitsManagement.actions.startOrder",
+                      "pi pi-shopping-cart",
+                      () =>
+                          runApi(t("UnitsManagement.actions.startOrder"), startService)
+                  ),
         ];
     }
 
     if (key === "reserved") {
+        const startService = () => unitsService.startOrder(id);
+
         return [
             menuEntry(
                 "UnitsManagement.actions.editReservationTime",
@@ -280,14 +311,19 @@ const menuItems = computed(() => {
                         unitsService.cancelUnitReservation(id)
                     )
             ),
-            menuEntry(
-                "UnitsManagement.actions.start",
-                "pi pi-play",
-                () =>
-                    runApi(t("UnitsManagement.actions.start"), () =>
-                        unitsService.startOrder(id)
-                    )
-            ),
+            normalizedType.value === UnitType.Table
+                ? menuEntry(
+                      "UnitsManagement.actions.openTable",
+                      "pi pi-unlock",
+                      () =>
+                          runApi(t("UnitsManagement.actions.openTable"), startService)
+                  )
+                : menuEntry(
+                      "UnitsManagement.actions.start",
+                      "pi pi-play",
+                      () =>
+                          runApi(t("UnitsManagement.actions.start"), startService)
+                  ),
         ];
     }
 
@@ -298,7 +334,8 @@ const menuItems = computed(() => {
                 "pi pi-eye",
                 () => {
                     if (orderId != null) {
-                        router.push(`/orders/${orderId}`);
+                        orderDrawerOrderId.value = orderId;
+                        orderDrawerVisible.value = true;
                     } else {
                         toast.add({
                             severity: "warn",
@@ -306,59 +343,6 @@ const menuItems = computed(() => {
                             life: 3000,
                         });
                     }
-                }
-            ),
-            menuEntry(
-                "UnitsManagement.actions.changeStatus",
-                "pi pi-sync",
-                () => {
-                    router.push(`/units/${id}`);
-                }
-            ),
-            menuEntry(
-                "UnitsManagement.actions.editDetails",
-                "pi pi-pencil",
-                () => {
-                    router.push(`/units/${id}`);
-                }
-            ),
-            menuEntry(
-                "UnitsManagement.actions.removeUnit",
-                "pi pi-trash",
-                () => {
-                    confirm.require({
-                        message: t("Units.DeleteMessage", {
-                            name: u?.name || t("Units.ThisUnit"),
-                        }),
-                        header: t("Units.DeleteTitle"),
-                        icon: "pi pi-exclamation-triangle",
-                        rejectProps: {
-                            label: t("Cancel"),
-                            severity: "secondary",
-                            outlined: true,
-                        },
-                        acceptProps: {
-                            label: t("Delete"),
-                            severity: "danger",
-                        },
-                        accept: async () => {
-                            try {
-                                await unitsService.deleteUnit(id);
-                                toast.add({
-                                    severity: "success",
-                                    summary: t("Units.DeleteSuccess"),
-                                    life: 3000,
-                                });
-                                notifyAction();
-                            } catch {
-                                toast.add({
-                                    severity: "error",
-                                    summary: t("Units.DeleteError"),
-                                    life: 4000,
-                                });
-                            }
-                        },
-                    });
                 }
             ),
             menuEntry(

@@ -15,6 +15,7 @@ class OrderResource extends JsonResource
             'user_id' => $this->user_id,
             'status' => $this->status,
             'total' => $this->total,
+            'reserved_at' => $this->reserved_at,
             'opened_at' => $this->opened_at,
             'closed_at' => $this->closed_at,
             'created_at' => $this->created_at,

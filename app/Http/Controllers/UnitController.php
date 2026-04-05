@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Resources\UnitCollection;
 use App\Http\Resources\UnitResource;
 use App\Enums\UnitType;
+use App\Models\Order;
 use App\Models\Unit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class UnitController extends Controller
@@ -114,23 +116,205 @@ class UnitController extends Controller
         return response()->noContent();
     }
 
-    public function startOrder(string $id)
+    public function startOrder(Request $request, string $id)
     {
-        // TODO: Implement startOrder method.
+        $unit = Unit::with('currentOrder')->find($id);
+        if (! $unit) {
+            return response()->json(['message' => 'Unit not found'], 404);
+        }
+
+        return DB::transaction(function () use ($request, $unit) {
+            $unit->refresh()->load('currentOrder');
+            $status = strtolower((string) ($unit->status ?? ''));
+
+            if ($status === 'reserved' && $unit->currentOrder && $unit->currentOrder->status === 'pending') {
+                $unit->currentOrder->update([
+                    'status' => 'open',
+                    'opened_at' => now(),
+                    'reserved_at' => null,
+                ]);
+
+                $unit->update([
+                    'status' => 'occupied',
+                    'reserved_at' => null,
+                    'reserved_by' => null,
+                ]);
+
+                return response()->json(new UnitResource($unit->fresh()->load(['group', 'currentOrder'])));
+            }
+
+            if ($status !== 'available') {
+                return response()->json(['message' => 'Unit is not available to start an order.'], 422);
+            }
+
+            if (! $unit->active) {
+                return response()->json(['message' => 'Unit is inactive.'], 422);
+            }
+
+            if ($unit->current_order_id && $unit->currentOrder) {
+                if (in_array($unit->currentOrder->status, ['closed', 'cancelled'], true)) {
+                    $unit->update(['current_order_id' => null]);
+                    $unit->refresh()->load('currentOrder');
+                } else {
+                    return response()->json(['message' => 'Unit already has an active order.'], 422);
+                }
+            }
+
+            $order = Order::create([
+                'unit_id' => $unit->id,
+                'user_id' => $request->user()?->id,
+                'status' => 'open',
+                'total' => 0,
+                'reserved_at' => null,
+                'opened_at' => now(),
+                'closed_at' => null,
+            ]);
+
+            $unit->update([
+                'status' => 'occupied',
+                'current_order_id' => $order->id,
+                'reserved_at' => null,
+                'reserved_by' => null,
+            ]);
+
+            return response()->json(new UnitResource($unit->fresh()->load(['group', 'currentOrder'])));
+        });
     }
 
-    public function reserve(string $id)
+    public function reserve(Request $request, string $id)
     {
-        // TODO: Implement reserve method.
+        $validated = $this->validateJsonOrFail($request, [
+            'reserved_at' => 'sometimes|nullable|date',
+            'reserved_by' => 'sometimes|nullable|string|max:255',
+        ]);
+
+        if ($validated instanceof JsonResponse) {
+            return $validated;
+        }
+
+        $unit = Unit::with('currentOrder')->find($id);
+        if (! $unit) {
+            return response()->json(['message' => 'Unit not found'], 404);
+        }
+
+        if ($unit->type !== UnitType::Table) {
+            return response()->json(['message' => 'Only table units can be reserved.'], 422);
+        }
+
+        $unitStatus = strtolower((string) ($unit->status ?? ''));
+        if ($unitStatus !== 'available') {
+            return response()->json(['message' => 'Unit is not available.'], 422);
+        }
+
+        if (! $unit->active) {
+            return response()->json(['message' => 'Unit is inactive.'], 422);
+        }
+
+        if ($unit->current_order_id && $unit->currentOrder) {
+            if (! in_array($unit->currentOrder->status, ['closed', 'cancelled'], true)) {
+                return response()->json(['message' => 'Unit already has an active order.'], 422);
+            }
+        }
+
+        $reservedAt = isset($validated['reserved_at']) && $validated['reserved_at'] !== null
+            ? \Illuminate\Support\Carbon::parse($validated['reserved_at'])
+            : now();
+
+        return DB::transaction(function () use ($request, $unit, $validated, $reservedAt) {
+            $unit->refresh()->load('currentOrder');
+
+            if ($unit->current_order_id && $unit->currentOrder) {
+                if (! in_array($unit->currentOrder->status, ['closed', 'cancelled'], true)) {
+                    return response()->json(['message' => 'Unit already has an active order.'], 422);
+                }
+                $unit->update(['current_order_id' => null]);
+                $unit->refresh();
+            }
+
+            $order = Order::create([
+                'unit_id' => $unit->id,
+                'user_id' => $request->user()?->id,
+                'status' => 'pending',
+                'total' => 0,
+                'reserved_at' => $reservedAt,
+                'opened_at' => null,
+                'closed_at' => null,
+            ]);
+
+            $unit->update([
+                'status' => 'reserved',
+                'reserved_at' => $reservedAt,
+                'reserved_by' => $validated['reserved_by'] ?? null,
+                'current_order_id' => $order->id,
+            ]);
+
+            return response()->json(new UnitResource($unit->fresh()->load(['group', 'currentOrder'])));
+        });
     }
 
     public function close(string $id)
     {
-        // TODO: Implement close method.
+        $unit = Unit::with('currentOrder')->find($id);
+        if (! $unit) {
+            return response()->json(['message' => 'Unit not found'], 404);
+        }
+
+        if (! $unit->current_order_id || ! $unit->currentOrder) {
+            return response()->json(['message' => 'No current order on this unit.'], 422);
+        }
+
+        $order = $unit->currentOrder;
+        if (in_array($order->status, ['closed', 'cancelled'], true)) {
+            return response()->json(['message' => 'Order is already finished.'], 422);
+        }
+
+        return DB::transaction(function () use ($unit, $order) {
+            $order->update([
+                'status' => 'closed',
+                'closed_at' => now(),
+            ]);
+
+            $unit->update([
+                'status' => 'available',
+                'current_order_id' => null,
+                'reserved_at' => null,
+                'reserved_by' => null,
+            ]);
+
+            return response()->json(new UnitResource($unit->fresh()->load(['group', 'currentOrder'])));
+        });
     }
 
     public function cancelReservation(string $id)
     {
-        // TODO: Implement cancelReservation method.
+        $unit = Unit::with('currentOrder')->find($id);
+        if (! $unit) {
+            return response()->json(['message' => 'Unit not found'], 404);
+        }
+
+        if (strtolower((string) ($unit->status ?? '')) !== 'reserved') {
+            return response()->json(['message' => 'Unit is not reserved.'], 422);
+        }
+
+        if (! $unit->currentOrder || $unit->currentOrder->status !== 'pending') {
+            return response()->json(['message' => 'No pending reservation order on this unit.'], 422);
+        }
+
+        return DB::transaction(function () use ($unit) {
+            $order = $unit->currentOrder;
+            $order->update([
+                'status' => 'cancelled',
+                'closed_at' => now(),
+            ]);
+
+            $unit->update([
+                'status' => 'available',
+                'current_order_id' => null,
+                'reserved_at' => null,
+                'reserved_by' => null,
+            ]);
+
+            return response()->json(new UnitResource($unit->fresh()->load(['group', 'currentOrder'])));
+        });
     }
 }

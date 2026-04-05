@@ -23,6 +23,7 @@ export interface Unit {
         id?: number;
         status?: string;
         total?: string | number;
+        reserved_at?: string | null;
         opened_at?: string | null;
         closed_at?: string | null;
     } | null;

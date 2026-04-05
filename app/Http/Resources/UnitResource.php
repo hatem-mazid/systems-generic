@@ -34,6 +34,7 @@ class UnitResource extends JsonResource
                     'id' => $this->currentOrder->id,
                     'status' => $this->currentOrder->status,
                     'total' => $this->currentOrder->total,
+                    'reserved_at' => $this->currentOrder->reserved_at,
                     'opened_at' => $this->currentOrder->opened_at,
                     'closed_at' => $this->currentOrder->closed_at,
                 ] : null;

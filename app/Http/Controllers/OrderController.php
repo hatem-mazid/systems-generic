@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Resources\OrderCollection;
 use App\Http\Resources\OrderResource;
 use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
@@ -62,5 +65,83 @@ class OrderController extends Controller
             'unit:id,name',
             'items.product.media',
         ]));
+    }
+
+    public function storeItem(Request $request, Order $order)
+    {
+        if (! $order->isOpen()) {
+            return response()->json(['message' => 'Order is not open.'], 422);
+        }
+
+        $validated = $request->validate([
+            'product_id' => 'required|integer|exists:products,id',
+            'quantity' => 'sometimes|integer|min:1|max:9999',
+            'notes' => 'nullable|string|max:2000',
+        ]);
+
+        $quantity = (int) ($validated['quantity'] ?? 1);
+
+        $product = Product::find($validated['product_id']);
+        if (! $product || ! $product->active) {
+            return response()->json(['message' => 'Product not available.'], 422);
+        }
+
+        return DB::transaction(function () use ($order, $validated, $quantity, $product) {
+            $existing = OrderItem::query()
+                ->where('order_id', $order->id)
+                ->where('product_id', $product->id)
+                ->first();
+
+            if ($existing) {
+                $existing->quantity += $quantity;
+                $existing->calculateTotal();
+                $existing->save();
+            } else {
+                $item = new OrderItem([
+                    'order_id' => $order->id,
+                    'product_id' => $product->id,
+                    'name' => $product->name,
+                    'notes' => $validated['notes'] ?? null,
+                    'price' => $product->price,
+                    'quantity' => $quantity,
+                    'type' => 'product',
+                ]);
+                $item->calculateTotal();
+                $item->save();
+            }
+
+            $order->refresh();
+            $order->recalculateTotal();
+
+            return new OrderResource($order->load([
+                'user:id,name',
+                'unit:id,name',
+                'items.product.media',
+            ]));
+        });
+    }
+
+    public function destroyItem(Order $order, string $item)
+    {
+        if (! $order->isOpen()) {
+            return response()->json(['message' => 'Order is not open.'], 422);
+        }
+
+        $orderItem = OrderItem::where('order_id', $order->id)->where('id', $item)->first();
+        if (! $orderItem) {
+            return response()->json(['message' => 'Line item not found.'], 404);
+        }
+
+        return DB::transaction(function () use ($order, $orderItem) {
+            $orderItem->delete();
+            $order->refresh();
+            $order->recalculateTotal();
+
+            return new OrderResource($order->load([
+                'user:id,name',
+                'unit:id,name',
+                'items.product.media',
+            ]));
+        });
     }
 }
