@@ -2,7 +2,7 @@
     <Drawer
         v-model:visible="innerVisible"
         position="right"
-        class="order-detail-drawer !w-full sm:!max-w-[min(100vw-0.5rem,40rem)]"
+        class="order-detail-drawer !w-full sm:!max-w-[min(100vw-0.5rem,64rem)]"
         :block-scroll="true"
         :dismissable="true"
         :pt="{
@@ -40,7 +40,7 @@
         </template>
 
         <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
-            <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-6 pt-2">
+            <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-6 pt-2 xl:overflow-hidden">
                 <div v-if="loading" class="space-y-4">
                     <Skeleton height="8rem" class="rounded-xl" />
                     <Skeleton height="14rem" class="rounded-xl" />
@@ -56,238 +56,213 @@
                 </Message>
 
                 <template v-else-if="order">
-                    <Card
-                        class="mb-4 overflow-hidden rounded-xl border border-surface-200/80 shadow-sm dark:border-surface-700"
-                    >
-                        <template #title>
-                            <span class="text-base font-semibold">{{
-                                $t("OrderDetail.SummaryTitle")
-                            }}</span>
-                        </template>
-                        <template #content>
-                            <dl class="space-y-3 text-sm">
-                                <div
-                                    class="flex flex-wrap items-center justify-between gap-2 border-b border-surface-200 pb-2 dark:border-surface-700"
-                                >
-                                    <dt class="text-surface-600 dark:text-surface-400">
-                                        {{ $t("OrdersList.ColumnStatus") }}
-                                    </dt>
-                                    <dd>
-                                        <Tag
-                                            v-if="order.status"
-                                            :value="statusLabel(order.status)"
-                                            :severity="statusSeverity(order.status)"
-                                            class="capitalize"
-                                        />
-                                    </dd>
-                                </div>
-                                <div
-                                    class="flex flex-wrap items-center justify-between gap-2 border-b border-surface-200 pb-2 dark:border-surface-700"
-                                >
-                                    <dt class="text-surface-600 dark:text-surface-400">
-                                        {{ $t("OrdersList.ColumnTotal") }}
-                                    </dt>
-                                    <dd
-                                        class="text-lg font-semibold tabular-nums text-surface-900 dark:text-surface-50"
-                                    >
-                                        {{ formatMoney(order.total) }}
-                                    </dd>
-                                </div>
-                                <div
-                                    class="flex flex-wrap items-start justify-between gap-2 border-b border-surface-200 pb-2 dark:border-surface-700"
-                                >
-                                    <dt class="text-surface-600 dark:text-surface-400">
-                                        {{ $t("OrdersList.ColumnUnit") }}
-                                    </dt>
-                                    <dd class="text-end font-medium">
-                                        {{ order.unit_name ?? order.unit_id ?? "—" }}
-                                    </dd>
-                                </div>
-                                <div class="flex flex-wrap items-start justify-between gap-2">
-                                    <dt class="text-surface-600 dark:text-surface-400">
-                                        {{ $t("OrderDetail.OpenedAt") }}
-                                    </dt>
-                                    <dd class="text-end">
-                                        {{ formatDateTime(order.opened_at) }}
-                                    </dd>
-                                </div>
-                            </dl>
-                        </template>
-                    </Card>
-
-                    <div
-                        v-if="canEditItems"
-                        class="mb-4 rounded-xl border border-surface-200 bg-surface-50 p-4 dark:border-surface-600 dark:bg-surface-900/40"
-                    >
-                        <p
-                            class="mb-3 text-sm font-medium text-surface-800 dark:text-surface-100"
+                    <div class="grid gap-4 xl:h-full xl:grid-cols-[minmax(0,1fr)_480px] xl:items-start">
+                        <section
+                            v-if="canEditItems"
+                            class="rounded-xl border border-surface-200 bg-surface-50 p-3 pt-0 dark:border-surface-600 dark:bg-surface-900/40 xl:max-h-full xl:overflow-y-auto xl:pe-2"
                         >
-                            {{ $t("OrderDetail.AddProduct") }}
-                        </p>
-                        <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
-                            <div class="min-w-0 flex-1">
-                                <label class="mb-1 block text-xs text-surface-600 dark:text-surface-400">
-                                    {{ $t("OrderDetail.SelectProduct") }}
-                                </label>
-                                <Select
-                                    v-model="selectedProductId"
-                                    size="large"
-                                    :options="products"
-                                    option-label="name"
-                                    option-value="id"
-                                    filter
-                                    :loading="productsLoading"
-                                    :placeholder="$t('OrderDetail.SelectProduct')"
-                                    class="w-full"
-                                    scroll-height="min(50vh, 16rem)"
-                                    :show-clear="true"
+                            <div class="sticky top-0 z-10 pt-3 bg-surface-50 dark:bg-surface-900/40">
+                                <p class="mb-2 text-sm font-semibold text-surface-900 dark:text-surface-100">
+                                    Product Catalog
+                                </p>
+                                <div class="mb-3 flex gap-2 overflow-x-auto pb-1">
+                                    <Button
+                                        v-for="tab in productCategoryTabs"
+                                        :key="tab.key"
+                                        type="button"
+                                        size="small"
+                                        rounded
+                                        :outlined="activeProductCategory !== tab.key"
+                                        :severity="activeProductCategory === tab.key ? 'primary' : 'secondary'"
+                                        class="whitespace-nowrap"
+                                        :label="tab.label"
+                                        @click="activeProductCategory = tab.key"
+                                    />
+                                </div>
+                            </div>
+
+
+                            <div v-if="productsLoading" class="grid grid-cols-2 gap-3">
+                                <Skeleton
+                                    v-for="idx in 6"
+                                    :key="`quick-product-skeleton-${idx}`"
+                                    height="10rem"
+                                    class="rounded-lg"
                                 />
                             </div>
-                            <div class="w-full shrink-0 sm:w-32">
-                                <label class="mb-1 block text-xs text-surface-600 dark:text-surface-400">
-                                    {{ $t("OrderDetail.Qty") }}
-                                </label>
-                                <InputNumber
-                                    v-model="addQuantity"
-                                    size="large"
-                                    :min="1"
-                                    :max="9999"
-                                    show-buttons
-                                    class="w-full"
-                                    input-class="w-full text-center"
-                                />
-                            </div>
-                            <Button
-                                type="button"
-                                size="large"
-                                icon="pi pi-plus"
-                                :label="$t('OrderDetail.AddToOrder')"
-                                class="min-h-[48px] w-full shrink-0 sm:w-auto"
-                                :loading="adding"
-                                :disabled="selectedProductId == null || adding"
-                                @click="onAddProduct"
-                            />
-                        </div>
-                    </div>
-
-                    <Message
-                        v-else
-                        severity="info"
-                        class="mb-4"
-                        :closable="false"
-                    >
-                        {{ $t("OrderDetail.NotEditable") }}
-                    </Message>
-
-                    <Card
-                        class="overflow-hidden rounded-xl border border-surface-200/80 shadow-sm dark:border-surface-700"
-                    >
-                        <template #title>
-                            <span class="text-base font-semibold">{{
-                                $t("OrderDetail.LineItemsTitle")
-                            }}</span>
-                        </template>
-                        <template #content>
                             <div
-                                v-if="!order.items?.length"
-                                class="rounded-xl border border-dashed border-surface-300 p-6 text-center text-sm text-surface-600 dark:border-surface-600 dark:text-surface-400"
+                                v-else-if="!filteredProducts.length"
+                                class="rounded-xl border border-dashed border-surface-300 p-4 text-center text-sm text-surface-600 dark:border-surface-600 dark:text-surface-400"
                             >
                                 {{ $t("OrderDetail.EmptyItems") }}
                             </div>
-                            <ul v-else class="space-y-3">
-                                <li
-                                    v-for="(line, idx) in order.items"
-                                    :key="line.id ?? `line-${idx}`"
-                                    class="rounded-xl border border-surface-200/90 bg-surface-0 p-3 dark:border-surface-700 dark:bg-surface-900/50"
+                            <div v-else class="grid grid-cols-2 gap-3">
+                                <article
+                                    v-for="product in filteredProducts"
+                                    :key="product.id"
+                                    class="rounded-lg border border-surface-300 bg-white p-2 dark:border-surface-600 dark:bg-surface-900"
                                 >
-                                    <div class="flex flex-row items-start gap-3">
-                                        <div class="h-16 w-16 shrink-0 sm:h-20 sm:w-20">
-                                            <img
-                                                v-if="
-                                                    line.image &&
-                                                    !lineImageFailed[
-                                                        lineImageFailKey(line, idx)
-                                                    ]
-                                                "
-                                                :src="line.image"
-                                                :alt="line.name || ''"
-                                                class="h-full w-full rounded-lg object-cover"
-                                                loading="lazy"
-                                                @error="onLineImageError(line, idx)"
-                                            />
-                                            <div
-                                                v-else
-                                                class="flex h-16 w-full items-center justify-center rounded-lg border border-dashed border-surface-300 bg-surface-50 sm:h-20 dark:border-surface-600 dark:bg-surface-800/80"
-                                                aria-hidden="true"
-                                            >
-                                                <i
-                                                    class="pi pi-image text-xl text-surface-400 dark:text-surface-500"
-                                                />
-                                            </div>
+                                    <button
+                                        type="button"
+                                        class="mb-2 block w-full text-start"
+                                        @click="selectQuickProduct(product)"
+                                    >
+                                        <img
+                                            v-if="productImageUrl(product)"
+                                            :src="productImageUrl(product)"
+                                            :alt="product.name || ''"
+                                            class="mb-2 aspect-video w-full rounded-md object-cover"
+                                            loading="lazy"
+                                        />
+                                        <div
+                                            v-else
+                                            class="mb-2 flex aspect-video w-full items-center justify-center rounded-md border border-dashed border-surface-300 bg-surface-50 dark:border-surface-600 dark:bg-surface-800/80"
+                                            aria-hidden="true"
+                                        >
+                                            <i class="pi pi-image text-lg text-surface-400 dark:text-surface-500" />
                                         </div>
-                                        <div class="min-w-0 flex-1 space-y-1">
-                                            <div
-                                                class="flex flex-wrap items-start justify-between gap-2"
+                                        <p class="truncate text-sm font-semibold text-surface-900 dark:text-surface-50">
+                                            {{ product.name ?? "—" }}
+                                        </p>
+                                        <p class="text-sm text-surface-700 dark:text-surface-300">
+                                            {{ formatMoney(product.price) }}
+                                        </p>
+                                    </button>
+                                    <div class="mt-2 flex items-center justify-between gap-2">
+                                        <span class="text-xs text-surface-600 dark:text-surface-400">Qty</span>
+                                        <div class="flex items-center gap-1">
+                                            <Button
+                                                type="button"
+                                                size="small"
+                                                outlined
+                                                icon="pi pi-minus"
+                                                :disabled="adding"
+                                                @click="adjustQuickQty(product, -1)"
+                                            />
+                                            <span
+                                                class="inline-flex min-w-8 justify-center rounded border border-surface-300 px-2 py-1 text-xs font-medium dark:border-surface-600"
                                             >
-                                                <h3
-                                                    class="text-sm font-semibold leading-snug text-surface-900 dark:text-surface-50"
-                                                >
-                                                    {{ line.name ?? "—" }}
-                                                </h3>
+                                                {{ quickQty(product) }}
+                                            </span>
+                                            <Button
+                                                type="button"
+                                                size="small"
+                                                outlined
+                                                icon="pi pi-plus"
+                                                :disabled="adding"
+                                                @click="adjustQuickQty(product, 1)"
+                                            />
+                                        </div>
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        size="small"
+                                        icon="pi pi-plus"
+                                        label="Add"
+                                        class="mt-2 w-full"
+                                        :loading="adding && selectedProductId === product.id"
+                                        :disabled="adding"
+                                        @click="onQuickAddProduct(product)"
+                                    />
+                                </article>
+                            </div>
+                        </section>
+
+                        <Message v-else severity="info" :closable="false">
+                            {{ $t("OrderDetail.NotEditable") }}
+                        </Message>
+
+                        <section class="space-y-4 xl:sticky xl:top-0 xl:max-h-full xl:overflow-y-auto">
+                            <Card
+                                class="overflow-hidden rounded-xl border border-surface-200/80 shadow-sm dark:border-surface-700 xl:sticky xl:top-0 xl:z-20"
+                            >
+                                <template #title>
+                                    <span class="text-base font-semibold">{{ $t("OrderDetail.SummaryTitle") }}</span>
+                                </template>
+                                <template #content>
+                                    <dl class="space-y-2 text-sm">
+                                        <div class="flex items-center justify-between gap-2 border-b border-surface-200 pb-2 dark:border-surface-700">
+                                            <dt class="text-surface-600 dark:text-surface-400">{{ $t("OrdersList.ColumnTotal") }}</dt>
+                                            <dd class="text-lg font-semibold tabular-nums text-surface-900 dark:text-surface-50">{{ formatMoney(order.total) }}</dd>
+                                        </div>
+                                        <div class="flex items-center justify-between gap-2 border-b border-surface-200 pb-2 dark:border-surface-700">
+                                            <dt class="text-surface-600 dark:text-surface-400">{{ $t("OrderDetail.OpenedAt") }}</dt>
+                                            <dd class="text-end">{{ formatDateTime(order.opened_at) }}</dd>
+                                        </div>
+                                        <div class="flex items-center justify-between gap-2 border-b border-surface-200 pb-2 dark:border-surface-700">
+                                            <dt class="text-surface-600 dark:text-surface-400">{{ $t("OrdersList.ColumnUnit") }}</dt>
+                                            <dd class="text-end font-medium">{{ order.unit_name ?? order.unit_id ?? "—" }}</dd>
+                                        </div>
+                                        <div class="flex items-center justify-between gap-2">
+                                            <dt class="text-surface-600 dark:text-surface-400">{{ $t("OrdersList.ColumnStatus") }}</dt>
+                                            <dd>
+                                                <Tag v-if="order.status" :value="statusLabel(order.status)" :severity="statusSeverity(order.status)" class="capitalize" />
+                                            </dd>
+                                        </div>
+                                    </dl>
+                                </template>
+                            </Card>
+
+                            <Card class="overflow-hidden rounded-xl border border-surface-200/80 shadow-sm dark:border-surface-700">
+                                <template #title>
+                                    <span class="text-base font-semibold">{{ $t("OrderDetail.LineItemsTitle") }}</span>
+                                </template>
+                                <template #content>
+                                    <div
+                                        v-if="!order.items?.length"
+                                        class="rounded-xl border border-dashed border-surface-300 p-6 text-center text-sm text-surface-600 dark:border-surface-600 dark:text-surface-400"
+                                    >
+                                        {{ $t("OrderDetail.EmptyItems") }}
+                                    </div>
+                                    <div v-else class="overflow-hidden rounded-lg border border-surface-200 dark:border-surface-700">
+                                        <div
+                                            class="sticky top-0 z-10 grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_7rem_8rem] bg-surface-100 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-surface-700 dark:bg-surface-800 dark:text-surface-300"
+                                        >
+                                            <span>Product</span>
+                                            <span class="text-end">Unit Price</span>
+                                            <span class="text-center">Qty</span>
+                                            <span class="text-end">Subtotal</span>
+                                        </div>
+                                        <div
+                                            v-for="(line, idx) in order.items"
+                                            :key="line.id ?? `line-${idx}`"
+                                            class="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_7rem_8rem] items-center border-t border-surface-200 px-3 py-2 text-sm dark:border-surface-700"
+                                        >
+                                            <div class="truncate font-medium text-surface-900 dark:text-surface-100">
+                                                {{ line.name ?? "—" }}
+                                            </div>
+                                            <div class="text-end text-surface-700 dark:text-surface-300">
+                                                {{ formatMoney(line.price) }}
+                                            </div>
+                                            <div class="flex items-center justify-center gap-1">
                                                 <Button
                                                     v-if="canEditItems && line.id != null"
                                                     type="button"
+                                                    size="small"
+                                                    text
                                                     icon="pi pi-trash"
                                                     severity="danger"
-                                                    rounded
-                                                    text
-                                                    size="small"
-                                                    :aria-label="$t('Delete')"
                                                     :loading="removingId === line.id"
                                                     :disabled="removingId != null && removingId !== line.id"
                                                     @click="confirmRemoveLine(line)"
                                                 />
+                                                <span class="min-w-6 text-center tabular-nums">{{ line.quantity ?? "—" }}</span>
                                             </div>
-                                            <div
-                                                class="flex flex-wrap justify-between gap-2 text-sm text-surface-600 dark:text-surface-400"
-                                            >
-                                                <span>
-                                                    {{ $t("OrderDetail.Qty") }}:
-                                                    <strong class="tabular-nums text-surface-900 dark:text-surface-100">{{
-                                                        line.quantity ?? "—"
-                                                    }}</strong>
-                                                </span>
-                                                <span
-                                                    class="font-semibold tabular-nums text-surface-900 dark:text-surface-50"
-                                                >
-                                                    {{ formatMoney(line.total) }}
-                                                </span>
+                                            <div class="text-end font-semibold tabular-nums text-surface-900 dark:text-surface-50">
+                                                {{ formatMoney(line.total) }}
                                             </div>
                                         </div>
+                                        <div
+                                            class="sticky bottom-0 z-10 flex items-center justify-between border-t border-surface-200 bg-surface-50 px-3 py-2 dark:border-surface-700 dark:bg-surface-800/95"
+                                        >
+                                            <span class="font-medium">{{ $t("OrderDetail.GrandTotal") }}</span>
+                                            <span class="text-lg font-bold tabular-nums">{{ formatMoney(order.total) }}</span>
+                                        </div>
                                     </div>
-                                </li>
-                            </ul>
-
-                            <Divider
-                                v-if="order.items?.length"
-                                class="my-4"
-                                layout="horizontal"
-                            />
-
-                            <div
-                                v-if="order.items?.length"
-                                class="flex items-center justify-between rounded-lg bg-surface-100 px-3 py-2 dark:bg-surface-800"
-                            >
-                                <span class="font-medium text-surface-700 dark:text-surface-300">{{
-                                    $t("OrderDetail.GrandTotal")
-                                }}</span>
-                                <span
-                                    class="text-lg font-bold tabular-nums text-surface-900 dark:text-surface-50"
-                                    >{{ formatMoney(order.total) }}</span
-                                >
-                            </div>
-                        </template>
-                    </Card>
+                                </template>
+                            </Card>
+                        </section>
+                    </div>
                 </template>
             </div>
         </div>
@@ -297,11 +272,8 @@
 <script setup>
 import { Button } from "primevue";
 import Card from "primevue/card";
-import Divider from "primevue/divider";
 import Drawer from "primevue/drawer";
-import InputNumber from "primevue/inputnumber";
 import Message from "primevue/message";
-import Select from "primevue/select";
 import Skeleton from "primevue/skeleton";
 import Tag from "primevue/tag";
 import { useConfirm } from "primevue/useconfirm";
@@ -347,6 +319,7 @@ const selectedProductId = ref(null);
 const addQuantity = ref(1);
 const adding = ref(false);
 const removingId = ref(null);
+const quickQuantities = reactive({});
 
 const canEditItems = computed(
     () =>
@@ -354,6 +327,32 @@ const canEditItems = computed(
         (order.value.status === OrderStatus.Active ||
             order.value.status === OrderStatus.Open)
 );
+const activeProductCategory = ref("all");
+const productCategoryTabs = computed(() => {
+    const tabs = [{ key: "all", label: "All" }];
+    const seen = new Set();
+    products.value.forEach((product) => {
+        (product?.categories ?? []).forEach((category) => {
+            const key = String(category?.id ?? "").trim();
+            if (!key || seen.has(key)) {
+                return;
+            }
+            seen.add(key);
+            tabs.push({ key, label: category?.name || `#${key}` });
+        });
+    });
+    return tabs;
+});
+const filteredProducts = computed(() => {
+    if (activeProductCategory.value === "all") {
+        return products.value;
+    }
+    return products.value.filter((product) =>
+        (product?.categories ?? []).some(
+            (category) => String(category?.id ?? "").trim() === activeProductCategory.value
+        )
+    );
+});
 
 function pickOrderPayload(res) {
     const body = res.data;
@@ -457,11 +456,42 @@ async function loadProducts() {
     }
 }
 
-async function onAddProduct() {
-    if (!order.value?.id || selectedProductId.value == null) {
+function productImageUrl(product) {
+    const media = Array.isArray(product?.media) ? product.media : [];
+    const image =
+        media.find((item) => item?.is_default && item?.url) || media.find((item) => item?.url);
+    return image?.url || null;
+}
+
+function selectQuickProduct(product) {
+    if (product?.id == null) {
         return;
     }
-    const qty = addQuantity.value != null ? Number(addQuantity.value) : 1;
+    selectedProductId.value = product.id;
+}
+
+function quickQty(product) {
+    const key = String(product?.id ?? "");
+    const value = Number(quickQuantities[key] ?? 1);
+    return Number.isFinite(value) && value > 0 ? value : 1;
+}
+
+function adjustQuickQty(product, delta) {
+    const key = String(product?.id ?? "");
+    if (!key) {
+        return;
+    }
+    const next = quickQty(product) + delta;
+    quickQuantities[key] = next < 1 ? 1 : next;
+}
+
+async function onAddProduct(overrideProductId = null, overrideQuantity = null) {
+    const resolvedProductId = overrideProductId ?? selectedProductId.value;
+    if (!order.value?.id || resolvedProductId == null) {
+        return;
+    }
+    const qtySource = overrideQuantity ?? addQuantity.value;
+    const qty = qtySource != null ? Number(qtySource) : 1;
     if (Number.isNaN(qty) || qty < 1) {
         return;
     }
@@ -469,12 +499,14 @@ async function onAddProduct() {
     adding.value = true;
     try {
         const res = await ordersService.addOrderItem(order.value.id, {
-            product_id: selectedProductId.value,
+            product_id: resolvedProductId,
             quantity: qty,
         });
         order.value = pickOrderPayload(res);
-        selectedProductId.value = null;
-        addQuantity.value = 1;
+        if (overrideProductId == null) {
+            selectedProductId.value = null;
+            addQuantity.value = 1;
+        }
         emit("updated");
         toast.add({
             severity: "success",
@@ -490,6 +522,15 @@ async function onAddProduct() {
     } finally {
         adding.value = false;
     }
+}
+
+async function onQuickAddProduct(product) {
+    if (product?.id == null) {
+        return;
+    }
+    const qty = quickQty(product);
+    selectedProductId.value = product.id;
+    await onAddProduct(product.id, qty);
 }
 
 function confirmRemoveLine(line) {
@@ -563,6 +604,16 @@ watch(
             order.value = null;
             selectedProductId.value = null;
             addQuantity.value = 1;
+        }
+    },
+    { immediate: true }
+);
+
+watch(
+    productCategoryTabs,
+    (tabs) => {
+        if (!tabs.some((tab) => tab.key === activeProductCategory.value)) {
+            activeProductCategory.value = "all";
         }
     },
     { immediate: true }
