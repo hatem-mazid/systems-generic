@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\UnitType;
+use App\Models\Order;
 use App\Models\Unit;
 use App\Models\UnitGroup;
 use Illuminate\Database\Seeder;
@@ -100,13 +101,70 @@ class UnitsSeeder extends Seeder
             );
 
             foreach ($units as $unitData) {
-                Unit::updateOrCreate(
+                $unit = Unit::updateOrCreate(
                     [
                         'unit_group_id' => $group->id,
                         'name' => $unitData['name'],
                     ],
                     array_merge($unitData, ['unit_group_id' => $group->id])
                 );
+
+                $status = strtolower((string) ($unit->status ?? ''));
+
+                if ($status === 'occupied') {
+                    $order = Order::query()
+                        ->where('unit_id', $unit->id)
+                        ->whereIn('status', ['active', 'open'])
+                        ->first();
+
+                    if (! $order) {
+                        $order = new Order();
+                        $order->unit_id = $unit->id;
+                    }
+
+                    $order->user_id = null;
+                    $order->status = 'active';
+                    $order->total = 0;
+                    $order->reserved_at = null;
+                    $order->opened_at = now()->subMinutes(45);
+                    $order->closed_at = null;
+                    $order->save();
+
+                    $unit->update([
+                        'current_order_id' => $order->id,
+                        'reserved_at' => null,
+                        'reserved_by' => null,
+                    ]);
+                } elseif ($status === 'reserved') {
+                    $reservedAt = $unit->reserved_at ?? now()->addMinutes(30);
+
+                    $order = Order::query()
+                        ->where('unit_id', $unit->id)
+                        ->whereIn('status', ['reserved', 'pending'])
+                        ->first();
+
+                    if (! $order) {
+                        $order = new Order();
+                        $order->unit_id = $unit->id;
+                    }
+
+                    $order->user_id = null;
+                    $order->status = 'reserved';
+                    $order->total = 0;
+                    $order->reserved_at = $reservedAt;
+                    $order->opened_at = null;
+                    $order->closed_at = null;
+                    $order->save();
+
+                    $unit->update([
+                        'current_order_id' => $order->id,
+                        'reserved_at' => $reservedAt,
+                    ]);
+                } else {
+                    $unit->update([
+                        'current_order_id' => null,
+                    ]);
+                }
             }
         }
     }

@@ -48,4 +48,12 @@ export const unitsService = {
     ): Promise<AxiosResponse<unknown>> => {
         return http.post(`/api/units/${id}/cancel-reservation`);
     },
+    transferGuests: async (
+        id: string | number,
+        payload: {
+            target_unit_id: number;
+        }
+    ): Promise<AxiosResponse<unknown>> => {
+        return http.post(`/api/units/${id}/transfer-guests`, payload);
+    },
 };

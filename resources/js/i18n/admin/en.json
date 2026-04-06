@@ -58,6 +58,9 @@
         "noCurrentOrder": "No order linked to this unit.",
         "reservationDateTime": "Reservation date and time",
         "submitReservation": "Reserve",
+        "selectTransferUnit": "Select destination unit",
+        "submitTransferGuests": "Transfer guests",
+        "noAvailableTransferUnits": "No available units to transfer to.",
         "transferPlaceholder": "Transfer guests — this screen will be expanded later.",
         "actions": {
             "addReservation": "Add reservation",

@@ -118,6 +118,52 @@
                 />
             </div>
         </Dialog>
+
+        <Dialog
+            v-model:visible="transferModalVisible"
+            modal
+            :header="$t('UnitsManagement.actions.transferGuests')"
+            class="w-[min(100vw-2rem,30rem)]"
+        >
+            <div class="flex flex-col gap-4">
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-surface-700 dark:text-surface-200">
+                        {{ $t("UnitsManagement.selectTransferUnit") }}
+                    </label>
+                    <Select
+                        v-model="transferTargetUnitId"
+                        :options="transferUnitOptions"
+                        option-label="label"
+                        option-value="value"
+                        :loading="transferLoading"
+                        class="w-full"
+                        size="large"
+                        :placeholder="$t('UnitsManagement.selectTransferUnit')"
+                        :show-clear="transferTargetUnitId != null"
+                    />
+                    <small
+                        v-if="!transferLoading && !transferUnitOptions.length"
+                        class="text-surface-500"
+                    >
+                        {{ $t("UnitsManagement.noAvailableTransferUnits") }}
+                    </small>
+                </div>
+
+                <Button
+                    type="button"
+                    :label="$t('UnitsManagement.submitTransferGuests')"
+                    icon="pi pi-users"
+                    :loading="transferSubmitting"
+                    :disabled="
+                        transferSourceUnitId == null ||
+                        transferTargetUnitId == null ||
+                        transferSubmitting ||
+                        transferLoading
+                    "
+                    @click="submitTransferGuests"
+                />
+            </div>
+        </Dialog>
     </div>
 </template>
 
@@ -153,6 +199,12 @@ const reservationModalVisible = ref(false);
 const reservationSubmitting = ref(false);
 const reservationUnitId = ref(null);
 const reservationDateTime = ref("");
+const transferModalVisible = ref(false);
+const transferLoading = ref(false);
+const transferSubmitting = ref(false);
+const transferSourceUnitId = ref(null);
+const transferTargetUnitId = ref(null);
+const transferUnitOptions = ref([]);
 
 /** Larger rows / hit targets for touch screens (popup menu is portaled). */
 const touchMenuPt = {
@@ -346,6 +398,77 @@ async function submitReservation() {
     }
 }
 
+async function loadTransferUnits(sourceUnitId) {
+    transferLoading.value = true;
+    transferUnitOptions.value = [];
+    try {
+        const allUnits = [];
+        let page = 1;
+        let lastPage = 1;
+
+        do {
+            const { data } = await unitsService.getUnits({
+                page,
+                per_page: 100,
+            });
+            const items = data?.items ?? [];
+            allUnits.push(...items);
+            lastPage = Number(data?.meta?.last_page ?? 1);
+            page += 1;
+        } while (page <= lastPage);
+
+        transferUnitOptions.value = allUnits
+            .filter((x) => Number(x?.id) !== Number(sourceUnitId))
+            .filter((x) => String(x?.status || "").toLowerCase() === UnitStatus.Available)
+            .filter((x) => Boolean(x?.active))
+            .map((x) => ({
+                value: x.id,
+                label: x?.name || `#${x?.id}`,
+            }));
+    } catch {
+        transferUnitOptions.value = [];
+    } finally {
+        transferLoading.value = false;
+    }
+}
+
+async function openTransferModal(sourceUnitId) {
+    transferSourceUnitId.value = sourceUnitId;
+    transferTargetUnitId.value = null;
+    transferModalVisible.value = true;
+    await loadTransferUnits(sourceUnitId);
+}
+
+async function submitTransferGuests() {
+    if (transferSourceUnitId.value == null || transferTargetUnitId.value == null) {
+        return;
+    }
+
+    transferSubmitting.value = true;
+    try {
+        await unitsService.transferGuests(transferSourceUnitId.value, {
+            target_unit_id: Number(transferTargetUnitId.value),
+        });
+        toast.add({
+            severity: "success",
+            summary: t("UnitsManagement.actions.transferGuests"),
+            life: 2500,
+        });
+        transferModalVisible.value = false;
+        transferSourceUnitId.value = null;
+        transferTargetUnitId.value = null;
+        notifyAction();
+    } catch {
+        toast.add({
+            severity: "error",
+            summary: t("UnitsManagement.actionError"),
+            life: 4000,
+        });
+    } finally {
+        transferSubmitting.value = false;
+    }
+}
+
 const menuItems = computed(() => {
     const u = props.unit;
     const id = u?.id;
@@ -468,12 +591,7 @@ const menuItems = computed(() => {
             menuEntry(
                 "UnitsManagement.actions.transferGuests",
                 "pi pi-users",
-                () => {
-                    router.push({
-                        path: "/units/transfer",
-                        query: { unit_id: String(id) },
-                    });
-                }
+                () => openTransferModal(id)
             ),
         ];
     }

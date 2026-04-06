@@ -37,6 +37,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/api/units/{id}/reserve', [UnitController::class, 'reserve']);
     Route::post('/api/units/{id}/close', [UnitController::class, 'close']);
     Route::post('/api/units/{id}/cancel-reservation', [UnitController::class, 'cancelReservation']);
+    Route::post('/api/units/{id}/transfer-guests', [UnitController::class, 'transferGuests']);
 
     Route::post('/api/products/{product}/media', [ProductController::class, 'storeMedia']);
     Route::post('/api/products/{product}/media/default', [ProductController::class, 'setDefaultMedia']);

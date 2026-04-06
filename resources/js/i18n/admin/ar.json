@@ -58,6 +58,9 @@
         "noCurrentOrder": "لا يوجد طلب مرتبط بهذه الوحدة.",
         "reservationDateTime": "تاريخ ووقت الحجز",
         "submitReservation": "تأكيد الحجز",
+        "selectTransferUnit": "اختر الوحدة الوجهة",
+        "submitTransferGuests": "نقل الضيوف",
+        "noAvailableTransferUnits": "لا توجد وحدات متاحة للنقل إليها.",
         "transferPlaceholder": "نقل الضيوف — ستُضاف الشاشة لاحقًا.",
         "actions": {
             "addReservation": "إضافة حجز",

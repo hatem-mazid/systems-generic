@@ -317,4 +317,104 @@ class UnitController extends Controller
             return response()->json(new UnitResource($unit->fresh()->load(['group', 'currentOrder'])));
         });
     }
+
+    public function transferGuests(Request $request, string $id)
+    {
+        $validated = $this->validateJsonOrFail($request, [
+            'target_unit_id' => 'required|integer|exists:units,id',
+        ]);
+
+        if ($validated instanceof JsonResponse) {
+            return $validated;
+        }
+
+        $sourceUnit = Unit::with('currentOrder')->find($id);
+        if (! $sourceUnit) {
+            return response()->json(['message' => 'Source unit not found'], 404);
+        }
+
+        $targetId = (int) $validated['target_unit_id'];
+        if ((int) $sourceUnit->id === $targetId) {
+            return response()->json(['message' => 'Target unit must be different from source unit.'], 422);
+        }
+
+        $targetUnit = Unit::with('currentOrder')->find($targetId);
+        if (! $targetUnit) {
+            return response()->json(['message' => 'Target unit not found'], 404);
+        }
+
+        if (strtolower((string) $sourceUnit->status) !== 'occupied') {
+            return response()->json(['message' => 'Source unit is not occupied.'], 422);
+        }
+
+        $sourceOrder = $sourceUnit->currentOrder;
+        if (! $sourceOrder || in_array($sourceOrder->status, ['closed', 'cancelled', 'reserved', 'pending'], true)) {
+            return response()->json(['message' => 'Source unit has no active order to transfer.'], 422);
+        }
+
+        if (strtolower((string) $targetUnit->status) !== 'available' || ! $targetUnit->active) {
+            return response()->json(['message' => 'Target unit must be active and available.'], 422);
+        }
+
+        if ($targetUnit->current_order_id && $targetUnit->currentOrder) {
+            if (! in_array($targetUnit->currentOrder->status, ['closed', 'cancelled'], true)) {
+                return response()->json(['message' => 'Target unit already has an active order.'], 422);
+            }
+        }
+
+        return DB::transaction(function () use ($sourceUnit, $targetUnit, $sourceOrder) {
+            $sourceLocked = Unit::whereKey($sourceUnit->id)->lockForUpdate()->first();
+            $targetLocked = Unit::whereKey($targetUnit->id)->lockForUpdate()->first();
+
+            if (! $sourceLocked || ! $targetLocked) {
+                return response()->json(['message' => 'Unit not found during transfer.'], 404);
+            }
+
+            $sourceLocked->load('currentOrder');
+            $targetLocked->load('currentOrder');
+
+            if (strtolower((string) $sourceLocked->status) !== 'occupied') {
+                return response()->json(['message' => 'Source unit is not occupied.'], 422);
+            }
+
+            if (strtolower((string) $targetLocked->status) !== 'available' || ! $targetLocked->active) {
+                return response()->json(['message' => 'Target unit must be active and available.'], 422);
+            }
+
+            $order = $sourceLocked->currentOrder;
+            if (! $order || in_array($order->status, ['closed', 'cancelled', 'reserved', 'pending'], true)) {
+                return response()->json(['message' => 'Source unit has no active order to transfer.'], 422);
+            }
+
+            if ($targetLocked->current_order_id && $targetLocked->currentOrder) {
+                if (! in_array($targetLocked->currentOrder->status, ['closed', 'cancelled'], true)) {
+                    return response()->json(['message' => 'Target unit already has an active order.'], 422);
+                }
+                $targetLocked->update(['current_order_id' => null]);
+            }
+
+            $order->update([
+                'unit_id' => $targetLocked->id,
+            ]);
+
+            $sourceLocked->update([
+                'status' => 'available',
+                'current_order_id' => null,
+                'reserved_at' => null,
+                'reserved_by' => null,
+            ]);
+
+            $targetLocked->update([
+                'status' => 'occupied',
+                'current_order_id' => $order->id,
+                'reserved_at' => null,
+                'reserved_by' => null,
+            ]);
+
+            return response()->json([
+                'source_unit' => new UnitResource($sourceLocked->fresh()->load(['group', 'currentOrder'])),
+                'target_unit' => new UnitResource($targetLocked->fresh()->load(['group', 'currentOrder'])),
+            ]);
+        });
+    }
 }
