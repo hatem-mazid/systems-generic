@@ -23,8 +23,8 @@ return new class extends Migration
                 ->constrained()
                 ->nullOnDelete();
 
-            $table->string('status')->default('open');
-            // open | pending | closed | cancelled
+            $table->string('status')->default('active');
+            // active | reserved | closed | cancelled
 
             $table->decimal('total', 10, 2)->default(0);
 

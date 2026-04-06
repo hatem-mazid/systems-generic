@@ -56,6 +56,8 @@
         "more": "المزيد من الإجراءات",
         "actionError": "تعذر تنفيذ الإجراء.",
         "noCurrentOrder": "لا يوجد طلب مرتبط بهذه الوحدة.",
+        "reservationDateTime": "تاريخ ووقت الحجز",
+        "submitReservation": "تأكيد الحجز",
         "transferPlaceholder": "نقل الضيوف — ستُضاف الشاشة لاحقًا.",
         "actions": {
             "addReservation": "إضافة حجز",
@@ -132,6 +134,8 @@
         "AllStatuses": "كل الحالات",
         "AllWaiters": "كل النُدل",
         "Statuses": {
+            "active": "نشط",
+            "reserved": "محجوز",
             "open": "مفتوح",
             "pending": "قيد الانتظار",
             "closed": "مغلق",

@@ -19,7 +19,7 @@ class OrderController extends Controller
         $validated = $request->validate([
             'per_page' => 'sometimes|integer|min:1|max:100',
             'user_id' => 'sometimes|nullable|integer|exists:users,id',
-            'status' => 'sometimes|nullable|string|in:open,pending,closed,cancelled',
+            'status' => 'sometimes|nullable|string|in:active,reserved,open,pending,closed,cancelled',
             'date_from' => 'sometimes|nullable|date',
             'date_to' => [
                 'sometimes',
@@ -42,7 +42,14 @@ class OrderController extends Controller
         }
 
         if (! empty($validated['status'] ?? null)) {
-            $query->where('status', $validated['status']);
+            $status = $validated['status'];
+            if ($status === 'active') {
+                $query->whereIn('status', ['active', 'open']);
+            } elseif ($status === 'reserved') {
+                $query->whereIn('status', ['reserved', 'pending']);
+            } else {
+                $query->where('status', $status);
+            }
         }
 
         if (! empty($validated['date_from'] ?? null)) {
@@ -70,7 +77,7 @@ class OrderController extends Controller
     public function storeItem(Request $request, Order $order)
     {
         if (! $order->isOpen()) {
-            return response()->json(['message' => 'Order is not open.'], 422);
+            return response()->json(['message' => 'Order is not active.'], 422);
         }
 
         $validated = $request->validate([
@@ -124,7 +131,7 @@ class OrderController extends Controller
     public function destroyItem(Order $order, string $item)
     {
         if (! $order->isOpen()) {
-            return response()->json(['message' => 'Order is not open.'], 422);
+            return response()->json(['message' => 'Order is not active.'], 422);
         }
 
         $orderItem = OrderItem::where('order_id', $order->id)->where('id', $item)->first();

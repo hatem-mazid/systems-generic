@@ -127,9 +127,9 @@ class UnitController extends Controller
             $unit->refresh()->load('currentOrder');
             $status = strtolower((string) ($unit->status ?? ''));
 
-            if ($status === 'reserved' && $unit->currentOrder && $unit->currentOrder->status === 'pending') {
+            if ($status === 'reserved' && $unit->currentOrder && in_array($unit->currentOrder->status, ['reserved', 'pending'], true)) {
                 $unit->currentOrder->update([
-                    'status' => 'open',
+                    'status' => 'active',
                     'opened_at' => now(),
                     'reserved_at' => null,
                 ]);
@@ -163,7 +163,7 @@ class UnitController extends Controller
             $order = Order::create([
                 'unit_id' => $unit->id,
                 'user_id' => $request->user()?->id,
-                'status' => 'open',
+                'status' => 'active',
                 'total' => 0,
                 'reserved_at' => null,
                 'opened_at' => now(),
@@ -234,7 +234,7 @@ class UnitController extends Controller
             $order = Order::create([
                 'unit_id' => $unit->id,
                 'user_id' => $request->user()?->id,
-                'status' => 'pending',
+                'status' => 'reserved',
                 'total' => 0,
                 'reserved_at' => $reservedAt,
                 'opened_at' => null,
@@ -296,8 +296,8 @@ class UnitController extends Controller
             return response()->json(['message' => 'Unit is not reserved.'], 422);
         }
 
-        if (! $unit->currentOrder || $unit->currentOrder->status !== 'pending') {
-            return response()->json(['message' => 'No pending reservation order on this unit.'], 422);
+        if (! $unit->currentOrder || !in_array($unit->currentOrder->status, ['reserved', 'pending'], true)) {
+            return response()->json(['message' => 'No reserved order on this unit.'], 422);
         }
 
         return DB::transaction(function () use ($unit) {

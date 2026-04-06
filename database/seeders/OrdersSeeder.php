@@ -24,7 +24,7 @@ class OrdersSeeder extends Seeder
             [
                 'unit_id' => $unitId('T3'),
                 'user_id' => $waiter?->id,
-                'status' => 'open',
+                'status' => 'active',
                 'opened_at' => now()->subHour(),
                 'closed_at' => null,
                 'items' => [
@@ -35,7 +35,7 @@ class OrdersSeeder extends Seeder
             [
                 'unit_id' => $unitId('T1'),
                 'user_id' => $waiter?->id,
-                'status' => 'pending',
+                'status' => 'reserved',
                 'opened_at' => now()->subMinutes(20),
                 'closed_at' => null,
                 'items' => [

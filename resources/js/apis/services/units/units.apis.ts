@@ -31,8 +31,14 @@ export const unitsService = {
     startOrder: async (id: string | number): Promise<AxiosResponse<unknown>> => {
         return http.post(`/api/units/${id}/start-order`);
     },
-    reserveUnit: async (id: string | number): Promise<AxiosResponse<unknown>> => {
-        return http.post(`/api/units/${id}/reserve`);
+    reserveUnit: async (
+        id: string | number,
+        payload?: {
+            reserved_at?: string | null;
+            reserved_by?: string | null;
+        }
+    ): Promise<AxiosResponse<unknown>> => {
+        return http.post(`/api/units/${id}/reserve`, payload);
     },
     closeUnit: async (id: string | number): Promise<AxiosResponse<unknown>> => {
         return http.post(`/api/units/${id}/close`);

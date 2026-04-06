@@ -56,6 +56,8 @@
         "more": "More actions",
         "actionError": "Action could not be completed.",
         "noCurrentOrder": "No order linked to this unit.",
+        "reservationDateTime": "Reservation date and time",
+        "submitReservation": "Reserve",
         "transferPlaceholder": "Transfer guests — this screen will be expanded later.",
         "actions": {
             "addReservation": "Add reservation",
@@ -132,6 +134,8 @@
         "AllStatuses": "All statuses",
         "AllWaiters": "All waiters",
         "Statuses": {
+            "active": "Active",
+            "reserved": "Reserved",
             "open": "Open",
             "pending": "Pending",
             "closed": "Closed",

@@ -181,8 +181,8 @@ const paginator = ref({
 
 const statusOptions = computed(() => [
     { label: t("OrdersList.AllStatuses"), value: null },
-    { label: t("OrdersList.Statuses.open"), value: OrderStatus.Open },
-    { label: t("OrdersList.Statuses.pending"), value: OrderStatus.Pending },
+    { label: t("OrdersList.Statuses.active"), value: OrderStatus.Active },
+    { label: t("OrdersList.Statuses.reserved"), value: OrderStatus.Reserved },
     { label: t("OrdersList.Statuses.closed"), value: OrderStatus.Closed },
     { label: t("OrdersList.Statuses.cancelled"), value: OrderStatus.Cancelled },
 ]);

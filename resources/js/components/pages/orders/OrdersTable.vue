@@ -235,8 +235,10 @@ function statusLabel(status) {
 
 function statusSeverity(status) {
     switch (status) {
+        case OrderStatus.Active:
         case OrderStatus.Open:
             return "success";
+        case OrderStatus.Reserved:
         case OrderStatus.Pending:
             return "warn";
         case OrderStatus.Closed:

@@ -349,7 +349,10 @@ const adding = ref(false);
 const removingId = ref(null);
 
 const canEditItems = computed(
-    () => order.value && order.value.status === OrderStatus.Open
+    () =>
+        order.value &&
+        (order.value.status === OrderStatus.Active ||
+            order.value.status === OrderStatus.Open)
 );
 
 function pickOrderPayload(res) {
@@ -392,8 +395,10 @@ function statusLabel(status) {
 
 function statusSeverity(status) {
     switch (status) {
+        case OrderStatus.Active:
         case OrderStatus.Open:
             return "success";
+        case OrderStatus.Reserved:
         case OrderStatus.Pending:
             return "warn";
         case OrderStatus.Closed:

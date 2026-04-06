@@ -65,6 +65,59 @@
             :order-id="orderDrawerOrderId"
             @updated="notifyAction"
         />
+
+        <Dialog
+            v-model:visible="reservationModalVisible"
+            modal
+            :header="$t('UnitsManagement.actions.addReservation')"
+            class="w-[min(100vw-2rem,28rem)]"
+        >
+            <div class="flex flex-col gap-4">
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-surface-700 dark:text-surface-200">
+                        {{ $t("UnitsManagement.reservationDateTime") }}
+                    </label>
+                    <input
+                        v-model="reservationDateTime"
+                        type="datetime-local"
+                        step="300"
+                        class="h-12 w-full rounded-md border border-surface-300 bg-surface-0 px-3 text-base text-surface-900 outline-none transition focus:border-primary dark:border-surface-600 dark:bg-surface-900 dark:text-surface-0"
+                    />
+                    <div class="grid grid-cols-3 gap-2">
+                        <Button
+                            type="button"
+                            size="small"
+                            outlined
+                            label="-15m"
+                            @click="shiftReservationMinutes(-15)"
+                        />
+                        <Button
+                            type="button"
+                            size="small"
+                            outlined
+                            label="+15m"
+                            @click="shiftReservationMinutes(15)"
+                        />
+                        <Button
+                            type="button"
+                            size="small"
+                            outlined
+                            label="+30m"
+                            @click="shiftReservationMinutes(30)"
+                        />
+                    </div>
+                </div>
+
+                <Button
+                    type="button"
+                    :label="$t('UnitsManagement.submitReservation')"
+                    icon="pi pi-check"
+                    :loading="reservationSubmitting"
+                    :disabled="!reservationDateTime || reservationUnitId == null"
+                    @click="submitReservation"
+                />
+            </div>
+        </Dialog>
     </div>
 </template>
 
@@ -96,6 +149,10 @@ const menuRef = ref();
 
 const orderDrawerVisible = ref(false);
 const orderDrawerOrderId = ref(null);
+const reservationModalVisible = ref(false);
+const reservationSubmitting = ref(false);
+const reservationUnitId = ref(null);
+const reservationDateTime = ref("");
 
 /** Larger rows / hit targets for touch screens (popup menu is portaled). */
 const touchMenuPt = {
@@ -230,6 +287,65 @@ async function runApi(
     }
 }
 
+function openReservationModal(id) {
+    reservationUnitId.value = id;
+    reservationDateTime.value = formatDateTimeLocal(roundToNearestMinutes(new Date(), 5));
+    reservationModalVisible.value = true;
+}
+
+function roundToNearestMinutes(date, minutes) {
+    const ms = 1000 * 60 * minutes;
+    return new Date(Math.ceil(date.getTime() / ms) * ms);
+}
+
+function formatDateTimeLocal(date) {
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function shiftReservationMinutes(deltaMinutes) {
+    const base = reservationDateTime.value ? new Date(reservationDateTime.value) : new Date();
+    if (Number.isNaN(base.getTime())) {
+        return;
+    }
+    base.setMinutes(base.getMinutes() + deltaMinutes);
+    reservationDateTime.value = formatDateTimeLocal(base);
+}
+
+async function submitReservation() {
+    if (reservationUnitId.value == null || !reservationDateTime.value) {
+        return;
+    }
+
+    reservationSubmitting.value = true;
+    try {
+        const selectedDate = new Date(reservationDateTime.value);
+        if (Number.isNaN(selectedDate.getTime())) {
+            throw new Error("Invalid reservation datetime");
+        }
+
+        await unitsService.reserveUnit(reservationUnitId.value, {
+            reserved_at: selectedDate.toISOString(),
+        });
+        toast.add({
+            severity: "success",
+            summary: t("UnitsManagement.actions.addReservation"),
+            life: 2500,
+        });
+        reservationModalVisible.value = false;
+        reservationUnitId.value = null;
+        notifyAction();
+    } catch {
+        toast.add({
+            severity: "error",
+            summary: t("UnitsManagement.actionError"),
+            life: 4000,
+        });
+    } finally {
+        reservationSubmitting.value = false;
+    }
+}
+
 const menuItems = computed(() => {
     const u = props.unit;
     const id = u?.id;
@@ -252,11 +368,7 @@ const menuItems = computed(() => {
                 ? menuEntry(
                       "UnitsManagement.actions.addReservation",
                       "pi pi-calendar-plus",
-                      () =>
-                          runApi(
-                              t("UnitsManagement.actions.addReservation"),
-                              () => unitsService.reserveUnit(id)
-                          )
+                      () => openReservationModal(id)
                   )
                 : menuEntry(
                       "UnitsManagement.actions.addReservation",
