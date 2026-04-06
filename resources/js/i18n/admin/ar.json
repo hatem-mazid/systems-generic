@@ -87,6 +87,10 @@
             "people": "أشخاص",
             "today": "اليوم"
         },
+        "checkout": {
+            "productItemsOverview": "نظرة سريعة على عناصر المنتجات",
+            "noProductsFound": "لا توجد منتجات"
+        },
         "reservationCustomerName": "اسم الزبون"
     },
     "Orders": {

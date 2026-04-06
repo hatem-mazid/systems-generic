@@ -50,7 +50,7 @@
         <div>
             <div
                 v-if="unitGroup.units?.length"
-                class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3"
+                class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3"
             >
                 <template v-for="unit in unitGroup.units" :key="unit.id">
                     <UnitCard

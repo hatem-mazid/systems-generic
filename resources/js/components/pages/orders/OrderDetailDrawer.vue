@@ -40,7 +40,7 @@
         </template>
 
         <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
-            <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-6 pt-2 xl:overflow-hidden">
+            <div class="min-h-0 flex-1 overflow-hidden overscroll-contain px-4 pb-6 pt-0">
                 <div v-if="loading" class="space-y-4">
                     <Skeleton height="8rem" class="rounded-xl" />
                     <Skeleton height="14rem" class="rounded-xl" />
@@ -56,10 +56,10 @@
                 </Message>
 
                 <template v-else-if="order">
-                    <div class="grid gap-4 xl:h-full xl:grid-cols-[minmax(0,1fr)_480px] xl:items-start">
+                    <div class="grid gap-4 lg:h-full lg:grid-cols-[minmax(0,1fr)_480px] lg:items-start">
                         <section
                             v-if="canEditItems"
-                            class="rounded-xl border border-surface-200 bg-surface-50 p-3 pt-0 dark:border-surface-600 dark:bg-surface-900/40 xl:max-h-full xl:overflow-y-auto xl:pe-2"
+                            class="rounded-xl border border-surface-200 bg-surface-50 p-3 pt-0 dark:border-surface-600 dark:bg-surface-900/40 max-h-full overflow-y-auto pe-2"
                         >
                             <div class="sticky top-0 z-10 pt-3 bg-surface-50 dark:bg-surface-900/40">
                                 <p class="mb-2 text-sm font-semibold text-surface-900 dark:text-surface-100">
@@ -82,7 +82,7 @@
                             </div>
 
 
-                            <div v-if="productsLoading" class="grid grid-cols-2 gap-3">
+                            <div v-if="productsLoading" class="grid lg:grid-cols-2 grid-cols-3 gap-3">
                                 <Skeleton
                                     v-for="idx in 6"
                                     :key="`quick-product-skeleton-${idx}`"
@@ -96,7 +96,7 @@
                             >
                                 {{ $t("OrderDetail.EmptyItems") }}
                             </div>
-                            <div v-else class="grid grid-cols-2 gap-3">
+                            <div v-else class="grid lg:grid-cols-2 grid-cols-3 gap-3">
                                 <article
                                     v-for="product in filteredProducts"
                                     :key="product.id"
@@ -172,7 +172,7 @@
                             {{ $t("OrderDetail.NotEditable") }}
                         </Message>
 
-                        <section class="space-y-4 xl:sticky xl:top-0 xl:max-h-full xl:overflow-y-auto">
+                        <section class="space-y-4 lg:sticky lg:top-0 lg:max-h-full lg:overflow-y-auto">
                             <Card
                                 class="overflow-hidden rounded-xl border border-surface-200/80 shadow-sm dark:border-surface-700 xl:sticky xl:top-0 xl:z-20"
                             >

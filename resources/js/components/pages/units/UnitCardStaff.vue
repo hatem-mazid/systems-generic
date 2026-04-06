@@ -226,6 +226,97 @@
                 />
             </div>
         </Dialog>
+
+        <Dialog
+            v-model:visible="checkoutModalVisible"
+            modal
+            :header="$t('UnitsManagement.actions.completeCheckout')"
+            class="w-[min(100vw-2rem,30rem)]"
+        >
+            <div class="flex flex-col gap-4">
+                <div class="rounded-xl border border-surface-200 bg-surface-50 p-4 dark:border-surface-600 dark:bg-surface-900/40">
+                    <dl class="space-y-2 text-sm">
+                        <div class="flex items-center justify-between gap-2">
+                            <dt class="text-surface-600 dark:text-surface-300">
+                                {{ $t("UnitsManagement.actions.viewOrder") }}
+                            </dt>
+                            <dd class="font-semibold text-surface-900 dark:text-surface-0">
+                                #{{ checkoutOrderIdLabel }}
+                            </dd>
+                        </div>
+                        <div class="flex items-center justify-between gap-2">
+                            <dt class="text-surface-600 dark:text-surface-300">
+                                {{ $t("UnitsManagement.card.duration") }}
+                            </dt>
+                            <dd class="font-semibold text-surface-900 dark:text-surface-0">
+                                {{ occupiedDurationLabel }}
+                            </dd>
+                        </div>
+                        <div class="flex items-center justify-between gap-2">
+                            <dt class="text-surface-600 dark:text-surface-300">
+                                {{ $t("UnitsManagement.card.totalOrder") }}
+                            </dt>
+                            <dd class="font-semibold text-surface-900 dark:text-surface-0">
+                                {{ checkoutOrderTotalLabel }}
+                            </dd>
+                        </div>
+                    </dl>
+                    <div class="mt-3 border-t border-surface-200 pt-3 dark:border-surface-600">
+                        <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-surface-600 dark:text-surface-300">
+                            {{ $t("UnitsManagement.checkout.productItemsOverview") }}
+                        </p>
+                        <p
+                            v-if="checkoutLoading"
+                            class="text-sm text-surface-500 dark:text-surface-400"
+                        >
+                            Loading...
+                        </p>
+                        <ul
+                            v-else-if="checkoutProductOverview.length"
+                            class="space-y-1.5 text-sm"
+                        >
+                            <li
+                                v-for="item in checkoutProductOverview"
+                                :key="item.key"
+                                class="flex items-center justify-between gap-2"
+                            >
+                                <span class="truncate text-surface-700 dark:text-surface-200">
+                                    {{ item.name }}
+                                </span>
+                                <span class="shrink-0 font-semibold text-surface-900 dark:text-surface-0">
+                                    x{{ item.qty }}
+                                </span>
+                            </li>
+                        </ul>
+                        <p
+                            v-else
+                            class="text-sm text-surface-500 dark:text-surface-400"
+                        >
+                            {{ $t("UnitsManagement.checkout.noProductsFound") }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2">
+                    <Button
+                        type="button"
+                        severity="secondary"
+                        outlined
+                        :label="$t('Cancel')"
+                        :disabled="checkoutSubmitting"
+                        @click="checkoutModalVisible = false"
+                    />
+                    <Button
+                        type="button"
+                        icon="pi pi-check-circle"
+                        :label="$t('UnitsManagement.actions.completeCheckout')"
+                        :loading="checkoutSubmitting"
+                        :disabled="checkoutUnitId == null || checkoutSubmitting || checkoutLoading"
+                        @click="submitCheckout"
+                    />
+                </div>
+            </div>
+        </Dialog>
     </div>
 </template>
 
@@ -237,6 +328,7 @@ import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { UnitStatus, UnitType } from "../../../apis/services/units/units.type";
 import { unitsService } from "../../../apis/services/units/units.apis";
+import { ordersService } from "../../../apis/services/orders/orders.apis";
 import OrderDetailDrawer from "../orders/OrderDetailDrawer.vue";
 import { formatCurrency } from "../../../utils/formatCurrency";
 
@@ -270,6 +362,11 @@ const transferSubmitting = ref(false);
 const transferSourceUnitId = ref(null);
 const transferTargetUnitId = ref(null);
 const transferUnitOptions = ref([]);
+const checkoutModalVisible = ref(false);
+const checkoutSubmitting = ref(false);
+const checkoutLoading = ref(false);
+const checkoutUnitId = ref(null);
+const checkoutOrder = ref(null);
 const durationNowMs = ref(Date.now());
 let durationTimer = null;
 
@@ -400,6 +497,11 @@ const orderTotalLabel = computed(() => {
     return formatCurrency(total);
 });
 
+const checkoutOrderTotalLabel = computed(() => {
+    const total = checkoutOrder.value?.total ?? props.unit?.current_order?.total;
+    return formatCurrency(total);
+});
+
 const occupiedDurationLabel = computed(() => {
     const openedAt = props.unit?.current_order?.opened_at;
     if (!openedAt) {
@@ -464,6 +566,28 @@ const typeSeverity = computed(() => {
     }
     return "secondary";
 });
+
+const checkoutOrderIdLabel = computed(
+    () => checkoutOrder.value?.id ?? props.unit?.current_order_id ?? props.unit?.current_order?.id ?? "-"
+);
+
+const checkoutProductOverview = computed(() => {
+    const items = Array.isArray(checkoutOrder.value?.items)
+        ? checkoutOrder.value.items
+        : Array.isArray(props.unit?.current_order?.items)
+          ? props.unit.current_order.items
+        : [];
+    return items.slice(0, 5).map((item, idx) => ({
+        key: item?.id ?? `item-${idx}`,
+        name: item?.name || "-",
+        qty: Number(item?.quantity ?? 0) || 0,
+    }));
+});
+
+function pickOrderPayload(res) {
+    const body = res?.data;
+    return body?.data ?? body;
+}
 
 function notifyAction() {
     emit("action");
@@ -645,6 +769,54 @@ async function submitTransferGuests() {
     }
 }
 
+async function openCheckoutModal(id) {
+    const orderId = props.unit?.current_order_id ?? props.unit?.current_order?.id;
+    checkoutLoading.value = true;
+    checkoutOrder.value = null;
+    if (orderId != null && orderId !== "") {
+        try {
+            const res = await ordersService.getOrder(orderId);
+            checkoutOrder.value = pickOrderPayload(res);
+        } catch {
+            toast.add({
+                severity: "error",
+                summary: t("OrderDetail.LoadError"),
+                life: 3000,
+            });
+        }
+    }
+    checkoutLoading.value = false;
+    checkoutUnitId.value = id;
+    checkoutModalVisible.value = true;
+}
+
+async function submitCheckout() {
+    if (checkoutUnitId.value == null) {
+        return;
+    }
+    checkoutSubmitting.value = true;
+    try {
+        await unitsService.closeUnit(checkoutUnitId.value);
+        toast.add({
+            severity: "success",
+            summary: t("UnitsManagement.actions.completeCheckout"),
+            life: 2500,
+        });
+        checkoutModalVisible.value = false;
+        checkoutUnitId.value = null;
+        checkoutOrder.value = null;
+        notifyAction();
+    } catch {
+        toast.add({
+            severity: "error",
+            summary: t("UnitsManagement.actionError"),
+            life: 4000,
+        });
+    } finally {
+        checkoutSubmitting.value = false;
+    }
+}
+
 const menuItems = computed(() => {
     const u = props.unit;
     const id = u?.id;
@@ -754,10 +926,7 @@ const menuItems = computed(() => {
             menuEntry(
                 "UnitsManagement.actions.completeCheckout",
                 "pi pi-check-circle",
-                () =>
-                    runApi(t("UnitsManagement.actions.completeCheckout"), () =>
-                        unitsService.closeUnit(id)
-                    )
+                () => openCheckoutModal(id)
             ),
             menuEntry(
                 "UnitsManagement.actions.transferGuests",

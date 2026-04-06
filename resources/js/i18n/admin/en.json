@@ -87,6 +87,10 @@
             "people": "People",
             "today": "Today"
         },
+        "checkout": {
+            "productItemsOverview": "Product items overview",
+            "noProductsFound": "No products found"
+        },
         "reservationCustomerName": "Customer name"
     },
     "Orders": {
