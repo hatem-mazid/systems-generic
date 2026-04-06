@@ -124,6 +124,7 @@ import Tag from "primevue/tag";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { OrderStatus } from "../../../apis/services/orders/orders.type";
+import { formatCurrency } from "../../../utils/formatCurrency";
 
 defineProps({
     orders: {
@@ -191,19 +192,7 @@ function openRowMenu(event, data) {
 }
 
 function formatTotal(value) {
-    if (value === undefined || value === null || value === "") {
-        return "—";
-    }
-    const n = Number(value);
-    if (Number.isNaN(n)) {
-        return String(value);
-    }
-    return new Intl.NumberFormat(undefined, {
-        style: "currency",
-        currency: "IQD",
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 2,
-    }).format(n);
+    return formatCurrency(value);
 }
 
 function formatDt(iso) {

@@ -76,6 +76,17 @@
             "completeCheckout": "إتمام الدفع",
             "transferGuests": "نقل الضيوف"
         },
+        "card": {
+            "duration": "المدة",
+            "totalOrder": "إجمالي الطلب",
+            "reservationTime": "وقت الحجز",
+            "bookedBy": "الحجز باسم",
+            "capacity": "السعة",
+            "readyForSeating": "جاهز لاستقبال الضيوف.",
+            "person": "شخص",
+            "people": "أشخاص",
+            "today": "اليوم"
+        },
         "reservationCustomerName": "اسم الزبون"
     },
     "Orders": {

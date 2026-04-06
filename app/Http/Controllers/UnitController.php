@@ -202,8 +202,8 @@ class UnitController extends Controller
         }
 
         $unitStatus = strtolower((string) ($unit->status ?? ''));
-        if ($unitStatus !== 'available') {
-            return response()->json(['message' => 'Unit is not available.'], 422);
+        if (! in_array($unitStatus, ['available', 'reserved'], true)) {
+            return response()->json(['message' => 'Unit is not available for reservation.'], 422);
         }
 
         if (! $unit->active) {
@@ -211,7 +211,12 @@ class UnitController extends Controller
         }
 
         if ($unit->current_order_id && $unit->currentOrder) {
-            if (! in_array($unit->currentOrder->status, ['closed', 'cancelled'], true)) {
+            if (
+                $unitStatus === 'reserved' &&
+                in_array($unit->currentOrder->status, ['reserved', 'pending'], true)
+            ) {
+                // Allow rescheduling an existing reservation.
+            } elseif (! in_array($unit->currentOrder->status, ['closed', 'cancelled'], true)) {
                 return response()->json(['message' => 'Unit already has an active order.'], 422);
             }
         }
@@ -220,8 +225,26 @@ class UnitController extends Controller
             ? \Illuminate\Support\Carbon::parse($validated['reserved_at'])
             : now();
 
-        return DB::transaction(function () use ($request, $unit, $validated, $reservedAt) {
+        return DB::transaction(function () use ($request, $unit, $validated, $reservedAt, $unitStatus) {
             $unit->refresh()->load('currentOrder');
+
+            if (
+                $unitStatus === 'reserved' &&
+                $unit->currentOrder &&
+                in_array($unit->currentOrder->status, ['reserved', 'pending'], true)
+            ) {
+                $unit->currentOrder->update([
+                    'reserved_at' => $reservedAt,
+                ]);
+
+                $unit->update([
+                    'status' => 'reserved',
+                    'reserved_at' => $reservedAt,
+                    'reserved_by' => $validated['reserved_by'] ?? null,
+                ]);
+
+                return response()->json(new UnitResource($unit->fresh()->load(['group', 'currentOrder'])));
+            }
 
             if ($unit->current_order_id && $unit->currentOrder) {
                 if (! in_array($unit->currentOrder->status, ['closed', 'cancelled'], true)) {

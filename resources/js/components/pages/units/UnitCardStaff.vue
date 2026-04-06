@@ -1,18 +1,22 @@
 <template>
-    <div
-        class="rounded-lg border bg-white border-surface-200 p-3 dark:border-surface-700 dark:bg-surface-800 flex flex-col gap-2"
-    >
-        <div class="flex items-center justify-between gap-3">
-            <p
-                class="min-w-0 flex-1 truncate font-medium text-surface-900 dark:text-surface-0"
-            >
-                {{ unit.name || "-" }}
-            </p>
+    <div class="overflow-hidden rounded-2xl border border-surface-200 bg-white dark:border-surface-700 dark:bg-surface-800">
+        <div class="flex items-center justify-between gap-3 px-4 py-3" :class="cardHeaderClass">
+            <div class="min-w-0 flex items-center gap-2">
+                <p class="truncate text-xl font-semibold text-surface-900 dark:text-surface-0">
+                    {{ unit.name || "-" }}
+                </p>
+                <span
+                    class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-surface-800/90 dark:text-surface-100 border border-surface-300 dark:border-surface-600"
+                >
+                    <i :class="typeIconClass" class="!text-sm" />
+                    {{ $t(`Units.Types.${typeLabel}`) }}
+                </span>
+            </div>
             <Button
                 type="button"
-                size="large"
+                size="small"
                 rounded
-                outlined
+                text
                 severity="secondary"
                 icon="pi pi-ellipsis-h"
                 :aria-label="$t('UnitsManagement.more')"
@@ -27,37 +31,75 @@
             />
         </div>
 
-        <div class="flex items-center gap-2">
-            <i
-                :class="typeIconClass"
-                class="!text-xl text-surface-700 dark:text-surface-200"
-            />
-            <h3
-                class="shrink-0 !text-md font-medium text-surface-900 dark:text-surface-0"
-            >
-                {{ $t(`Units.Types.${typeLabel}`) }}
-            </h3>
-        </div>
+        <div class="space-y-4 px-4 py-4">
+            <template v-if="statusTagKey === 'occupied'">
+                <div class="flex items-center gap-3">
+                    <i class="pi pi-clock !text-3xl text-orange-600" />
+                    <div>
+                        <p class="text-sm font-semibold uppercase tracking-wide text-surface-600 dark:text-surface-300">
+                            {{ $t("UnitsManagement.card.duration") }}
+                        </p>
+                        <p class="text-3xl font-bold leading-none text-surface-900 dark:text-surface-0">
+                            {{ occupiedDurationLabel }}
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <i class="pi pi-receipt !text-3xl text-rose-600" />
+                    <div>
+                        <p class="text-sm font-semibold uppercase tracking-wide text-surface-600 dark:text-surface-300">
+                            {{ $t("UnitsManagement.card.totalOrder") }}
+                        </p>
+                        <p class="text-3xl font-bold leading-none text-surface-900 dark:text-surface-0">
+                            {{ orderTotalLabel }}
+                        </p>
+                    </div>
+                </div>
+            </template>
 
-        <div class="flex items-center gap-2">
-            <span class="text-sm text-surface-600 dark:text-surface-300"
-                >{{ $t("Units.Status") }}:</span
-            >
-            <Tag
-                class="shrink-0 !text-xs"
-                :value="statusTagDisplay"
-                :severity="statusTagSeverity"
-                rounded
-            />
-        </div>
+            <template v-else-if="statusTagKey === 'reserved'">
+                <div class="flex items-center gap-3">
+                    <i class="pi pi-clock !text-3xl text-orange-600" />
+                    <div>
+                        <p class="text-sm font-semibold uppercase tracking-wide text-surface-600 dark:text-surface-300">
+                            {{ $t("UnitsManagement.card.reservationTime") }}
+                        </p>
+                        <p class="text-3xl font-bold leading-none text-surface-900 dark:text-surface-0">
+                            {{ reservedTimeLabel }}
+                        </p>
+                    </div>
+                </div>
+                <p class="text-xl text-surface-700 dark:text-surface-200">
+                    <span class="font-medium">{{ $t("UnitsManagement.card.bookedBy") }}:</span>
+                    {{ reservedByLabel }}
+                </p>
+            </template>
 
-        <div class="space-y-1 text-sm text-surface-600 dark:text-surface-300">
-            <p v-if="unit.position != null">
-                {{ $t("Units.Position") }}: {{ unit.position }}
-            </p>
-            <p v-if="unit.capacity != null">
-                {{ $t("Units.Capacity") }}: {{ unit.capacity }}
-            </p>
+            <template v-else>
+                <div class="flex items-center gap-3">
+                    <i class="pi pi-users !text-3xl text-teal-600" />
+                    <div>
+                        <p class="text-sm font-semibold uppercase tracking-wide text-surface-600 dark:text-surface-300">
+                            {{ $t("UnitsManagement.card.capacity") }}
+                        </p>
+                        <p class="text-3xl font-bold leading-none text-surface-900 dark:text-surface-0">
+                            {{ capacityLabel }}
+                        </p>
+                    </div>
+                </div>
+                <p class="text-xl text-surface-700 dark:text-surface-200">
+                    {{ $t("UnitsManagement.card.readyForSeating") }}
+                </p>
+            </template>
+
+            <div>
+                <span
+                    class="inline-flex rounded-full px-3 py-1 text-sm font-semibold"
+                    :class="statusChipClass"
+                >
+                    {{ statusTagDisplay }}
+                </span>
+            </div>
         </div>
 
         <OrderDetailDrawer
@@ -69,7 +111,11 @@
         <Dialog
             v-model:visible="reservationModalVisible"
             modal
-            :header="$t('UnitsManagement.actions.addReservation')"
+            :header="
+                reservationEditMode
+                    ? $t('UnitsManagement.actions.editReservationTime')
+                    : $t('UnitsManagement.actions.addReservation')
+            "
             class="w-[min(100vw-2rem,28rem)]"
         >
             <div class="flex flex-col gap-4">
@@ -122,7 +168,11 @@
 
                 <Button
                     type="button"
-                    :label="$t('UnitsManagement.submitReservation')"
+                    :label="
+                        reservationEditMode
+                            ? $t('UnitsManagement.actions.editReservationTime')
+                            : $t('UnitsManagement.submitReservation')
+                    "
                     icon="pi pi-check"
                     :loading="reservationSubmitting"
                     :disabled="!reservationDateTime || reservationUnitId == null"
@@ -180,7 +230,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import { useI18n } from "vue-i18n";
@@ -188,6 +238,7 @@ import { useRouter } from "vue-router";
 import { UnitStatus, UnitType } from "../../../apis/services/units/units.type";
 import { unitsService } from "../../../apis/services/units/units.apis";
 import OrderDetailDrawer from "../orders/OrderDetailDrawer.vue";
+import { formatCurrency } from "../../../utils/formatCurrency";
 
 const props = defineProps({
     unit: {
@@ -212,12 +263,15 @@ const reservationSubmitting = ref(false);
 const reservationUnitId = ref(null);
 const reservationDateTime = ref("");
 const reservationCustomerName = ref("");
+const reservationEditMode = ref(false);
 const transferModalVisible = ref(false);
 const transferLoading = ref(false);
 const transferSubmitting = ref(false);
 const transferSourceUnitId = ref(null);
 const transferTargetUnitId = ref(null);
 const transferUnitOptions = ref([]);
+const durationNowMs = ref(Date.now());
+let durationTimer = null;
 
 /** Larger rows / hit targets for touch screens (popup menu is portaled). */
 const touchMenuPt = {
@@ -307,6 +361,90 @@ const statusTagSeverity = computed(() => {
     }
 });
 
+const cardHeaderClass = computed(() => {
+    switch (statusTagKey.value) {
+        case "occupied":
+            return "bg-rose-50 dark:bg-rose-900/20";
+        case "reserved":
+            return "bg-amber-50 dark:bg-amber-900/20";
+        case "available":
+            return "bg-emerald-50 dark:bg-emerald-900/20";
+        default:
+            return "bg-surface-50 dark:bg-surface-700/40";
+    }
+});
+
+const statusChipClass = computed(() => {
+    switch (statusTagKey.value) {
+        case "occupied":
+            return "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-200";
+        case "reserved":
+            return "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-200";
+        case "available":
+            return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200";
+        default:
+            return "bg-surface-100 text-surface-700 dark:bg-surface-700 dark:text-surface-200";
+    }
+});
+
+const capacityLabel = computed(() => {
+    const n = props.unit?.capacity;
+    if (n == null || Number.isNaN(Number(n))) {
+        return "-";
+    }
+    return `${n} ${Number(n) === 1 ? t("UnitsManagement.card.person") : t("UnitsManagement.card.people")}`;
+});
+
+const orderTotalLabel = computed(() => {
+    const total = props.unit?.current_order?.total;
+    return formatCurrency(total);
+});
+
+const occupiedDurationLabel = computed(() => {
+    const openedAt = props.unit?.current_order?.opened_at;
+    if (!openedAt) {
+        return "0h 00m";
+    }
+    const start = new Date(openedAt);
+    if (Number.isNaN(start.getTime())) {
+        return "0h 00m";
+    }
+    const diffMs = durationNowMs.value - start.getTime();
+    if (diffMs <= 0) {
+        return "0h 00m";
+    }
+    const mins = Math.floor(diffMs / 60000);
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return `${h}h ${String(m).padStart(2, "0")}m`;
+});
+
+const reservedByLabel = computed(() => props.unit?.reserved_by || "-");
+
+const reservedTimeLabel = computed(() => {
+    const iso =
+        props.unit?.reserved_at ||
+        props.unit?.current_order?.reserved_at ||
+        props.unit?.current_order?.opened_at;
+    if (!iso) {
+        return "--:--";
+    }
+    const dt = new Date(iso);
+    if (Number.isNaN(dt.getTime())) {
+        return "--:--";
+    }
+    const now = new Date();
+    const sameDay =
+        dt.getFullYear() === now.getFullYear() &&
+        dt.getMonth() === now.getMonth() &&
+        dt.getDate() === now.getDate();
+    const time = dt.toLocaleTimeString([], {
+        hour: "numeric",
+        minute: "2-digit",
+    });
+    return sameDay ? `${time} (${t("UnitsManagement.card.today")})` : time;
+});
+
 const typeLabel = computed(() => {
     if (normalizedType.value === UnitType.Room) {
         return "room";
@@ -352,10 +490,29 @@ async function runApi(
     }
 }
 
-function openReservationModal(id) {
+function resolveReservationDateTime() {
+    const iso =
+        props.unit?.reserved_at ||
+        props.unit?.current_order?.reserved_at ||
+        props.unit?.current_order?.opened_at;
+    if (!iso) {
+        return "";
+    }
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) {
+        return "";
+    }
+    return formatDateTimeLocal(date);
+}
+
+function openReservationModal(id, editMode = false) {
     reservationUnitId.value = id;
-    reservationDateTime.value = formatDateTimeLocal(roundToNearestMinutes(new Date(), 5));
-    reservationCustomerName.value = "";
+    reservationEditMode.value = editMode;
+    reservationDateTime.value = editMode
+        ? resolveReservationDateTime() ||
+          formatDateTimeLocal(roundToNearestMinutes(new Date(), 5))
+        : formatDateTimeLocal(roundToNearestMinutes(new Date(), 5));
+    reservationCustomerName.value = editMode ? props.unit?.reserved_by || "" : "";
     reservationModalVisible.value = true;
 }
 
@@ -396,11 +553,14 @@ async function submitReservation() {
         });
         toast.add({
             severity: "success",
-            summary: t("UnitsManagement.actions.addReservation"),
+            summary: reservationEditMode.value
+                ? t("UnitsManagement.actions.editReservationTime")
+                : t("UnitsManagement.actions.addReservation"),
             life: 2500,
         });
         reservationModalVisible.value = false;
         reservationUnitId.value = null;
+        reservationEditMode.value = false;
         reservationCustomerName.value = "";
         notifyAction();
     } catch {
@@ -547,12 +707,7 @@ const menuItems = computed(() => {
             menuEntry(
                 "UnitsManagement.actions.editReservationTime",
                 "pi pi-clock",
-                () => {
-                    router.push({
-                        path: "/reservations/create",
-                        query: { unit_id: String(id), mode: "edit" },
-                    });
-                }
+                () => openReservationModal(id, true)
             ),
             menuEntry(
                 "UnitsManagement.actions.cancelReservation",
@@ -613,5 +768,18 @@ const menuItems = computed(() => {
     }
 
     return [];
+});
+
+onMounted(() => {
+    durationTimer = window.setInterval(() => {
+        durationNowMs.value = Date.now();
+    }, 1000);
+});
+
+onBeforeUnmount(() => {
+    if (durationTimer != null) {
+        window.clearInterval(durationTimer);
+        durationTimer = null;
+    }
 });
 </script>

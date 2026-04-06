@@ -11,7 +11,7 @@ class UnitGroupController extends Controller
 {
     public function index(Request $request)
     {
-        $unitGroups = UnitGroup::with('units')
+        $unitGroups = UnitGroup::with(['units.currentOrder'])
             ->orderBy('position')
             ->paginate($request->integer('per_page', 10));
 
@@ -20,7 +20,7 @@ class UnitGroupController extends Controller
 
     public function show(string $id)
     {
-        $unitGroup = UnitGroup::with('units')->find($id);
+        $unitGroup = UnitGroup::with(['units.currentOrder'])->find($id);
         if (! $unitGroup) {
             return response()->json(['message' => 'Unit group not found'], 404);
         }
@@ -39,7 +39,7 @@ class UnitGroupController extends Controller
 
         $unitGroup = UnitGroup::create($validated);
 
-        return response()->json(new UnitGroupResource($unitGroup->load('units')));
+        return response()->json(new UnitGroupResource($unitGroup->load(['units.currentOrder'])));
     }
 
     public function update(Request $request, string $id)
@@ -60,7 +60,7 @@ class UnitGroupController extends Controller
             $unitGroup->update($validated);
         }
 
-        return response()->json(new UnitGroupResource($unitGroup->fresh()->load('units')));
+        return response()->json(new UnitGroupResource($unitGroup->fresh()->load(['units.currentOrder'])));
     }
 
     public function destroy(string $id)

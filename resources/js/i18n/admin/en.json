@@ -76,6 +76,17 @@
             "completeCheckout": "Complete checkout",
             "transferGuests": "Transfer guests"
         },
+        "card": {
+            "duration": "Duration",
+            "totalOrder": "Total order",
+            "reservationTime": "Reservation time",
+            "bookedBy": "Booked by",
+            "capacity": "Capacity",
+            "readyForSeating": "Ready for seating.",
+            "person": "Person",
+            "people": "People",
+            "today": "Today"
+        },
         "reservationCustomerName": "Customer name"
     },
     "Orders": {
