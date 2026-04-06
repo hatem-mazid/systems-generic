@@ -75,6 +75,18 @@
             <div class="flex flex-col gap-4">
                 <div class="flex flex-col gap-2">
                     <label class="text-sm font-medium text-surface-700 dark:text-surface-200">
+                        {{ $t("UnitsManagement.reservationCustomerName") }}
+                    </label>
+                    <input
+                        v-model.trim="reservationCustomerName"
+                        type="text"
+                        class="h-12 w-full rounded-md border border-surface-300 bg-surface-0 px-3 text-base text-surface-900 outline-none transition focus:border-primary dark:border-surface-600 dark:bg-surface-900 dark:text-surface-0"
+                        :placeholder="$t('UnitsManagement.reservationCustomerName')"
+                    />
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-surface-700 dark:text-surface-200">
                         {{ $t("UnitsManagement.reservationDateTime") }}
                     </label>
                     <input
@@ -199,6 +211,7 @@ const reservationModalVisible = ref(false);
 const reservationSubmitting = ref(false);
 const reservationUnitId = ref(null);
 const reservationDateTime = ref("");
+const reservationCustomerName = ref("");
 const transferModalVisible = ref(false);
 const transferLoading = ref(false);
 const transferSubmitting = ref(false);
@@ -342,6 +355,7 @@ async function runApi(
 function openReservationModal(id) {
     reservationUnitId.value = id;
     reservationDateTime.value = formatDateTimeLocal(roundToNearestMinutes(new Date(), 5));
+    reservationCustomerName.value = "";
     reservationModalVisible.value = true;
 }
 
@@ -378,6 +392,7 @@ async function submitReservation() {
 
         await unitsService.reserveUnit(reservationUnitId.value, {
             reserved_at: selectedDate.toISOString(),
+            reserved_by: reservationCustomerName.value || null,
         });
         toast.add({
             severity: "success",
@@ -386,6 +401,7 @@ async function submitReservation() {
         });
         reservationModalVisible.value = false;
         reservationUnitId.value = null;
+        reservationCustomerName.value = "";
         notifyAction();
     } catch {
         toast.add({

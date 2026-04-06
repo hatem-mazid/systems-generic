@@ -75,7 +75,8 @@
             "removeUnit": "إزالة الوحدة",
             "completeCheckout": "إتمام الدفع",
             "transferGuests": "نقل الضيوف"
-        }
+        },
+        "reservationCustomerName": "اسم الزبون"
     },
     "Orders": {
         "PlaceholderTitle": "طلب رقم {id}"

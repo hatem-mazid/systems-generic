@@ -75,7 +75,8 @@
             "removeUnit": "Remove unit",
             "completeCheckout": "Complete checkout",
             "transferGuests": "Transfer guests"
-        }
+        },
+        "reservationCustomerName": "Customer name"
     },
     "Orders": {
         "PlaceholderTitle": "Order #{id}"
