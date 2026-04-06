@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UnitType;
 use App\Http\Resources\UnitCollection;
 use App\Http\Resources\UnitResource;
-use App\Enums\UnitType;
 use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\TimerSession;
 use App\Models\Unit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
@@ -140,6 +143,11 @@ class UnitController extends Controller
                     'reserved_by' => null,
                 ]);
 
+                $order = $unit->fresh()->currentOrder;
+                if ($order) {
+                    $this->startUnitTimerSessionIfNeeded($order, $unit->fresh());
+                }
+
                 return response()->json(new UnitResource($unit->fresh()->load(['group', 'currentOrder'])));
             }
 
@@ -176,6 +184,8 @@ class UnitController extends Controller
                 'reserved_at' => null,
                 'reserved_by' => null,
             ]);
+
+            $this->startUnitTimerSessionIfNeeded($order->fresh(), $unit->fresh());
 
             return response()->json(new UnitResource($unit->fresh()->load(['group', 'currentOrder'])));
         });
@@ -222,7 +232,7 @@ class UnitController extends Controller
         }
 
         $reservedAt = isset($validated['reserved_at']) && $validated['reserved_at'] !== null
-            ? \Illuminate\Support\Carbon::parse($validated['reserved_at'])
+            ? Carbon::parse($validated['reserved_at'])
             : now();
 
         return DB::transaction(function () use ($request, $unit, $validated, $reservedAt, $unitStatus) {
@@ -292,6 +302,9 @@ class UnitController extends Controller
         }
 
         return DB::transaction(function () use ($unit, $order) {
+            $this->finalizeOpenUnitTimerSessionAndAddFees($order, $unit);
+
+            $order->refresh();
             $order->update([
                 'status' => 'closed',
                 'closed_at' => now(),
@@ -319,7 +332,7 @@ class UnitController extends Controller
             return response()->json(['message' => 'Unit is not reserved.'], 422);
         }
 
-        if (! $unit->currentOrder || !in_array($unit->currentOrder->status, ['reserved', 'pending'], true)) {
+        if (! $unit->currentOrder || ! in_array($unit->currentOrder->status, ['reserved', 'pending'], true)) {
             return response()->json(['message' => 'No reserved order on this unit.'], 422);
         }
 
@@ -385,7 +398,7 @@ class UnitController extends Controller
             }
         }
 
-        return DB::transaction(function () use ($sourceUnit, $targetUnit, $sourceOrder) {
+        return DB::transaction(function () use ($sourceUnit, $targetUnit) {
             $sourceLocked = Unit::whereKey($sourceUnit->id)->lockForUpdate()->first();
             $targetLocked = Unit::whereKey($targetUnit->id)->lockForUpdate()->first();
 
@@ -439,5 +452,103 @@ class UnitController extends Controller
                 'target_unit' => new UnitResource($targetLocked->fresh()->load(['group', 'currentOrder'])),
             ]);
         });
+    }
+
+    /**
+     * When an order becomes active, track billable time for units with hourly pricing.
+     */
+    private function startUnitTimerSessionIfNeeded(Order $order, Unit $unit): void
+    {
+        if (! $this->unitHasHourlyRate($unit)) {
+            return;
+        }
+
+        $hasOpen = TimerSession::query()
+            ->where('order_id', $order->id)
+            ->where('unit_id', $unit->id)
+            ->whereNull('end_time')
+            ->exists();
+
+        if ($hasOpen) {
+            return;
+        }
+
+        $start = $order->opened_at ?? now();
+
+        TimerSession::create([
+            'order_id' => $order->id,
+            'unit_id' => $unit->id,
+            'product_id' => null,
+            'start_time' => $start,
+            'end_time' => null,
+            'duration' => null,
+            'price_per_hour_snapshot' => $unit->price_per_hour,
+            'total_price' => null,
+        ]);
+    }
+
+    private function unitHasHourlyRate(Unit $unit): bool
+    {
+        return (float) ($unit->price_per_hour ?? 0) > 0;
+    }
+
+    /**
+     * Close the open unit timer session and add a unitFees line item from elapsed time.
+     */
+    private function finalizeOpenUnitTimerSessionAndAddFees(Order $order, Unit $unit): void
+    {
+        $session = TimerSession::query()
+            ->where('order_id', $order->id)
+            ->whereNull('end_time')
+            ->whereNotNull('unit_id')
+            ->with('unit')
+            ->first();
+
+        if (! $session) {
+            return;
+        }
+
+        $end = now();
+        $start = $session->start_time;
+        $seconds = max(0, (int) $start->diffInSeconds($end));
+        $hours = $seconds / 3600.0;
+        $totalPrice = round((float) $session->price_per_hour_snapshot * $hours, 2);
+        $minutes = (int) max(0, round($seconds / 60));
+
+        $session->update([
+            'end_time' => $end,
+            'duration' => $minutes,
+            'total_price' => $totalPrice,
+        ]);
+
+        if ($totalPrice <= 0) {
+            $order->recalculateTotal();
+
+            return;
+        }
+
+        $labelUnit = $session->unit ?? $unit;
+        $name = $labelUnit->name
+            ? sprintf('Unit fee (%s)', $labelUnit->name)
+            : 'Unit fee';
+
+        OrderItem::create([
+            'order_id' => $order->id,
+            'product_id' => null,
+            'name' => $name,
+            'notes' => null,
+            'price' => $totalPrice,
+            'quantity' => 1,
+            'total' => $totalPrice,
+            'type' => 'unitFees',
+            'meta' => [
+                'timer_session_id' => $session->id,
+                'duration_minutes' => $minutes,
+                'duration_seconds' => $seconds,
+                'price_per_hour' => (string) $session->price_per_hour_snapshot,
+            ],
+        ]);
+
+        $order->recalculateTotal();
     }
 }

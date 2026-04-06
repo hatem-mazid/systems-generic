@@ -2,6 +2,7 @@ export enum OrderItemType {
     Product = "product",
     Service = "service",
     Timer = "timer",
+    UnitFees = "unitFees",
 }
 
 export enum OrderStatus {
