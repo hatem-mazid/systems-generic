@@ -20,9 +20,12 @@
                                 severity="secondary"
                                 @click="toggleLangMenu"
                                 rounded
-                                icon="pi pi-language"
                                 aria-label="Save"
-                            />
+                            >
+                                <template #icon>
+                                    <AppIcon name="pi pi-language" />
+                                </template>
+                            </Button>
                             <Menu
                                 ref="langMenu"
                                 :model="langItems"
@@ -46,9 +49,12 @@
                                 severity="secondary"
                                 @click="toggleDarkMode"
                                 rounded
-                                icon="pi pi-sun"
                                 aria-label="Save"
-                            />
+                            >
+                                <template #icon>
+                                    <AppIcon name="pi pi-sun" />
+                                </template>
+                            </Button>
 
                             <Avatar
                                 role="button"
@@ -101,7 +107,7 @@
                                         class="flex items-center"
                                         v-bind="props.action"
                                     >
-                                        <span :class="item.icon" />
+                                        <AppIcon :name="item.icon" />
                                         <span>{{ item.label }}</span>
                                         <Badge
                                             v-if="item.badge"

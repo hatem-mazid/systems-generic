@@ -27,9 +27,12 @@
                     outlined
                     rounded
                     severity="secondary"
-                    icon="pi pi-plus"
                     :label="$t('Add Unit')"
-                />
+                >
+                    <template #icon>
+                        <AppIcon name="pi pi-plus" />
+                    </template>
+                </Button>
                 <Button
                     as="router-link"
                     :to="`/unit-groups-setup/${unitGroup.id}`"
@@ -37,9 +40,12 @@
                     outlined
                     rounded
                     severity="info"
-                    icon="pi pi-pencil"
                     :aria-label="$t('Edit')"
-                />
+                >
+                    <template #icon>
+                        <AppIcon name="pi pi-pencil" />
+                    </template>
+                </Button>
                 <DeleteUnitGroupButton
                     :unit-group="unitGroup"
                     @deleted="$emit('deleted')"

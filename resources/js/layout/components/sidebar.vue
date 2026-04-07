@@ -31,10 +31,11 @@
                             v-ripple
                             class="flex flex-col justify-center gap-2 [&.router-link-active]:text-primary items-center cursor-pointer p-3 rounded text-surface-700 hover:bg-surface-100 dark:text-surface-0 dark:hover:bg-surface-800 duration-150 transition-colors p-ripple"
                         >
-                            <i
-                                :class="`${item.icon} font-bold`"
+                            <AppIcon
+                                :name="item.icon"
+                                class="font-bold size-9"
                                 style="font-size: 36px"
-                            ></i>
+                            />
                             <span
                                 v-if="!minimize"
                                 class="font-medium text-xs text-center"

@@ -120,7 +120,8 @@
             "product": "Product",
             "service": "Service",
             "timer": "Timer"
-        }
+        },
+        "ShowInvoice": "Show Invoice"
     },
     "OrdersList": {
         "Title": "Orders",

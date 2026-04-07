@@ -67,17 +67,23 @@
                 <template #body="{ data }">
                     <div class="flex flex-col gap-1.5">
                         <Chip
-                            icon="pi pi-clock"
                             class="w-fit max-w-full text-xs"
                             :label="dateChipLabel('OrdersList.OpenedShort', data.opened_at)"
                             :title="dateChipTitle('OrdersList.OpenedShort', data.opened_at)"
-                        />
+                        >
+                            <template #icon>
+                                <AppIcon name="pi pi-clock" />
+                            </template>
+                        </Chip>
                         <Chip
-                            icon="pi pi-calendar-plus"
                             class="w-fit max-w-full text-xs"
                             :label="dateChipLabel('OrdersList.CreatedShort', data.created_at)"
                             :title="dateChipTitle('OrdersList.CreatedShort', data.created_at)"
-                        />
+                        >
+                            <template #icon>
+                                <AppIcon name="pi pi-calendar-plus" />
+                            </template>
+                        </Chip>
                     </div>
                 </template>
             </Column>
@@ -95,11 +101,14 @@
                             rounded
                             outlined
                             severity="secondary"
-                            icon="pi pi-ellipsis-v"
                             class="touch-manipulation min-h-[48px] min-w-[48px] shrink-0"
                             :aria-label="$t('OrdersList.MoreActions')"
                             @click="openRowMenu($event, data)"
-                        />
+                        >
+                            <template #icon>
+                                <AppIcon name="pi pi-ellipsis-v" />
+                            </template>
+                        </Button>
                     </div>
                 </template>
             </Column>
@@ -110,7 +119,14 @@
             :model="rowMenuItems"
             popup
             :pt="touchMenuPt"
-        />
+        >
+            <template #item="{ item, props }">
+                <a v-ripple class="flex items-center gap-3" v-bind="props.action">
+                    <AppIcon v-if="item.icon" :name="item.icon" class="text-lg" />
+                    <span>{{ item.label }}</span>
+                </a>
+            </template>
+        </Menu>
     </div>
 </template>
 
@@ -141,7 +157,7 @@ defineProps({
     },
 });
 
-const emit = defineEmits(["view", "print"]);
+const emit = defineEmits(["view", "invoice"]);
 
 const { t } = useI18n();
 
@@ -177,10 +193,10 @@ const rowMenuItems = computed(() => {
             },
         },
         {
-            label: t("OrdersList.PrintInvoice"),
-            icon: "pi pi-print",
+            label: t("OrderDetail.ShowInvoice"),
+            icon: "hi-receipt-tax",
             command: () => {
-                emit("print", activeRow.value);
+                emit("invoice", activeRow.value.id);
             },
         },
     ];

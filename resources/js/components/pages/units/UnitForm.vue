@@ -197,18 +197,24 @@
                     v-if="unitId"
                     type="button"
                     :label="$t('UnitsForm.SubmitUpdate')"
-                    icon="pi pi-check"
                     :loading="submitLoading"
                     @click="onSubmit"
-                />
+                >
+                    <template #icon>
+                        <AppIcon name="pi pi-check" />
+                    </template>
+                </Button>
                 <Button
                     v-else
                     type="button"
                     :label="$t('UnitsForm.SubmitCreate')"
-                    icon="pi pi-plus"
                     :loading="submitLoading"
                     @click="onSubmit"
-                />
+                >
+                    <template #icon>
+                        <AppIcon name="pi pi-plus" />
+                    </template>
+                </Button>
             </div>
         </template>
     </Card>

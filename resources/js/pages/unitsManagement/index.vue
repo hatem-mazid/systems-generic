@@ -16,8 +16,11 @@
                 size="large"
                 class="min-h-[48px] w-full shrink-0 sm:w-auto"
                 :label="$t('Add Unit Group')"
-                icon="pi pi-plus"
-            />
+            >
+                <template #icon>
+                    <AppIcon name="pi pi-plus" />
+                </template>
+            </Button>
         </div>
 
         <div class="mt-8 min-w-0">

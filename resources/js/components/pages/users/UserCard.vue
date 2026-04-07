@@ -40,7 +40,7 @@
                         <span
                             class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-200/70 text-surface-600 dark:bg-surface-700 dark:text-surface-300"
                         >
-                            <i class="pi pi-envelope text-sm" />
+                            <AppIcon name="pi pi-envelope" class="text-sm" />
                         </span>
                         <div class="min-w-0 flex-1">
                             <p
@@ -60,7 +60,7 @@
                         <span
                             class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-200/70 text-surface-600 dark:bg-surface-700 dark:text-surface-300"
                         >
-                            <i class="pi pi-users text-sm" />
+                            <AppIcon name="pi pi-users" class="text-sm" />
                         </span>
                         <div class="min-w-0 flex-1">
                             <p
@@ -85,24 +85,30 @@
                         variant="outlined"
                         size="large"
                         rounded
-                        icon="pi pi-pencil"
                         :to="`/users/${user.id}`"
                         as="router-link"
                         severity="info"
                         :aria-label="$t('UserForm.Edit')"
-                    />
+                    >
+                        <template #icon>
+                            <AppIcon name="pi pi-pencil" />
+                        </template>
+                    </Button>
                     <Button
                         v-tooltip.top="$t('Delete')"
                         variant="outlined"
                         size="large"
                         rounded
-                        icon="pi pi-trash"
                         severity="danger"
                         :loading="deleting"
                         :disabled="disableDelete"
                         :aria-label="$t('Delete')"
                         @click="$emit('delete', user)"
-                    />
+                    >
+                        <template #icon>
+                            <AppIcon name="pi pi-trash" />
+                        </template>
+                    </Button>
                 </div>
             </div>
         </template>

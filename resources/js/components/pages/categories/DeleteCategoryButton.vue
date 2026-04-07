@@ -4,12 +4,15 @@
         rounded
         outlined
         severity="danger"
-        icon="pi pi-trash"
         :loading="deleting"
         :disabled="deleting || !category?.id"
         :aria-label="$t('Delete')"
         @click="onDelete"
-    />
+    >
+        <template #icon>
+            <AppIcon name="pi pi-trash" />
+        </template>
+    </Button>
 </template>
 
 <script setup>

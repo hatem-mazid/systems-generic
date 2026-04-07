@@ -31,10 +31,28 @@
                         size="small"
                         severity="secondary"
                         :label="$t('OrderDetail.OpenFullPage')"
-                        icon="pi pi-external-link"
                         class="min-h-[40px]"
                         @click="openFullPage"
-                    />
+                    >
+                        <template #icon>
+                            <AppIcon name="hi-external-link" />
+                        </template>
+                    </Button>
+                    
+                    <Button
+                        v-if="order?.id"
+                        type="button"
+                        outlined
+                        size="small"
+                        severity="secondary"
+                        :label="$t('OrderDetail.ShowInvoice')"
+                        class="min-h-[40px]"
+                        @click="showInvoice"
+                    >
+                        <template #icon>
+                            <AppIcon name="hi-receipt-tax" />
+                        </template>
+                    </Button>
                 </div>
             </div>
         </template>
@@ -119,7 +137,7 @@
                                             class="mb-2 flex aspect-video w-full items-center justify-center rounded-md border border-dashed border-surface-300 bg-surface-50 dark:border-surface-600 dark:bg-surface-800/80"
                                             aria-hidden="true"
                                         >
-                                            <i class="pi pi-image text-lg text-surface-400 dark:text-surface-500" />
+                                            <AppIcon name="pi pi-image" class="text-lg text-surface-400 dark:text-surface-500" />
                                         </div>
                                         <p class="truncate text-sm font-semibold text-surface-900 dark:text-surface-50">
                                             {{ product.name ?? "—" }}
@@ -135,10 +153,13 @@
                                                 type="button"
                                                 size="small"
                                                 outlined
-                                                icon="pi pi-minus"
                                                 :disabled="adding"
                                                 @click="adjustQuickQty(product, -1)"
-                                            />
+                                            >
+                                                <template #icon>
+                                                    <AppIcon name="pi pi-minus" />
+                                                </template>
+                                            </Button>
                                             <span
                                                 class="inline-flex min-w-8 justify-center rounded border border-surface-300 px-2 py-1 text-xs font-medium dark:border-surface-600"
                                             >
@@ -148,22 +169,28 @@
                                                 type="button"
                                                 size="small"
                                                 outlined
-                                                icon="pi pi-plus"
                                                 :disabled="adding"
                                                 @click="adjustQuickQty(product, 1)"
-                                            />
+                                            >
+                                                <template #icon>
+                                                    <AppIcon name="pi pi-plus" />
+                                                </template>
+                                            </Button>
                                         </div>
                                     </div>
                                     <Button
                                         type="button"
                                         size="small"
-                                        icon="pi pi-plus"
                                         label="Add"
                                         class="mt-2 w-full"
                                         :loading="adding && selectedProductId === product.id"
                                         :disabled="adding"
                                         @click="onQuickAddProduct(product)"
-                                    />
+                                    >
+                                        <template #icon>
+                                            <AppIcon name="pi pi-plus" />
+                                        </template>
+                                    </Button>
                                 </article>
                             </div>
                         </section>
@@ -240,12 +267,15 @@
                                                     type="button"
                                                     size="small"
                                                     text
-                                                    icon="pi pi-trash"
                                                     severity="danger"
                                                     :loading="removingId === line.id"
                                                     :disabled="removingId != null && removingId !== line.id"
                                                     @click="confirmRemoveLine(line)"
-                                                />
+                                                >
+                                                    <template #icon>
+                                                        <AppIcon name="pi pi-trash" />
+                                                    </template>
+                                                </Button>
                                                 <span class="min-w-6 text-center tabular-nums">{{ line.quantity ?? "—" }}</span>
                                             </div>
                                             <div class="text-end font-semibold tabular-nums text-surface-900 dark:text-surface-50">
@@ -589,6 +619,14 @@ function openFullPage() {
     }
     innerVisible.value = false;
     router.push(`/orders/${order.value.id}`);
+}
+
+function showInvoice() {
+    if (!order.value?.id) {
+        return;
+    }
+    innerVisible.value = false;
+    router.push(`/orders/${order.value.id}/invoice`);
 }
 
 watch(

@@ -116,9 +116,12 @@
                         size="large"
                         class="min-h-[48px] w-full sm:min-w-[12rem]"
                         :label="$t('OrdersList.ClearFilters')"
-                        icon="pi pi-filter-slash"
                         @click="clearFilters"
-                    />
+                    >
+                        <template #icon>
+                            <AppIcon name="pi pi-filter-slash" />
+                        </template>
+                    </Button>
                 </div>
             </div>
         </div>
@@ -131,7 +134,7 @@
                 :loading="isLoading"
                 :empty-message="$t('OrdersList.Empty')"
                 @view="onViewOrder"
-                @print="onPrintOrder"
+                @invoice="onInvoiceOrder"
             />
         </div>
 
@@ -156,7 +159,6 @@ import { OrderStatus } from "../../apis/services/orders/orders.type";
 import { usersService } from "../../apis/services/users/users.apis";
 import { UserRole } from "../../apis/services/users/users.type";
 import OrdersTable from "../../components/pages/orders/OrdersTable.vue";
-import { printOrderInvoice } from "../../components/pages/orders/printOrderInvoice";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -300,20 +302,11 @@ function onViewOrder(id) {
     router.push(`/orders/${id}`);
 }
 
-function onPrintOrder(order) {
-    printOrderInvoice(order, {
-        title: t("OrdersList.InvoiceTitle"),
-        unit: t("OrdersList.ColumnUnit"),
-        waiter: t("OrdersList.ColumnWaiter"),
-        status: t("OrdersList.ColumnStatus"),
-        openedAt: t("OrdersList.OpenedShort"),
-        createdAt: t("OrdersList.CreatedShort"),
-        product: t("OrdersList.LineName"),
-        qty: t("OrdersList.LineQty"),
-        price: t("OrdersList.LinePrice"),
-        lineTotal: t("OrdersList.LineTotal"),
-        total: t("OrdersList.ColumnTotal"),
-    });
+function onInvoiceOrder(id) {
+    if (id == null) {
+        return;
+    }
+    router.push(`/orders/${id}/invoice`);
 }
 
 onMounted(() => {

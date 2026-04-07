@@ -4,30 +4,21 @@
         :class="{ 'opacity-75': !canEditOrDelete }"
     >
         <div class="flex items-center justify-between gap-3">
-            <p
-                class="truncate font-medium text-surface-900 dark:text-surface-0"
-            >
-                {{ unit.name || "-" }}
-            </p>
+            <div class="flex items-center gap-2">
+                <AppIcon
+                    :name="typeIconClass"
+                    class="!text-xl text-surface-700 dark:text-surface-200 size-6"
+                />
+                
+                <p
+                    class="truncate font-medium text-surface-900 dark:text-surface-0"
+                >
+                    {{ unit.name || "-" }}
+                </p>
+            </div>
             <Tag
                 :value="$t(`Units.ActiveStates.${activeLabel}`)"
                 :severity="activeSeverity"
-                rounded
-            />
-        </div>
-
-        <div class="flex items-center gap-2">
-            <!-- <span class="text-xs text-surface-500 dark:text-surface-400"
-                >{{ $t("Units.Type") }}:</span
-            > -->
-            <i
-                :class="typeIconClass"
-                class="!text-xl text-surface-700 dark:text-surface-200"
-            />
-            <Tag
-                class="shrink-0 !text-xs"
-                :value="$t(`Units.Types.${typeLabel}`)"
-                :severity="typeSeverity"
                 rounded
             />
         </div>
@@ -62,19 +53,25 @@
                 rounded
                 outlined
                 severity="info"
-                icon="pi pi-pencil"
                 :aria-label="$t('Edit')"
-            />
+            >
+                <template #icon>
+                    <AppIcon name="pi pi-pencil" />
+                </template>
+            </Button>
             <Button
                 v-else
                 size="large"
                 rounded
                 outlined
                 severity="info"
-                icon="pi pi-pencil"
                 disabled
                 :aria-label="$t('Edit')"
-            />
+            >
+                <template #icon>
+                    <AppIcon name="pi pi-pencil" />
+                </template>
+            </Button>
             <DeleteUnitButton
                 :unit="unit"
                 :disabled="!canEditOrDelete"
@@ -112,7 +109,7 @@ const typeIconClass = computed(() => {
         return "pi pi-home";
     }
     if (normalizedType.value === UnitType.Table) {
-        return "pi pi-stop";
+        return "md-tablerestaurant-outlined";
     }
     return "pi pi-box";
 });

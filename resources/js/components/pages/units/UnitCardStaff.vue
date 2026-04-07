@@ -8,7 +8,7 @@
                 <span
                     class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-surface-800/90 dark:text-surface-100 border border-surface-300 dark:border-surface-600"
                 >
-                    <i :class="typeIconClass" class="!text-sm" />
+                    <AppIcon :name="typeIconClass" class="!text-sm" />
                     {{ $t(`Units.Types.${typeLabel}`) }}
                 </span>
             </div>
@@ -18,11 +18,14 @@
                 rounded
                 text
                 severity="secondary"
-                icon="pi pi-ellipsis-h"
                 :aria-label="$t('UnitsManagement.more')"
                 :disabled="!menuItems.length"
                 @click="toggleMenu"
-            />
+            >
+                <template #icon>
+                    <AppIcon name="pi pi-ellipsis-h" />
+                </template>
+            </Button>
             <Menu
                 ref="menuRef"
                 :model="menuItems"
@@ -34,7 +37,7 @@
         <div class="space-y-4 px-4 py-4">
             <template v-if="statusTagKey === 'occupied'">
                 <div class="flex items-center gap-3">
-                    <i class="pi pi-clock !text-3xl text-orange-600" />
+                    <AppIcon name="pi pi-clock" class="!text-3xl text-orange-600" />
                     <div>
                         <p class="text-sm font-semibold uppercase tracking-wide text-surface-600 dark:text-surface-300">
                             {{ $t("UnitsManagement.card.duration") }}
@@ -45,7 +48,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
-                    <i class="pi pi-receipt !text-3xl text-rose-600" />
+                    <AppIcon name="pi pi-receipt" class="!text-3xl text-rose-600" />
                     <div>
                         <p class="text-sm font-semibold uppercase tracking-wide text-surface-600 dark:text-surface-300">
                             {{ $t("UnitsManagement.card.totalOrder") }}
@@ -59,7 +62,7 @@
 
             <template v-else-if="statusTagKey === 'reserved'">
                 <div class="flex items-center gap-3">
-                    <i class="pi pi-clock !text-3xl text-orange-600" />
+                    <AppIcon name="pi pi-clock" class="!text-3xl text-orange-600" />
                     <div>
                         <p class="text-sm font-semibold uppercase tracking-wide text-surface-600 dark:text-surface-300">
                             {{ $t("UnitsManagement.card.reservationTime") }}
@@ -77,7 +80,7 @@
 
             <template v-else>
                 <div class="flex items-center gap-3">
-                    <i class="pi pi-users !text-3xl text-teal-600" />
+                    <AppIcon name="pi pi-users" class="!text-3xl text-teal-600" />
                     <div>
                         <p class="text-sm font-semibold uppercase tracking-wide text-surface-600 dark:text-surface-300">
                             {{ $t("UnitsManagement.card.capacity") }}
@@ -173,11 +176,14 @@
                             ? $t('UnitsManagement.actions.editReservationTime')
                             : $t('UnitsManagement.submitReservation')
                     "
-                    icon="pi pi-check"
                     :loading="reservationSubmitting"
                     :disabled="!reservationDateTime || reservationUnitId == null"
                     @click="submitReservation"
-                />
+                >
+                    <template #icon>
+                        <AppIcon name="pi pi-check" />
+                    </template>
+                </Button>
             </div>
         </Dialog>
 
@@ -214,7 +220,6 @@
                 <Button
                     type="button"
                     :label="$t('UnitsManagement.submitTransferGuests')"
-                    icon="pi pi-users"
                     :loading="transferSubmitting"
                     :disabled="
                         transferSourceUnitId == null ||
@@ -223,7 +228,11 @@
                         transferLoading
                     "
                     @click="submitTransferGuests"
-                />
+                >
+                    <template #icon>
+                        <AppIcon name="pi pi-users" />
+                    </template>
+                </Button>
             </div>
         </Dialog>
 
@@ -308,12 +317,15 @@
                     />
                     <Button
                         type="button"
-                        icon="pi pi-check-circle"
                         :label="$t('UnitsManagement.actions.completeCheckout')"
                         :loading="checkoutSubmitting"
                         :disabled="checkoutUnitId == null || checkoutSubmitting || checkoutLoading"
                         @click="submitCheckout"
-                    />
+                    >
+                        <template #icon>
+                            <AppIcon name="pi pi-check-circle" />
+                        </template>
+                    </Button>
                 </div>
             </div>
         </Dialog>
@@ -401,7 +413,7 @@ const typeIconClass = computed(() => {
         return "pi pi-home";
     }
     if (normalizedType.value === UnitType.Table) {
-        return "pi pi-stop";
+        return "md-tablerestaurant-outlined";
     }
     return "pi pi-box";
 });

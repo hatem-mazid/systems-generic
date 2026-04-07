@@ -120,7 +120,8 @@
             "product": "منتج",
             "service": "خدمة",
             "timer": "مؤقت"
-        }
+        },
+        "ShowInvoice": "عرض الفاتورة"
     },
     "OrdersList": {
         "Title": "الطلبات",

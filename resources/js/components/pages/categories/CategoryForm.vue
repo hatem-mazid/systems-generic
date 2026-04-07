@@ -268,7 +268,6 @@
                                 size="small"
                                 outlined
                                 severity="secondary"
-                                :icon="hasImage ? 'pi pi-image' : 'pi pi-plus'"
                                 :label="
                                     hasImage
                                         ? $t('CategoryForm.ChangeImage')
@@ -276,19 +275,26 @@
                                 "
                                 :disabled="removingImage"
                                 @click="openFileDialog"
-                            />
+                            >
+                                <template #icon>
+                                    <AppIcon :name="hasImage ? 'pi pi-image' : 'pi pi-plus'" />
+                                </template>
+                            </Button>
                             <Button
                                 v-if="hasImage"
                                 type="button"
                                 size="small"
                                 outlined
                                 severity="danger"
-                                icon="pi pi-trash"
                                 :label="$t('CategoryForm.RemoveImage')"
                                 :loading="removingImage"
                                 :disabled="removingImage"
                                 @click="onRemoveImage"
-                            />
+                            >
+                                <template #icon>
+                                    <AppIcon name="pi pi-trash" />
+                                </template>
+                            </Button>
                         </div>
 
                         <input
@@ -309,18 +315,24 @@
                     v-if="categoryId"
                     type="button"
                     :label="$t('CategoryForm.SubmitUpdate')"
-                    icon="pi pi-check"
                     :loading="submitLoading"
                     @click="onSubmit"
-                />
+                >
+                    <template #icon>
+                        <AppIcon name="pi pi-check" />
+                    </template>
+                </Button>
                 <Button
                     v-else
                     type="button"
                     :label="$t('CategoryForm.SubmitCreate')"
-                    icon="pi pi-plus"
                     :loading="submitLoading"
                     @click="onSubmit"
-                />
+                >
+                    <template #icon>
+                        <AppIcon name="pi pi-plus" />
+                    </template>
+                </Button>
             </div>
         </template>
     </Card>

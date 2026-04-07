@@ -17,7 +17,7 @@
                         v-else
                         class="flex h-full w-full items-center justify-center text-surface-500 dark:text-surface-300"
                     >
-                        <i class="pi pi-image !text-3xl"></i>
+                        <AppIcon name="pi pi-image" class="!text-3xl" />
                     </div>
                 </div>
 
@@ -64,9 +64,12 @@
                         rounded
                         outlined
                         severity="info"
-                        icon="pi pi-pencil"
                         :aria-label="$t('Edit')"
-                    />
+                    >
+                        <template #icon>
+                            <AppIcon name="pi pi-pencil" />
+                        </template>
+                    </Button>
 
                     <DeleteCategoryButton
                         :category="category"

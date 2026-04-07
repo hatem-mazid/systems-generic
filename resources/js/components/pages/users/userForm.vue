@@ -16,7 +16,7 @@
                     }}</label>
                     <InputGroup>
                         <InputGroupAddon>
-                            <i class="pi pi-user" />
+                            <AppIcon name="pi pi-user" />
                         </InputGroupAddon>
                         <InputText
                             id="user-name"
@@ -44,7 +44,7 @@
                     }}</label>
                     <InputGroup>
                         <InputGroupAddon>
-                            <i class="pi pi-envelope" />
+                            <AppIcon name="pi pi-envelope" />
                         </InputGroupAddon>
                         <InputText
                             id="user-email"
@@ -72,7 +72,7 @@
                     }}</label>
                     <InputGroup class="w-full">
                         <InputGroupAddon>
-                            <i class="pi pi-users" />
+                            <AppIcon name="pi pi-users" />
                         </InputGroupAddon>
                         <Select
                             id="user-role"
@@ -182,18 +182,24 @@
                     v-if="userId"
                     type="button"
                     :label="$t('UserForm.SubmitUpdate')"
-                    icon="pi pi-check"
                     :loading="submitLoading"
                     @click="onSubmit"
-                />
+                >
+                    <template #icon>
+                        <AppIcon name="pi pi-check" />
+                    </template>
+                </Button>
                 <Button
                     v-else
                     type="button"
                     :label="$t('UserForm.SubmitCreate')"
-                    icon="pi pi-plus"
                     :loading="submitLoading"
                     @click="onSubmit"
-                />
+                >
+                    <template #icon>
+                        <AppIcon name="pi pi-plus" />
+                    </template>
+                </Button>
             </div>
         </template>
     </Card>

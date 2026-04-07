@@ -66,6 +66,10 @@ const routes = [
         component: () => import("./pages/orders/[id].vue"),
     },
     {
+        path: "/orders/:id/invoice",
+        component: () => import("./pages/orders/invoice.vue"),
+    },
+    {
         path: "/reservations/create",
         component: () => import("./pages/reservations/create.vue"),
     },

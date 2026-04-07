@@ -13,8 +13,11 @@
         size="large"
         class="min-h-[48px] w-full shrink-0 sm:w-auto"
         :label="$t('Add Product')"
-        icon="pi pi-plus"
-      />
+      >
+        <template #icon>
+          <AppIcon name="pi pi-plus" />
+        </template>
+      </Button>
     </div>
 
     <div
@@ -31,8 +34,9 @@
             {{ $t("ProductsList.SearchLabel") }}
           </label>
           <span class="relative block w-full">
-            <i
-              class="pi pi-search pointer-events-none absolute left-4 top-1/2 z-[1] -translate-y-1/2 text-lg text-surface-400"
+            <AppIcon
+              name="pi pi-search"
+              class="pointer-events-none absolute left-4 top-1/2 z-[1] -translate-y-1/2 text-lg text-surface-400"
               aria-hidden="true"
             />
             <InputText
@@ -129,9 +133,12 @@
             size="large"
             class="min-h-[48px] w-full sm:min-w-[12rem]"
             :label="$t('ProductsList.ClearFilters')"
-            icon="pi pi-filter-slash"
             @click="clearFilters"
-          />
+          >
+            <template #icon>
+              <AppIcon name="pi pi-filter-slash" />
+            </template>
+          </Button>
         </div>
       </div>
     </div>

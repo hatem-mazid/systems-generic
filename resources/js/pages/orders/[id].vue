@@ -14,7 +14,7 @@
                     :aria-label="$t('OrderDetail.BackToList')"
                 >
                     <span class="flex items-center gap-2">
-                        <i class="pi pi-arrow-left" aria-hidden="true" />
+                        <AppIcon name="pi pi-arrow-left" aria-hidden="true" />
                         <span class="hidden sm:inline">{{
                             $t("OrderDetail.BackToList")
                         }}</span>
@@ -45,11 +45,15 @@
                     type="button"
                     outlined
                     size="large"
-                    icon="pi pi-print"
                     :label="$t('OrdersList.PrintInvoice')"
                     class="min-h-[48px]"
-                    @click="onPrint"
-                />
+                    as="router-link"
+                    :to="`/orders/${order.id}/invoice`"
+                >
+                    <template #icon>
+                        <AppIcon name="pi pi-print" />
+                    </template>
+                </Button>
             </div>
         </div>
 
@@ -237,8 +241,9 @@
                                             class="flex h-24 w-24 items-center justify-center rounded-xl border border-dashed border-surface-300 bg-surface-50 sm:h-32 sm:w-32 dark:border-surface-600 dark:bg-surface-800/80"
                                             aria-hidden="true"
                                         >
-                                            <i
-                                                class="pi pi-image text-2xl text-surface-400 sm:text-3xl dark:text-surface-500"
+                                            <AppIcon
+                                                name="pi pi-image"
+                                                class="text-2xl text-surface-400 sm:text-3xl dark:text-surface-500"
                                             />
                                         </div>
                                     </div>
@@ -449,25 +454,6 @@ function lineImageFailKey(line, lineIdx) {
 
 function onLineImageError(line, lineIdx) {
     lineImageFailed[lineImageFailKey(line, lineIdx)] = true;
-}
-
-function onPrint() {
-    if (!order.value) {
-        return;
-    }
-    printOrderInvoice(order.value, {
-        title: t("OrdersList.InvoiceTitle"),
-        unit: t("OrdersList.ColumnUnit"),
-        waiter: t("OrdersList.ColumnWaiter"),
-        status: t("OrdersList.ColumnStatus"),
-        openedAt: t("OrdersList.OpenedShort"),
-        createdAt: t("OrdersList.CreatedShort"),
-        product: t("OrdersList.LineName"),
-        qty: t("OrdersList.LineQty"),
-        price: t("OrdersList.LinePrice"),
-        lineTotal: t("OrdersList.LineTotal"),
-        total: t("OrdersList.ColumnTotal"),
-    });
 }
 
 async function fetchOrder() {

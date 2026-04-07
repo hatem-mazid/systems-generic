@@ -378,7 +378,6 @@
                                         severity="secondary"
                                         class="w-full"
                                         :label="$t('ProductForm.SetDefault')"
-                                        icon="pi pi-star"
                                         :loading="
                                             defaultLoadingId === item.serverId
                                         "
@@ -388,14 +387,17 @@
                                             uploadingMedia
                                         "
                                         @click="onSetDefault(item.serverId)"
-                                    />
+                                    >
+                                        <template #icon>
+                                            <AppIcon name="pi pi-star" />
+                                        </template>
+                                    </Button>
                                     <Button
                                         type="button"
                                         size="small"
                                         outlined
                                         severity="danger"
                                         class="w-full"
-                                        icon="pi pi-trash"
                                         :label="$t('ProductForm.RemoveImage')"
                                         :loading="
                                             deletingMediaId === item.serverId
@@ -406,7 +408,11 @@
                                             uploadingMedia
                                         "
                                         @click="onRemoveMedia(item)"
-                                    />
+                                    >
+                                        <template #icon>
+                                            <AppIcon name="pi pi-trash" />
+                                        </template>
+                                    </Button>
                                 </div>
                             </div>
                         </div>
@@ -417,12 +423,15 @@
                                 outlined
                                 severity="secondary"
                                 class="w-full"
-                                icon="pi pi-plus"
                                 :label="$t('ProductForm.AddImages')"
                                 :loading="uploadingMedia"
                                 :disabled="uploadingMedia"
                                 @click="openFileDialog"
-                            />
+                            >
+                                <template #icon>
+                                    <AppIcon name="pi pi-plus" />
+                                </template>
+                            </Button>
                             <input
                                 ref="fileInputRef"
                                 type="file"
@@ -443,18 +452,24 @@
                     v-if="productId"
                     type="button"
                     :label="$t('ProductForm.SubmitUpdate')"
-                    icon="pi pi-check"
                     :loading="submitLoading"
                     @click="onSubmit"
-                />
+                >
+                    <template #icon>
+                        <AppIcon name="pi pi-check" />
+                    </template>
+                </Button>
                 <Button
                     v-else
                     type="button"
                     :label="$t('ProductForm.SubmitCreate')"
-                    icon="pi pi-plus"
                     :loading="submitLoading"
                     @click="onSubmit"
-                />
+                >
+                    <template #icon>
+                        <AppIcon name="pi pi-plus" />
+                    </template>
+                </Button>
             </div>
         </template>
     </Card>

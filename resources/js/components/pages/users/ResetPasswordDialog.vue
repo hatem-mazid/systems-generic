@@ -3,12 +3,15 @@
         <Button
             type="button"
             :label="$t('UserForm.ResetPassword')"
-            icon="pi pi-key"
             severity="info"
             outlined
             size="small"
             @click="open"
-        />
+        >
+            <template #icon>
+                <AppIcon name="pi pi-key" />
+            </template>
+        </Button>
 
         <Dialog
             v-model:visible="visible"
@@ -86,10 +89,13 @@
                     <Button
                         type="button"
                         :label="$t('UserForm.ResetPasswordSubmit')"
-                        icon="pi pi-check"
                         :loading="submitting"
                         @click="submit"
-                    />
+                    >
+                        <template #icon>
+                            <AppIcon name="pi pi-check" />
+                        </template>
+                    </Button>
                 </div>
             </template>
         </Dialog>

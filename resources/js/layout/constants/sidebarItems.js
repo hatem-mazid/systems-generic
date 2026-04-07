@@ -10,43 +10,43 @@ export const SIDEBAR_TITLES = {
 
 export const sidebarItems = [
     {
-        icon: "pi pi-home",
+        icon: "hi-home",
         title: SIDEBAR_TITLES.Dashboard,
         to: "/",
         permission: null,
     },
     {
-        icon: "pi pi-tags",
+        icon: "hi-tag",
         title: SIDEBAR_TITLES.Categories,
         to: "/categories",
         permission: null,
     },
     {
-        icon: "pi pi-shopping-bag",
+        icon: "hi-shopping-bag",
         title: SIDEBAR_TITLES.Products,
         to: "/products",
         permission: null,
     },
     {
-        icon: "pi pi-th-large",
+        icon: "hi-view-grid",
         title: SIDEBAR_TITLES.UnitGroups,
         to: "/unit-groups-setup",
         permission: null,
     },
     {
-        icon: "pi pi-table",
+        icon: "hi-table",
         title: SIDEBAR_TITLES.UnitsManagement,
         to: "/units-management",
         permission: null,
     },
     {
-        icon: "pi pi-shopping-cart",
+        icon: "hi-receipt-tax",
         title: SIDEBAR_TITLES.Orders,
         to: "/orders",
         permission: "order index",
     },
     {
-        icon: "pi pi-user",
+        icon: "hi-users",
         title: SIDEBAR_TITLES.Users,
         to: "/users",
         permission: "users index",
