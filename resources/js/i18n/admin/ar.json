@@ -55,6 +55,11 @@
     "UnitsManagement": {
         "more": "المزيد من الإجراءات",
         "actionError": "تعذر تنفيذ الإجراء.",
+        "viewMode": {
+            "label": "العرض",
+            "comfortable": "مريح",
+            "compact": "مضغوط"
+        },
         "noCurrentOrder": "لا يوجد طلب مرتبط بهذه الوحدة.",
         "reservationDateTime": "تاريخ ووقت الحجز",
         "submitReservation": "تأكيد الحجز",

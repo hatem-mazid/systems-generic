@@ -5,6 +5,7 @@
         <UnitGroupPanelContent
             :unit-group="unitGroup"
             :management-mode="managementMode"
+            :view-mode="viewMode"
             @deleted="$emit('deleted')"
         />
     </section>
@@ -23,6 +24,10 @@ defineProps({
     managementMode: {
         type: Boolean,
         default: false,
+    },
+    viewMode: {
+        type: String,
+        default: "comfortable",
     },
 });
 </script>

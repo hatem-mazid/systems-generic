@@ -2,7 +2,7 @@
     <div class="overflow-hidden rounded-2xl border border-surface-200 bg-white dark:border-surface-700 dark:bg-surface-800">
         <div class="flex items-center justify-between gap-3 px-4 py-3" :class="cardHeaderClass">
             <div class="min-w-0 flex items-center gap-2">
-                <p class="truncate text-xl font-semibold text-surface-900 dark:text-surface-0">
+                <p class="truncate text-base font-semibold text-surface-900 dark:text-surface-0 sm:text-xl">
                     {{ unit.name || "-" }}
                 </p>
                 <span
@@ -39,10 +39,10 @@
                 <div class="flex items-center gap-3">
                     <AppIcon name="pi pi-clock" class="!text-3xl text-orange-600" />
                     <div>
-                        <p class="text-sm font-semibold uppercase tracking-wide text-surface-600 dark:text-surface-300">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-surface-600 dark:text-surface-300 sm:text-sm">
                             {{ $t("UnitsManagement.card.duration") }}
                         </p>
-                        <p class="text-3xl font-bold leading-none text-surface-900 dark:text-surface-0">
+                        <p class="text-2xl font-bold leading-none text-surface-900 dark:text-surface-0 sm:text-3xl">
                             {{ occupiedDurationLabel }}
                         </p>
                     </div>
@@ -50,10 +50,10 @@
                 <div class="flex items-center gap-3">
                     <AppIcon name="pi pi-receipt" class="!text-3xl text-rose-600" />
                     <div>
-                        <p class="text-sm font-semibold uppercase tracking-wide text-surface-600 dark:text-surface-300">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-surface-600 dark:text-surface-300 sm:text-sm">
                             {{ $t("UnitsManagement.card.totalOrder") }}
                         </p>
-                        <p class="text-3xl font-bold leading-none text-surface-900 dark:text-surface-0">
+                        <p class="text-2xl font-bold leading-none text-surface-900 dark:text-surface-0 sm:text-3xl">
                             {{ orderTotalLabel }}
                         </p>
                     </div>
@@ -64,15 +64,15 @@
                 <div class="flex items-center gap-3">
                     <AppIcon name="pi pi-clock" class="!text-3xl text-orange-600" />
                     <div>
-                        <p class="text-sm font-semibold uppercase tracking-wide text-surface-600 dark:text-surface-300">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-surface-600 dark:text-surface-300 sm:text-sm">
                             {{ $t("UnitsManagement.card.reservationTime") }}
                         </p>
-                        <p class="text-3xl font-bold leading-none text-surface-900 dark:text-surface-0">
+                        <p class="text-2xl font-bold leading-none text-surface-900 dark:text-surface-0 sm:text-3xl">
                             {{ reservedTimeLabel }}
                         </p>
                     </div>
                 </div>
-                <p class="text-xl text-surface-700 dark:text-surface-200">
+                <p class="text-base text-surface-700 dark:text-surface-200 sm:text-xl">
                     <span class="font-medium">{{ $t("UnitsManagement.card.bookedBy") }}:</span>
                     {{ reservedByLabel }}
                 </p>
@@ -82,22 +82,22 @@
                 <div class="flex items-center gap-3">
                     <AppIcon name="pi pi-users" class="!text-3xl text-teal-600" />
                     <div>
-                        <p class="text-sm font-semibold uppercase tracking-wide text-surface-600 dark:text-surface-300">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-surface-600 dark:text-surface-300 sm:text-sm">
                             {{ $t("UnitsManagement.card.capacity") }}
                         </p>
-                        <p class="text-3xl font-bold leading-none text-surface-900 dark:text-surface-0">
+                        <p class="text-2xl font-bold leading-none text-surface-900 dark:text-surface-0 sm:text-3xl">
                             {{ capacityLabel }}
                         </p>
                     </div>
                 </div>
-                <p class="text-xl text-surface-700 dark:text-surface-200">
+                <p class="text-base text-surface-700 dark:text-surface-200 sm:text-xl">
                     {{ $t("UnitsManagement.card.readyForSeating") }}
                 </p>
             </template>
 
             <div>
                 <span
-                    class="inline-flex rounded-full px-3 py-1 text-sm font-semibold"
+                    class="inline-flex rounded-full px-3 py-1 text-xs font-semibold sm:text-sm"
                     :class="statusChipClass"
                 >
                     {{ statusTagDisplay }}

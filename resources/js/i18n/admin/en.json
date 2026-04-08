@@ -55,6 +55,11 @@
     "UnitsManagement": {
         "more": "More actions",
         "actionError": "Action could not be completed.",
+        "viewMode": {
+            "label": "View",
+            "comfortable": "Comfortable",
+            "compact": "Compact"
+        },
         "noCurrentOrder": "No order linked to this unit.",
         "reservationDateTime": "Reservation date and time",
         "submitReservation": "Reserve",

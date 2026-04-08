@@ -11,7 +11,7 @@
                 />
                 
                 <p
-                    class="truncate font-medium text-surface-900 dark:text-surface-0"
+                    class="truncate text-sm font-medium text-surface-900 dark:text-surface-0 sm:text-base"
                 >
                     {{ unit.name || "-" }}
                 </p>
@@ -24,7 +24,7 @@
         </div>
 
         <div class="flex items-center gap-2">
-            <span class="text-sm text-surface-600 dark:text-surface-300"
+            <span class="text-xs text-surface-600 dark:text-surface-300 sm:text-sm"
                 >{{ $t("Units.Status") }}:</span
             >
             <Tag
@@ -35,7 +35,7 @@
             />
         </div>
 
-        <div class="space-y-1 text-sm text-surface-600 dark:text-surface-300">
+        <div class="space-y-1 text-xs text-surface-600 dark:text-surface-300 sm:text-sm">
             <p v-if="unit.position != null">
                 {{ $t("Units.Position") }}: {{ unit.position }}
             </p>

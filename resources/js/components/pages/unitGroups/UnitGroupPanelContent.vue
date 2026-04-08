@@ -56,7 +56,7 @@
         <div>
             <div
                 v-if="unitGroup.units?.length"
-                class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3"
+                :class="unitsGridClass"
             >
                 <template v-for="unit in unitGroup.units" :key="unit.id">
                     <UnitCard
@@ -107,6 +107,11 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    /** View density mode from page controls. */
+    viewMode: {
+        type: String,
+        default: "comfortable",
+    },
 });
 
 const userStore = useUserStore();
@@ -119,4 +124,12 @@ const isAdmin = computed(() => {
 const useStaffUnitCard = computed(
     () => props.managementMode && !isAdmin.value
 );
+
+const unitsGridClass = computed(() => {
+    if (props.viewMode === "compact") {
+        return "grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-5";
+    }
+
+    return "grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4";
+});
 </script>

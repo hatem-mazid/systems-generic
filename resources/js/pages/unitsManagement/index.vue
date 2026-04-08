@@ -23,6 +23,30 @@
             </Button>
         </div>
 
+        <div class="mt-4 flex items-center justify-end gap-2">
+            <span class="text-sm text-surface-600 dark:text-surface-300">
+                {{ $t("UnitsManagement.viewMode.label") }}:
+            </span>
+            <Button
+                type="button"
+                size="small"
+                rounded
+                :outlined="viewMode !== 'comfortable'"
+                :severity="viewMode === 'comfortable' ? 'primary' : 'secondary'"
+                :label="$t('UnitsManagement.viewMode.comfortable')"
+                @click="configStore.setUnitsViewMode('comfortable')"
+            />
+            <Button
+                type="button"
+                size="small"
+                rounded
+                :outlined="viewMode !== 'compact'"
+                :severity="viewMode === 'compact' ? 'primary' : 'secondary'"
+                :label="$t('UnitsManagement.viewMode.compact')"
+                @click="configStore.setUnitsViewMode('compact')"
+            />
+        </div>
+
         <div class="mt-8 min-w-0">
             <Skeleton
                 v-if="isLoading"
@@ -62,6 +86,7 @@
                                 :unit-group="g"
                                 management-mode
                                 hide-group-heading
+                                :view-mode="viewMode"
                                 @deleted="handleUnitGroupDeleted"
                             />
                         </TabPanel>
@@ -98,9 +123,11 @@ import { computed, onMounted, ref, watch } from "vue";
 import { unitGroupsService } from "../../apis/services/unitGroups/unitGroups.apis";
 import { UserRole } from "../../apis/services/users/users.type";
 import UnitGroupPanelContent from "../../components/pages/unitGroups/UnitGroupPanelContent.vue";
+import { useConfigStore } from "../../stores/config";
 import { useUserStore } from "../../stores/user";
 
 const userStore = useUserStore();
+const configStore = useConfigStore();
 
 const isAdmin = computed(() => {
     const r = userStore.info?.role;
@@ -115,6 +142,7 @@ const paginator = ref({
     per_page: 12,
     total: 0,
 });
+const viewMode = computed(() => configStore.unitsViewMode);
 
 watch(
     unitGroups,
@@ -166,6 +194,7 @@ const onPageChange = (event) => {
 };
 
 onMounted(() => {
+    configStore.loadUnitsViewMode();
     fetchUnitGroups();
 });
 </script>
