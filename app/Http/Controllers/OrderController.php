@@ -94,6 +94,18 @@ class OrderController extends Controller
         }
 
         return DB::transaction(function () use ($order, $validated, $quantity, $product) {
+            $product = Product::query()->lockForUpdate()->find($product->id);
+            if (! $product || ! $product->active) {
+                return response()->json(['message' => 'Product not available.'], 422);
+            }
+
+            if ($product->is_limited) {
+                $availableStock = (int) ($product->stock_quantity ?? 0);
+                if ($availableStock < $quantity) {
+                    return response()->json(['message' => 'Insufficient stock quantity.'], 422);
+                }
+            }
+
             $existing = OrderItem::query()
                 ->where('order_id', $order->id)
                 ->where('product_id', $product->id)
@@ -115,6 +127,11 @@ class OrderController extends Controller
                 ]);
                 $item->calculateTotal();
                 $item->save();
+            }
+
+            if ($product->is_limited) {
+                $product->stock_quantity = max(0, (int) ($product->stock_quantity ?? 0) - $quantity);
+                $product->save();
             }
 
             $order->refresh();
@@ -140,6 +157,16 @@ class OrderController extends Controller
         }
 
         return DB::transaction(function () use ($order, $orderItem) {
+            if ($orderItem->product_id) {
+                $product = Product::query()->lockForUpdate()->find($orderItem->product_id);
+                if ($product && $product->is_limited) {
+                    $restoreQty = max(0, (int) ($orderItem->quantity ?? 0));
+                    $currentStock = max(0, (int) ($product->stock_quantity ?? 0));
+                    $product->stock_quantity = $currentStock + $restoreQty;
+                    $product->save();
+                }
+            }
+
             $orderItem->delete();
             $order->refresh();
             $order->recalculateTotal();

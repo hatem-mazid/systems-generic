@@ -68,6 +68,7 @@ class ProductController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'category_id' => 'nullable|integer|exists:categories,id',
             'type' => ['required', Rule::enum(ProductType::class)],
             'price' => 'nullable|numeric|min:0|max:99999999.99',
             'is_limited' => 'required|boolean',
@@ -85,9 +86,12 @@ class ProductController extends Controller
         ]);
 
         $translations = $validated['translations'] ?? null;
+        $categoryId = $validated['category_id'] ?? null;
         unset($validated['translations']);
+        unset($validated['category_id']);
 
         $product = Product::create($validated);
+        $this->syncProductCategory($product, $categoryId);
         $this->syncProductTranslations($product, $translations);
         $product->load(['translations', 'media', 'categories']);
 
@@ -104,6 +108,7 @@ class ProductController extends Controller
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
+            'category_id' => 'sometimes|nullable|integer|exists:categories,id',
             'type' => ['sometimes', Rule::enum(ProductType::class)],
             'price' => 'nullable|numeric|min:0|max:99999999.99',
             'is_limited' => 'sometimes|boolean',
@@ -127,10 +132,16 @@ class ProductController extends Controller
         ]);
 
         $translations = $validated['translations'] ?? null;
+        $hasCategory = array_key_exists('category_id', $validated);
+        $categoryId = $validated['category_id'] ?? null;
         unset($validated['translations']);
+        unset($validated['category_id']);
 
         if (! empty($validated)) {
             $product->update($validated);
+        }
+        if ($hasCategory) {
+            $this->syncProductCategory($product, $categoryId);
         }
         $this->syncProductTranslations($product, $translations);
         $product->load(['translations', 'media', 'categories']);
@@ -259,5 +270,16 @@ class ProductController extends Controller
                 }
             }
         }
+    }
+
+    private function syncProductCategory(Product $product, ?int $categoryId): void
+    {
+        if ($categoryId === null) {
+            $product->categories()->sync([]);
+
+            return;
+        }
+
+        $product->categories()->sync([$categoryId]);
     }
 }

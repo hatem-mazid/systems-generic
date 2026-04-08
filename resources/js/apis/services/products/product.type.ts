@@ -47,6 +47,7 @@ export interface Product {
 export interface ProductWritePayload {
     name: string;
     description?: string | null;
+    category_id?: string | number | null;
     type?: string;
     price?: number | null;
     is_limited?: boolean;

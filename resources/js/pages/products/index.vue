@@ -250,9 +250,9 @@ function buildQueryParams(page = 1) {
   }
 
   if (filters.value.active === "active") {
-    params.active = true;
+    params.active = 1;
   } else if (filters.value.active === "inactive") {
-    params.active = false;
+    params.active = 0;
   }
 
   const q = search.value.trim();

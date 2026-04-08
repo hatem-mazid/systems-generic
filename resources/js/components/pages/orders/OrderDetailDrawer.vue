@@ -145,6 +145,12 @@
                                         <p class="text-sm text-surface-700 dark:text-surface-300">
                                             {{ formatMoney(product.price) }}
                                         </p>
+                                        <p
+                                            v-if="isOutOfStock(product)"
+                                            class="text-xs font-medium text-red-600 dark:text-red-400"
+                                        >
+                                            ({{ $t("OrderDetail.OutOfStock") }})
+                                        </p>
                                     </button>
                                     <div class="mt-2 flex items-center justify-between gap-2">
                                         <span class="text-xs text-surface-600 dark:text-surface-400">Qty</span>
@@ -153,7 +159,7 @@
                                                 type="button"
                                                 size="small"
                                                 outlined
-                                                :disabled="adding"
+                                                :disabled="adding || isOutOfStock(product)"
                                                 @click="adjustQuickQty(product, -1)"
                                             >
                                                 <template #icon>
@@ -169,7 +175,7 @@
                                                 type="button"
                                                 size="small"
                                                 outlined
-                                                :disabled="adding"
+                                                :disabled="adding || isOutOfStock(product)"
                                                 @click="adjustQuickQty(product, 1)"
                                             >
                                                 <template #icon>
@@ -184,7 +190,7 @@
                                         label="Add"
                                         class="mt-2 w-full"
                                         :loading="adding && selectedProductId === product.id"
-                                        :disabled="adding"
+                                        :disabled="adding || isOutOfStock(product)"
                                         @click="onQuickAddProduct(product)"
                                     >
                                         <template #icon>
@@ -512,7 +518,47 @@ function adjustQuickQty(product, delta) {
         return;
     }
     const next = quickQty(product) + delta;
-    quickQuantities[key] = next < 1 ? 1 : next;
+    const maxQty = availableStock(product);
+    const clampedMin = next < 1 ? 1 : next;
+    quickQuantities[key] = maxQty == null ? clampedMin : Math.min(clampedMin, Math.max(1, maxQty));
+}
+
+function availableStock(product) {
+    if (!product?.is_limited) {
+        return null;
+    }
+    const stock = Number(product?.stock_quantity ?? 0);
+    if (!Number.isFinite(stock)) {
+        return 0;
+    }
+    return Math.max(0, Math.floor(stock));
+}
+
+function isOutOfStock(product) {
+    const stock = availableStock(product);
+    return stock !== null && stock < 1;
+}
+
+function decreaseLocalProductStock(productId, quantity) {
+    const product = products.value.find((item) => item?.id === productId);
+    if (!product?.is_limited) {
+        return;
+    }
+    const current = Number(product.stock_quantity ?? 0);
+    if (!Number.isFinite(current)) {
+        product.stock_quantity = 0;
+        return;
+    }
+    product.stock_quantity = Math.max(0, Math.floor(current) - quantity);
+
+    const key = String(productId ?? "");
+    if (key) {
+        const currentQty = quickQty(product);
+        const maxQty = availableStock(product);
+        if (maxQty !== null && currentQty > maxQty) {
+            quickQuantities[key] = maxQty < 1 ? 1 : maxQty;
+        }
+    }
 }
 
 async function onAddProduct(overrideProductId = null, overrideQuantity = null) {
@@ -524,6 +570,18 @@ async function onAddProduct(overrideProductId = null, overrideQuantity = null) {
     const qty = qtySource != null ? Number(qtySource) : 1;
     if (Number.isNaN(qty) || qty < 1) {
         return;
+    }
+    const targetProduct = products.value.find((item) => item?.id === resolvedProductId);
+    if (targetProduct && targetProduct.is_limited) {
+        const stock = availableStock(targetProduct);
+        if (stock !== null && stock < qty) {
+            toast.add({
+                severity: "warn",
+                summary: t("OrderDetail.OutOfStock"),
+                life: 3000,
+            });
+            return;
+        }
     }
 
     adding.value = true;
@@ -543,6 +601,7 @@ async function onAddProduct(overrideProductId = null, overrideQuantity = null) {
             summary: t("OrderDetail.AddToOrder"),
             life: 2000,
         });
+        decreaseLocalProductStock(resolvedProductId, qty);
     } catch {
         toast.add({
             severity: "error",

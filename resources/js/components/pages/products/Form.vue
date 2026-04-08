@@ -9,7 +9,7 @@
 
         <template #content>
             <div class="grid grid-cols-12 gap-6">
-                <div class="col-span-12 space-y-6">
+                <div class="lg:col-span-6 col-span-12 space-y-6">
                     <Tabs
                         v-model:value="activeLocale"
                         class="product-locale-tabs"
@@ -175,6 +175,34 @@
                     >
                         <div>
                             <label
+                                for="product-category"
+                                class="mb-2 block font-medium"
+                                >{{ $t("ProductForm.Category") }}</label
+                            >
+                            <Select
+                                id="product-category"
+                                v-model="form.category_id"
+                                :options="categoryOptions"
+                                option-label="label"
+                                option-value="value"
+                                class="w-full"
+                                fluid
+                                :loading="categoriesLoading"
+                                :invalid="!!validation.category_id"
+                                :placeholder="$t('ProductForm.CategoryPlaceholder')"
+                            />
+                            <Message
+                                v-if="validation.category_id"
+                                severity="error"
+                                size="small"
+                                variant="simple"
+                                class="mt-1"
+                            >
+                                {{ validation.category_id[0] }}
+                            </Message>
+                        </div>
+                        <div>
+                            <label
                                 for="product-type"
                                 class="mb-2 block font-medium"
                                 >{{ $t("ProductForm.Type") }}</label
@@ -326,7 +354,7 @@
                     </div>
                 </div>
 
-                <div class="col-span-12">
+                <div class="lg:col-span-6 col-span-12">
                     <aside
                         class="flex w-full flex-col rounded-xl border border-surface-200 bg-surface-50/80 p-4 dark:border-surface-700 dark:bg-surface-800/40"
                     >
@@ -340,7 +368,7 @@
                         </p>
 
                         <div
-                            class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+                            class="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 "
                         >
                             <div
                                 v-for="item in displayMediaItems"
@@ -487,6 +515,7 @@ import { useToast } from "primevue/usetoast";
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
+import { categoriesService } from "../../../apis/services/categories/categories.apis";
 import { productsService } from "../../../apis/services/products/products.apis";
 import type {
     Product,
@@ -512,6 +541,8 @@ const loadedProduct = ref<Product | null>(null);
 const uploadingMedia = ref(false);
 const deletingMediaId = ref<string | number | null>(null);
 const defaultLoadingId = ref<string | number | null>(null);
+const categoriesLoading = ref(false);
+const categories = ref<Array<{ id: string | number; name: string }>>([]);
 
 interface PendingUpload {
     file: File;
@@ -526,6 +557,7 @@ const form = ref({
     description: "",
     arName: "",
     arDescription: "",
+    category_id: null as string | number | null,
     type: "physical" as ProductTypeValue,
     price: null as number | null,
     is_limited: false,
@@ -540,6 +572,13 @@ const typeOptions = computed(() => [
     { label: t("ProductsList.Types.service_fixed"), value: "service_fixed" },
     { label: t("ProductsList.Types.service_timer"), value: "service_timer" },
 ]);
+
+const categoryOptions = computed(() =>
+    categories.value.map((category) => ({
+        label: category.name || "—",
+        value: category.id,
+    }))
+);
 
 function pickTranslation(
     translations: ProductTranslation[] | undefined,
@@ -563,6 +602,7 @@ function applyProduct(data: Product) {
             "ar",
             "description"
         ),
+        category_id: data.categories?.[0]?.id ?? null,
         type: (data.type as ProductTypeValue) ?? "physical",
         price:
             data.price === null || data.price === undefined
@@ -728,10 +768,11 @@ async function onRemoveMedia(item: DisplayMedia) {
     }
 }
 
-function buildPayload(): ProductWritePayload {
+function buildPayload() {
     return {
         name: form.value.name.trim(),
         description: form.value.description.trim() || null,
+        category_id: form.value.category_id,
         type: form.value.type,
         price: form.value.price,
         is_limited: form.value.is_limited,
@@ -745,7 +786,7 @@ function buildPayload(): ProductWritePayload {
                 description: form.value.arDescription.trim() || null,
             },
         },
-    };
+    } as ProductWritePayload;
 }
 
 async function uploadPendingAfterCreate(productId: string | number) {
@@ -822,6 +863,27 @@ onBeforeUnmount(() => {
 });
 
 onMounted(async () => {
+    try {
+        categoriesLoading.value = true;
+        const categoriesRes = await categoriesService.getCategories({
+            page: 1,
+            per_page: 100,
+        });
+        categories.value =
+            categoriesRes.data.items?.map((item) => ({
+                id: item.id as string | number,
+                name: item.name ?? "",
+            })) ?? [];
+    } catch {
+        toast.add({
+            severity: "error",
+            summary: t("ProductForm.CategoriesLoadError"),
+            life: 4000,
+        });
+    } finally {
+        categoriesLoading.value = false;
+    }
+
     if (!props.productId) {
         isLoading.value = false;
         return;

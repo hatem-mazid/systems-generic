@@ -116,6 +116,7 @@
         "RemoveLineTitle": "Remove item",
         "ConfirmRemoveLine": "Remove this item from the order?",
         "NotEditable": "This order cannot be edited.",
+        "OutOfStock": "out of stock",
         "ItemTypes": {
             "product": "Product",
             "service": "Service",
@@ -308,6 +309,8 @@
         "LocaleArabic": "العربية",
         "Name": "Name",
         "Description": "Description",
+        "Category": "Category",
+        "CategoryPlaceholder": "Select category",
         "Type": "Product type",
         "Price": "Price",
         "PriceOptional": "Optional — leave empty if price varies",
@@ -336,6 +339,7 @@
         "MediaUploaded": "Images uploaded.",
         "MediaUploadError": "Could not upload images.",
         "DefaultUpdated": "Card image updated.",
-        "DefaultUpdateError": "Could not update card image."
+        "DefaultUpdateError": "Could not update card image.",
+        "CategoriesLoadError": "Could not load categories."
     }
 }
