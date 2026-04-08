@@ -20,6 +20,30 @@
       </Button>
     </div>
 
+    <div class="mt-4 flex items-center justify-end gap-2">
+      <span class="text-sm text-surface-600 dark:text-surface-300">
+        {{ $t("UnitsManagement.viewMode.label") }}:
+      </span>
+      <Button
+        type="button"
+        size="small"
+        rounded
+        :outlined="viewMode !== 'comfortable'"
+        :severity="viewMode === 'comfortable' ? 'primary' : 'secondary'"
+        :label="$t('UnitsManagement.viewMode.comfortable')"
+        @click="configStore.setProductsViewMode('comfortable')"
+      />
+      <Button
+        type="button"
+        size="small"
+        rounded
+        :outlined="viewMode !== 'compact'"
+        :severity="viewMode === 'compact' ? 'primary' : 'secondary'"
+        :label="$t('UnitsManagement.viewMode.compact')"
+        @click="configStore.setProductsViewMode('compact')"
+      />
+    </div>
+
     <div
       class="mt-6 rounded-2xl border border-surface-200/80 bg-surface-0 p-5 shadow-sm sm:p-6 dark:border-surface-700 dark:bg-surface-900"
     >
@@ -144,9 +168,7 @@
     </div>
 
     <div class="mt-8 min-w-0">
-      <div
-        class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 sm:gap-5"
-      >
+      <div :class="productsGridClass">
         <Skeleton
           v-if="isLoading"
           v-for="n in paginator.per_page"
@@ -193,8 +215,11 @@ import { useI18n } from "vue-i18n";
 import { categoriesService } from "../../apis/services/categories/categories.apis";
 import { productsService } from "../../apis/services/products/products.apis";
 import ProductCard from "../../components/pages/products/Card.vue";
+import { useConfigStore } from "../../stores/config";
 
 const { t } = useI18n();
+const configStore = useConfigStore();
+const viewMode = computed(() => configStore.productsViewMode);
 
 const isLoading = ref(true);
 const products = ref([]);
@@ -234,6 +259,13 @@ const activeOptions = computed(() => [
   { label: t("UserForm.Active"), value: "active" },
   { label: t("UserForm.Inactive"), value: "inactive" },
 ]);
+
+const productsGridClass = computed(() => {
+  if (viewMode.value === "compact") {
+    return "grid grid-cols-1 gap-5 sm:gap-5 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5";
+  }
+  return "grid grid-cols-1 gap-5 sm:gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+});
 
 function buildQueryParams(page = 1) {
   const params = {
@@ -333,6 +365,7 @@ const loadCategories = () => {
 };
 
 onMounted(() => {
+  configStore.loadProductsViewMode();
   loadCategories();
   fetchProducts();
 });

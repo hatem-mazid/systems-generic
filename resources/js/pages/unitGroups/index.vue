@@ -22,6 +22,30 @@
             </Button>
         </div>
 
+        <div class="mt-4 flex items-center justify-end gap-2">
+            <span class="text-sm text-surface-600 dark:text-surface-300">
+                {{ $t("UnitsManagement.viewMode.label") }}:
+            </span>
+            <Button
+                type="button"
+                size="small"
+                rounded
+                :outlined="viewMode !== 'comfortable'"
+                :severity="viewMode === 'comfortable' ? 'primary' : 'secondary'"
+                :label="$t('UnitsManagement.viewMode.comfortable')"
+                @click="configStore.setUnitGroupsViewMode('comfortable')"
+            />
+            <Button
+                type="button"
+                size="small"
+                rounded
+                :outlined="viewMode !== 'compact'"
+                :severity="viewMode === 'compact' ? 'primary' : 'secondary'"
+                :label="$t('UnitsManagement.viewMode.compact')"
+                @click="configStore.setUnitGroupsViewMode('compact')"
+            />
+        </div>
+
         <div class="mt-8 min-w-0 space-y-6">
             <Skeleton
                 v-if="isLoading"
@@ -37,6 +61,7 @@
                     v-for="unitGroup in unitGroups"
                     :key="unitGroup.id"
                     :unit-group="unitGroup"
+                    :view-mode="viewMode"
                     @deleted="handleUnitGroupDeleted"
                 />
 
@@ -61,12 +86,15 @@
 
 <script setup>
 import { Button } from "primevue";
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { unitGroupsService } from "../../apis/services/unitGroups/unitGroups.apis";
 import UnitGroupCard from "../../components/pages/unitGroups/UnitGroupCard.vue";
+import { useConfigStore } from "../../stores/config";
 
 const isLoading = ref(true);
 const unitGroups = ref([]);
+const configStore = useConfigStore();
+const viewMode = computed(() => configStore.unitGroupsViewMode);
 const paginator = ref({
     current_page: 1,
     per_page: 12,
@@ -108,6 +136,7 @@ const onPageChange = (event) => {
 };
 
 onMounted(() => {
+    configStore.loadUnitGroupsViewMode();
     fetchUnitGroups();
 });
 </script>

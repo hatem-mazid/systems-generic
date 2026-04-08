@@ -22,10 +22,32 @@
             </Button>
         </div>
 
+        <div class="mt-4 flex items-center justify-end gap-2">
+            <span class="text-sm text-surface-600 dark:text-surface-300">
+                {{ $t("UnitsManagement.viewMode.label") }}:
+            </span>
+            <Button
+                type="button"
+                size="small"
+                rounded
+                :outlined="viewMode !== 'comfortable'"
+                :severity="viewMode === 'comfortable' ? 'primary' : 'secondary'"
+                :label="$t('UnitsManagement.viewMode.comfortable')"
+                @click="configStore.setCategoriesViewMode('comfortable')"
+            />
+            <Button
+                type="button"
+                size="small"
+                rounded
+                :outlined="viewMode !== 'compact'"
+                :severity="viewMode === 'compact' ? 'primary' : 'secondary'"
+                :label="$t('UnitsManagement.viewMode.compact')"
+                @click="configStore.setCategoriesViewMode('compact')"
+            />
+        </div>
+
         <div class="mt-8 min-w-0">
-            <div
-                class="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4"
-            >
+            <div :class="categoriesGridClass">
                 <Skeleton
                     v-if="isLoading"
                     v-for="n in paginator.per_page"
@@ -65,16 +87,26 @@
 
 <script setup>
 import { Button } from "primevue";
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { categoriesService } from "../../apis/services/categories/categories.apis";
 import CategoryCard from "../../components/pages/categories/CategoryCard.vue";
+import { useConfigStore } from "../../stores/config";
 
 const isLoading = ref(true);
 const categories = ref([]);
+const configStore = useConfigStore();
+const viewMode = computed(() => configStore.categoriesViewMode);
 const paginator = ref({
     current_page: 1,
     per_page: 12,
     total: 0,
+});
+
+const categoriesGridClass = computed(() => {
+    if (viewMode.value === "compact") {
+        return "grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4 xl:grid-cols-5";
+    }
+    return "grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4";
 });
 
 const fetchCategories = (page = 1, showFullLoading = true) => {
@@ -112,6 +144,7 @@ const onPageChange = (event) => {
 };
 
 onMounted(() => {
+    configStore.loadCategoriesViewMode();
     fetchCategories();
 });
 </script>
