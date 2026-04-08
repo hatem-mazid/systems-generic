@@ -14,7 +14,7 @@ Route::get('login', function () {
     return view('login');
 })->name('login');
 
-Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/locale', [LocaleController::class, 'update'])->name('locale.update');

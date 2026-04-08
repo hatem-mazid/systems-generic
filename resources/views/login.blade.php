@@ -31,7 +31,7 @@
                 </div>
 
                 {{-- Login Form --}}
-                <form method="POST" action="{{ route('login') }}">
+                <form method="POST" action="{{ route('login.submit') }}">
                     @csrf
 
                     {{-- Phone Number --}}
