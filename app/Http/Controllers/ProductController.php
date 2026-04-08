@@ -21,7 +21,7 @@ class ProductController extends Controller
             'search' => 'sometimes|nullable|string|max:255',
         ]);
 
-        $query = Product::with(['translations', 'media', 'categories']);
+        $query = Product::with(['translations', 'media', 'categories.translations']);
 
         if (! empty($validated['category_id'] ?? null)) {
             $categoryId = $validated['category_id'];
@@ -55,7 +55,7 @@ class ProductController extends Controller
 
     public function show(string $id)
     {
-        $product = Product::with(['translations', 'media', 'categories'])->find($id);
+        $product = Product::with(['translations', 'media', 'categories.translations'])->find($id);
         if (! $product) {
             return response()->json(['message' => 'Product not found'], 404);
         }
@@ -93,7 +93,7 @@ class ProductController extends Controller
         $product = Product::create($validated);
         $this->syncProductCategory($product, $categoryId);
         $this->syncProductTranslations($product, $translations);
-        $product->load(['translations', 'media', 'categories']);
+        $product->load(['translations', 'media', 'categories.translations']);
 
         return response()->json(new ProductResource($product));
     }
@@ -144,7 +144,7 @@ class ProductController extends Controller
             $this->syncProductCategory($product, $categoryId);
         }
         $this->syncProductTranslations($product, $translations);
-        $product->load(['translations', 'media', 'categories']);
+        $product->load(['translations', 'media', 'categories.translations']);
 
         return response()->json(new ProductResource($product));
     }
@@ -184,7 +184,7 @@ class ProductController extends Controller
             $media->save();
         }
 
-        $product->load(['translations', 'media', 'categories']);
+        $product->load(['translations', 'media', 'categories.translations']);
 
         return response()->json(new ProductResource($product));
     }
@@ -210,7 +210,7 @@ class ProductController extends Controller
             }
         }
 
-        $product->load(['translations', 'media', 'categories']);
+        $product->load(['translations', 'media', 'categories.translations']);
 
         return response()->json(new ProductResource($product));
     }
@@ -231,7 +231,7 @@ class ProductController extends Controller
             $m->save();
         }
 
-        $product->load(['translations', 'media', 'categories']);
+        $product->load(['translations', 'media', 'categories.translations']);
 
         return response()->json(new ProductResource($product));
     }

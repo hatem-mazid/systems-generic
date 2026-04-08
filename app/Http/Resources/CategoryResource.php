@@ -9,10 +9,15 @@ class CategoryResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $locale = app()->getLocale();
+        $translatedName = $this->t('name', $locale);
+        $translatedDescription = $this->t('description', $locale);
+
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'description' => $this->description,
+            'title' => $translatedName,
+            'name' => $translatedName,
+            'description' => $translatedDescription,
             'order' => $this->order,
             'active' => $this->active,
             'created_at' => $this->created_at,

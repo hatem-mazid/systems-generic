@@ -17,6 +17,7 @@ export interface CategoryMedia {
 
 export interface Category {
     id?: string | number;
+    title?: string;
     name?: string;
     description?: string | null;
     order?: number | null;

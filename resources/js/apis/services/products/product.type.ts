@@ -18,7 +18,9 @@ export interface ProductMedia {
 
 export interface ProductCategory {
     id?: string | number;
+    title?: string;
     name?: string;
+    description?: string | null;
 }
 
 export type ProductTypeValue =
@@ -28,6 +30,7 @@ export type ProductTypeValue =
 
 export interface Product {
     id?: string | number;
+    title?: string;
     name?: string;
     description?: string | null;
     order?: number | null;

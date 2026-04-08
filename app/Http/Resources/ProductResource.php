@@ -9,10 +9,15 @@ class ProductResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $locale = app()->getLocale();
+        $translatedName = $this->t('name', $locale);
+        $translatedDescription = $this->t('description', $locale);
+
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'description' => $this->description,
+            'title' => $translatedName,
+            'name' => $translatedName,
+            'description' => $translatedDescription,
             'type' => $this->type?->value,
             'price' => $this->price,
             'is_limited' => $this->is_limited,
@@ -49,9 +54,13 @@ class ProductResource extends JsonResource
             }),
             'categories' => $this->whenLoaded('categories', function () {
                 return $this->categories->map(function ($category) {
+                    $locale = app()->getLocale();
+
                     return [
                         'id' => $category->id,
-                        'name' => $category->name,
+                        'title' => $category->t('name', $locale),
+                        'name' => $category->t('name', $locale),
+                        'description' => $category->t('description', $locale),
                     ];
                 })->values()->all();
             }),
