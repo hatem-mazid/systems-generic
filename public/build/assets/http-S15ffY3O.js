@@ -1,0 +1,1 @@
+import{a as o}from"./http-Ek9LE4qv.js";const i=o.create({baseURL:"",headers:{Accept:"application/json"}});i.interceptors.response.use(e=>e,e=>{var t;const s=(t=e.response)==null?void 0:t.status;return s===401?(window.location.assign("/login"),Promise.reject(e)):(s===419&&window.location.reload(),Promise.reject(e))});export{i as h};
