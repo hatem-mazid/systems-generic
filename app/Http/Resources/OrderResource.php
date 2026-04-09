@@ -55,6 +55,8 @@ class OrderResource extends JsonResource
                         }
                     }
 
+                    $section = ($product && $product->relationLoaded('section')) ? $product->section : null;
+
                     return [
                         'id' => $item->id,
                         'product_id' => $item->product_id,
@@ -65,6 +67,10 @@ class OrderResource extends JsonResource
                         'total' => $item->total,
                         'type' => $item->type,
                         'meta' => $item->meta,
+                        'batch_no' => $item->batch_no,
+                        'is_printed' => $item->is_printed,
+                        'section_code' => $section?->code,
+                        'section_name' => $section?->name,
                         'image' => $imageUrl,
                         'created_at' => $item->created_at,
                         'updated_at' => $item->updated_at,

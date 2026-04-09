@@ -1,4 +1,5 @@
 import type { Order } from "../../../apis/services/orders/orders.type";
+import { mergeOrderItems } from "../../../utils/orderItemsMerge";
 
 function escapeHtml(s: string): string {
     return String(s)
@@ -54,9 +55,10 @@ export function printOrderInvoice(order: Order, labels: InvoicePrintLabels): voi
     );
     const total = formatMoney(order.total);
 
+    const merged = mergeOrderItems(order.items);
     const rows =
-        order.items?.length ?
-            order.items
+        merged.length ?
+            merged
                 .map((line) => {
                     const name = escapeHtml(String(line.name ?? "—"));
                     const qty = escapeHtml(String(line.quantity ?? "—"));

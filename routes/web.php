@@ -3,12 +3,13 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\LocaleController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\UnitGroupController;
-use App\Http\Controllers\UnitController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SectionController;
+use App\Http\Controllers\UnitController;
+use App\Http\Controllers\UnitGroupController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('login', function () {
@@ -29,12 +30,14 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('/api/roles', RoleController::class);
     Route::get('/api/permissions', [RoleController::class, 'permissions']);
 
+    Route::get('/api/sections', [SectionController::class, 'index']);
+
     Route::resource('/api/categories', CategoryController::class);
     Route::post('/api/categories/{category}/media', [CategoryController::class, 'storeMedia']);
     Route::delete('/api/categories/{category}/media', [CategoryController::class, 'destroyMedia']);
 
     Route::resource('/api/unit-groups', UnitGroupController::class);
-    
+
     Route::resource('/api/units', UnitController::class);
     Route::post('/api/units/{id}/start-order', [UnitController::class, 'startOrder']);
     Route::post('/api/units/{id}/reserve', [UnitController::class, 'reserve']);
@@ -51,6 +54,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('/api/orders', OrderController::class);
     Route::post('/api/orders/{order}/items', [OrderController::class, 'storeItem']);
+    Route::post('/api/orders/{order}/print', [OrderController::class, 'print']);
     Route::delete('/api/orders/{order}/items/{item}', [OrderController::class, 'destroyItem']);
 
     Route::get('/{any}', function () {

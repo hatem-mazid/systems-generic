@@ -23,6 +23,18 @@ class ProductResource extends JsonResource
             'is_limited' => $this->is_limited,
             'stock_quantity' => $this->stock_quantity,
             'active' => $this->active,
+            'section_id' => $this->section_id,
+            'section' => $this->whenLoaded('section', function () {
+                if (! $this->section) {
+                    return null;
+                }
+
+                return [
+                    'id' => $this->section->id,
+                    'name' => $this->section->name,
+                    'code' => $this->section->code,
+                ];
+            }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'translations' => $this->whenLoaded('translations', function () {

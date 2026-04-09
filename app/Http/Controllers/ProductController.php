@@ -97,6 +97,7 @@ class ProductController extends Controller
                         'row' => $row,
                         'errors' => $rowValidator->errors(),
                     ];
+
                     continue;
                 }
 
@@ -122,6 +123,7 @@ class ProductController extends Controller
                             'row' => $row,
                             'errors' => ['id' => ['Product not found.']],
                         ];
+
                         continue;
                     }
                     $product->update($payload);
@@ -164,7 +166,7 @@ class ProductController extends Controller
     {
         $this->ensureCan('products index');
 
-        $spreadsheet = new Spreadsheet();
+        $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
 
         $headers = [
@@ -240,7 +242,7 @@ class ProductController extends Controller
             'search' => 'sometimes|nullable|string|max:255',
         ]);
 
-        $query = Product::with(['translations', 'media', 'categories.translations']);
+        $query = Product::with(['translations', 'media', 'categories.translations', 'section']);
 
         if (! empty($validated['category_id'] ?? null)) {
             $categoryId = $validated['category_id'];
@@ -276,7 +278,7 @@ class ProductController extends Controller
     {
         $this->ensureCan('products edit');
 
-        $product = Product::with(['translations', 'media', 'categories.translations'])->find($id);
+        $product = Product::with(['translations', 'media', 'categories.translations', 'section'])->find($id);
         if (! $product) {
             return response()->json(['message' => 'Product not found'], 404);
         }
@@ -302,6 +304,7 @@ class ProductController extends Controller
                 Rule::requiredIf(fn () => $request->boolean('is_limited')),
             ],
             'active' => 'required|boolean',
+            'section_id' => 'nullable|integer|exists:sections,id',
             'translations' => 'nullable|array',
             'translations.ar' => 'nullable|array',
             'translations.ar.name' => 'nullable|string|max:255',
@@ -316,7 +319,7 @@ class ProductController extends Controller
         $product = Product::create($validated);
         $this->syncProductCategory($product, $categoryId);
         $this->syncProductTranslations($product, $translations);
-        $product->load(['translations', 'media', 'categories.translations']);
+        $product->load(['translations', 'media', 'categories.translations', 'section']);
 
         return response()->json(new ProductResource($product));
     }
@@ -350,6 +353,7 @@ class ProductController extends Controller
                 }),
             ],
             'active' => 'sometimes|boolean',
+            'section_id' => 'sometimes|nullable|integer|exists:sections,id',
             'translations' => 'sometimes|array',
             'translations.ar' => 'nullable|array',
             'translations.ar.name' => 'nullable|string|max:255',
@@ -369,7 +373,7 @@ class ProductController extends Controller
             $this->syncProductCategory($product, $categoryId);
         }
         $this->syncProductTranslations($product, $translations);
-        $product->load(['translations', 'media', 'categories.translations']);
+        $product->load(['translations', 'media', 'categories.translations', 'section']);
 
         return response()->json(new ProductResource($product));
     }

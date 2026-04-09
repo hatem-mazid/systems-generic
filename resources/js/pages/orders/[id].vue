@@ -191,15 +191,15 @@
                     </template>
                     <template #content>
                         <div
-                            v-if="!order.items?.length"
+                            v-if="!mergedOrderLines.length"
                             class="rounded-xl border border-dashed border-surface-300 p-8 text-center text-surface-600 dark:border-surface-600 dark:text-surface-400"
                         >
                             {{ $t("OrderDetail.EmptyItems") }}
                         </div>
                         <ul v-else class="space-y-3">
                             <li
-                                v-for="(line, idx) in order.items"
-                                :key="line.id ?? `line-${idx}`"
+                                v-for="(line, idx) in mergedOrderLines"
+                                :key="line.key"
                                 class="rounded-xl border border-surface-200/90 bg-surface-0 p-3 sm:p-4 dark:border-surface-700 dark:bg-surface-900/50"
                             >
                                 <div
@@ -212,10 +212,7 @@
                                             v-if="
                                                 line.image &&
                                                 !lineImageFailed[
-                                                    lineImageFailKey(
-                                                        line,
-                                                        idx
-                                                    )
+                                                    mergedLineImageKey(line, idx)
                                                 ]
                                             "
                                             :href="line.image"
@@ -232,7 +229,7 @@
                                                 class="h-full w-full object-cover transition-opacity group-hover:opacity-90"
                                                 loading="lazy"
                                                 @error="
-                                                    onLineImageError(line, idx)
+                                                    onMergedLineImageError(line, idx)
                                                 "
                                             />
                                         </a>
@@ -266,15 +263,83 @@
                                                 class="shrink-0 text-xs capitalize"
                                             />
                                         </div>
-                                        <p
-                                            v-if="line.notes"
-                                            class="text-sm leading-relaxed text-surface-600 dark:text-surface-400"
+                                        <dl
+                                            class="mt-2 grid grid-cols-1 gap-x-4 gap-y-1.5 rounded-lg border border-surface-200/80 bg-surface-50/80 p-3 text-xs text-surface-600 dark:border-surface-700 dark:bg-surface-800/40 dark:text-surface-400 sm:grid-cols-2"
                                         >
-                                            <span class="font-medium text-surface-700 dark:text-surface-300">{{
-                                                $t("OrderDetail.Notes")
-                                            }}</span>
-                                            {{ line.notes }}
-                                        </p>
+                                            <div
+                                                class="flex flex-wrap items-center justify-between gap-2 sm:col-span-2"
+                                            >
+                                                <dt class="font-medium text-surface-700 dark:text-surface-300">
+                                                    {{ $t("OrderDetail.ItemSection") }}
+                                                </dt>
+                                                <dd class="text-end">
+                                                    <template v-if="line.section_name || line.section_code">
+                                                        {{ line.section_name || line.section_code }}
+                                                    </template>
+                                                    <template v-else-if="line.multiple_sections">
+                                                        {{ $t("OrderDetail.SectionVarious") }}
+                                                    </template>
+                                                    <template v-else>
+                                                        —
+                                                    </template>
+                                                </dd>
+                                            </div>
+                                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                                <dt class="font-medium text-surface-700 dark:text-surface-300">
+                                                    {{ $t("OrderDetail.ItemBatch") }}
+                                                </dt>
+                                                <dd class="tabular-nums text-end">
+                                                    {{ line.batch_label }}
+                                                </dd>
+                                            </div>
+                                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                                <dt class="font-medium text-surface-700 dark:text-surface-300">
+                                                    {{ $t("OrderDetail.ItemPrintStatus") }}
+                                                </dt>
+                                                <dd class="text-end">
+                                                    <Tag
+                                                        v-if="line.is_printed === true"
+                                                        :value="$t('OrderDetail.ItemPrinted')"
+                                                        severity="success"
+                                                        class="text-xs"
+                                                    />
+                                                    <Tag
+                                                        v-else-if="line.is_printed === 'mixed'"
+                                                        :value="$t('OrderDetail.ItemPrintStatusMixed')"
+                                                        severity="secondary"
+                                                        class="text-xs"
+                                                    />
+                                                    <Tag
+                                                        v-else
+                                                        :value="$t('OrderDetail.ItemPendingPrint')"
+                                                        severity="warn"
+                                                        class="text-xs"
+                                                    />
+                                                </dd>
+                                            </div>
+                                            <div
+                                                v-if="line.product_id != null"
+                                                class="flex flex-wrap items-center justify-between gap-2"
+                                            >
+                                                <dt class="font-medium text-surface-700 dark:text-surface-300">
+                                                    {{ $t("OrderDetail.ItemProductId") }}
+                                                </dt>
+                                                <dd class="tabular-nums text-end">
+                                                    {{ line.product_id }}
+                                                </dd>
+                                            </div>
+                                            <div
+                                                v-if="line.sourceLineCount > 1"
+                                                class="flex flex-wrap items-center justify-between gap-2 sm:col-span-2"
+                                            >
+                                                <dt class="font-medium text-surface-700 dark:text-surface-300">
+                                                    {{ $t("OrderDetail.MergedLinesCount") }}
+                                                </dt>
+                                                <dd class="tabular-nums text-end">
+                                                    {{ line.sourceLineCount }}
+                                                </dd>
+                                            </div>
+                                        </dl>
                                         <pre
                                             v-if="
                                                 line.meta &&
@@ -327,13 +392,13 @@
                         </ul>
 
                         <Divider
-                            v-if="order.items?.length"
+                            v-if="mergedOrderLines.length"
                             class="my-6"
                             layout="horizontal"
                         />
 
                         <div
-                            v-if="order.items?.length"
+                            v-if="mergedOrderLines.length"
                             class="flex flex-col items-stretch justify-between gap-2 rounded-xl bg-surface-100 px-4 py-3 dark:bg-surface-800 sm:flex-row sm:items-center"
                         >
                             <span
@@ -364,7 +429,7 @@ import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import { ordersService } from "../../apis/services/orders/orders.apis";
 import { OrderStatus } from "../../apis/services/orders/orders.type";
-import { printOrderInvoice } from "../../components/pages/orders/printOrderInvoice";
+import { mergeOrderItems } from "../../utils/orderItemsMerge";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -376,6 +441,8 @@ const order = ref(null);
 const lineImageFailed = reactive({});
 
 const orderId = computed(() => String(route.params.id ?? ""));
+
+const mergedOrderLines = computed(() => mergeOrderItems(order.value?.items));
 
 watch(
     () => route.params.id,
@@ -448,12 +515,12 @@ function lineTypeLabel(type) {
     return translated === key ? type : translated;
 }
 
-function lineImageFailKey(line, lineIdx) {
-    return line.id != null ? String(line.id) : `idx-${lineIdx}`;
+function mergedLineImageKey(line, lineIdx) {
+    return "m-" + line.key + "-" + lineIdx;
 }
 
-function onLineImageError(line, lineIdx) {
-    lineImageFailed[lineImageFailKey(line, lineIdx)] = true;
+function onMergedLineImageError(line, lineIdx) {
+    lineImageFailed[mergedLineImageKey(line, lineIdx)] = true;
 }
 
 async function fetchOrder() {

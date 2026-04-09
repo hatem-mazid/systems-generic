@@ -23,6 +23,12 @@ export interface ProductCategory {
     description?: string | null;
 }
 
+export interface ProductSection {
+    id?: string | number;
+    name?: string;
+    code?: string;
+}
+
 export type ProductTypeValue =
     | "physical"
     | "service_fixed"
@@ -39,6 +45,8 @@ export interface Product {
     is_limited?: boolean;
     stock_quantity?: number | null;
     active?: boolean;
+    section_id?: string | number | null;
+    section?: ProductSection | null;
     created_at?: string;
     updated_at?: string;
     translations?: ProductTranslation[];
@@ -51,6 +59,7 @@ export interface ProductWritePayload {
     name: string;
     description?: string | null;
     category_id?: string | number | null;
+    section_id?: string | number | null;
     type?: string;
     price?: number | null;
     is_limited?: boolean;

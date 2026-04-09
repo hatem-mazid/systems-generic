@@ -9,6 +9,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
@@ -38,6 +39,7 @@ class OrderController extends Controller
             'unit:id,name',
             'items.product.translations',
             'items.product.media',
+            'items.product.section',
         ]);
 
         if (array_key_exists('user_id', $validated) && $validated['user_id'] !== null) {
@@ -77,6 +79,7 @@ class OrderController extends Controller
             'unit:id,name',
             'items.product.translations',
             'items.product.media',
+            'items.product.section',
         ]));
     }
 
@@ -114,13 +117,27 @@ class OrderController extends Controller
                 }
             }
 
-            $existing = OrderItem::query()
+            $notesRaw = $validated['notes'] ?? null;
+            $notesNormalized = ($notesRaw === null || $notesRaw === '') ? null : $notesRaw;
+
+            $existingQuery = OrderItem::query()
                 ->where('order_id', $order->id)
                 ->where('product_id', $product->id)
-                ->first();
+                ->where('is_printed', false)
+                ->whereNull('batch_no');
+
+            if ($notesNormalized === null) {
+                $existingQuery->where(function ($q) {
+                    $q->whereNull('notes')->orWhere('notes', '');
+                });
+            } else {
+                $existingQuery->where('notes', $notesNormalized);
+            }
+
+            $existing = $existingQuery->lockForUpdate()->first();
 
             if ($existing) {
-                $existing->quantity += $quantity;
+                $existing->quantity = (int) ($existing->quantity ?? 0) + $quantity;
                 $existing->calculateTotal();
                 $existing->save();
             } else {
@@ -128,10 +145,12 @@ class OrderController extends Controller
                     'order_id' => $order->id,
                     'product_id' => $product->id,
                     'name' => $product->name,
-                    'notes' => $validated['notes'] ?? null,
+                    'notes' => $notesNormalized,
                     'price' => $product->price,
                     'quantity' => $quantity,
                     'type' => 'product',
+                    'batch_no' => null,
+                    'is_printed' => false,
                 ]);
                 $item->calculateTotal();
                 $item->save();
@@ -150,13 +169,64 @@ class OrderController extends Controller
                 'unit:id,name',
                 'items.product.translations',
                 'items.product.media',
+                'items.product.section',
             ]));
         });
     }
 
-    public function destroyItem(Order $order, string $item)
+    public function print(Order $order)
     {
         $this->ensureCan('order edit');
+
+        $payload = DB::transaction(function () use ($order) {
+            $items = OrderItem::query()
+                ->where('order_id', $order->id)
+                ->where('is_printed', false)
+                ->with(['product.section'])
+                ->lockForUpdate()
+                ->get();
+
+            if ($items->isEmpty()) {
+                return [
+                    'order_id' => $order->id,
+                    'sections' => [],
+                    'patches' => [],
+                    'printed_items_count' => 0,
+                ];
+            }
+
+            $nextBatchNo = ((int) OrderItem::query()
+                ->where('order_id', $order->id)
+                ->max('batch_no')) + 1;
+
+            $items->each(function (OrderItem $item) use ($nextBatchNo) {
+                $item->batch_no = $nextBatchNo;
+            });
+
+            $grouped = $this->groupItemsBySectionForPrinting($items);
+            $patches = $this->groupPatchesForPrinting($items);
+
+            OrderItem::query()
+                ->whereIn('id', $items->pluck('id'))
+                ->update([
+                    'batch_no' => $nextBatchNo,
+                    'is_printed' => true,
+                ]);
+
+            return [
+                'order_id' => $order->id,
+                'sections' => $grouped,
+                'patches' => $patches,
+                'printed_items_count' => $items->count(),
+            ];
+        });
+
+        return response()->json($payload);
+    }
+
+    public function destroyItem(Order $order, string $item)
+    {
+        $this->ensureCan('order item delete');
 
         if (! $order->isOpen()) {
             return response()->json(['message' => 'Order is not active.'], 422);
@@ -187,6 +257,7 @@ class OrderController extends Controller
                 'unit:id,name',
                 'items.product.translations',
                 'items.product.media',
+                'items.product.section',
             ]));
         });
     }
@@ -194,5 +265,55 @@ class OrderController extends Controller
     private function ensureCan(string $permission): void
     {
         abort_unless(auth()->user()?->can($permission), 403, 'Forbidden');
+    }
+
+    private function groupItemsBySectionForPrinting(Collection $items): array
+    {
+        return $this->buildSectionGroupsForPrinting($items);
+    }
+
+    /**
+     * @return array<int, array{batch_no: int, sections: array<int, mixed>}>
+     */
+    private function groupPatchesForPrinting(Collection $items): array
+    {
+        return $items
+            ->groupBy(fn (OrderItem $item) => (int) ($item->batch_no ?? 1))
+            ->sortKeys()
+            ->map(function (Collection $batchItems, int $batchNo) {
+                return [
+                    'batch_no' => $batchNo,
+                    'sections' => $this->buildSectionGroupsForPrinting($batchItems),
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
+    private function buildSectionGroupsForPrinting(Collection $items): array
+    {
+        return $items
+            ->groupBy(function (OrderItem $item) {
+                return $item->product?->section?->code ?? 'general';
+            })
+            ->map(function (Collection $sectionItems, string $sectionCode) {
+                return [
+                    'section_code' => $sectionCode,
+                    'section_name' => $sectionItems->first()->product?->section?->name ?? 'General',
+                    'printer_name' => $sectionItems->first()->product?->section?->printer_name,
+                    'items' => $sectionItems->map(function (OrderItem $item) {
+                        return [
+                            'id' => $item->id,
+                            'batch_no' => $item->batch_no,
+                            'name' => $item->name,
+                            'notes' => $item->notes,
+                            'quantity' => $item->quantity,
+                            'type' => $item->type,
+                        ];
+                    })->values()->all(),
+                ];
+            })
+            ->values()
+            ->all();
     }
 }

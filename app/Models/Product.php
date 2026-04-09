@@ -19,6 +19,7 @@ class Product extends Model implements HasMedia
         'is_limited',
         'stock_quantity',
         'active',
+        'section_id',
     ];
 
     protected $casts = [
@@ -27,6 +28,7 @@ class Product extends Model implements HasMedia
         'is_limited' => 'boolean',
         'stock_quantity' => 'integer',
         'active' => 'boolean',
+        'section_id' => 'integer',
     ];
 
     public function translations()
@@ -37,6 +39,11 @@ class Product extends Model implements HasMedia
     public function categories()
     {
         return $this->morphToMany(Category::class, 'categorizable');
+    }
+
+    public function section()
+    {
+        return $this->belongsTo(Section::class);
     }
 
     public function registerMediaCollections(): void

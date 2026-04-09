@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
@@ -15,7 +15,7 @@ class RolesAndPermissionsSeeder extends Seeder
     public function run(): void
     {
         // Reset cache
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         Permission::create(['name' => 'users index']);
         Permission::create(['name' => 'users create']);
@@ -51,6 +51,7 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::create(['name' => 'order create']);
         Permission::create(['name' => 'order close']);
         Permission::create(['name' => 'order edit']);
+        Permission::create(['name' => 'order item delete']);
         Permission::create(['name' => 'order delete']);
 
         Permission::create(['name' => 'view reports']);

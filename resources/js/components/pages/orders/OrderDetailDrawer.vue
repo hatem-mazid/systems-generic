@@ -38,19 +38,18 @@
                             <AppIcon name="hi-external-link" />
                         </template>
                     </Button>
-                    
                     <Button
-                        v-if="order?.id"
+                        v-if="order?.items?.length"
                         type="button"
                         outlined
                         size="small"
                         severity="secondary"
-                        :label="$t('OrderDetail.ShowInvoice')"
+                        :label="$t('OrderDetail.ViewBatchBreakdown')"
                         class="min-h-[40px]"
-                        @click="showInvoice"
+                        @click="patchPreviewVisible = true"
                     >
                         <template #icon>
-                            <AppIcon name="hi-receipt-tax" />
+                            <AppIcon name="pi pi-list" />
                         </template>
                     </Button>
                 </div>
@@ -103,7 +102,7 @@
                             <div v-if="productsLoading" class="grid lg:grid-cols-2 grid-cols-3 gap-3">
                                 <Skeleton
                                     v-for="idx in 6"
-                                    :key="`quick-product-skeleton-${idx}`"
+                                    :key="'quick-product-skeleton-' + idx"
                                     height="10rem"
                                     class="rounded-lg"
                                 />
@@ -236,57 +235,133 @@
                                 </template>
                             </Card>
 
+                            <Card
+                                v-if="pendingOrderItems.length"
+                                class="overflow-hidden rounded-xl border border-orange-200/80 shadow-sm dark:border-orange-700/70"
+                            >
+                                <template #title>
+                                    <span class="text-base font-semibold">{{ $t("OrderDetail.OrderBatchTitle") }}</span>
+                                </template>
+                                <template #content>
+                                    <div class="space-y-4">
+                                        <div
+                                            v-for="patch in pendingPatches"
+                                            :key="'pending-patch-' + patch.batchKey"
+                                            class="overflow-hidden rounded-lg border border-orange-200 dark:border-orange-700/70"
+                                        >
+                                            <div
+                                                class="bg-orange-100/90 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-orange-950 dark:bg-orange-900/50 dark:text-orange-100"
+                                            >
+                                                {{
+                                                    patch.isOpenPatch
+                                                        ? $t("OrderDetail.BatchOpenLabel")
+                                                        : $t("OrderDetail.BatchLabel", { n: patch.batch_no })
+                                                }}
+                                            </div>
+                                            <div
+                                                class="sticky top-0 z-10 grid grid-cols-[2.5rem_minmax(0,1.4fr)_4rem_5rem] items-center gap-1 bg-orange-50 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-orange-900 dark:bg-orange-900/40 dark:text-orange-100"
+                                            >
+                                                <span class="sr-only">{{ $t("OrderDetail.LineActionsColumn") }}</span>
+                                                <span>Product</span>
+                                                <span class="text-center">Qty</span>
+                                                <span class="text-end">Batch</span>
+                                            </div>
+                                            <div
+                                                v-for="(line, idx) in patch.items"
+                                                :key="line.id ?? ('pending-line-' + patch.batchKey + '-' + idx)"
+                                                class="grid grid-cols-[2.5rem_minmax(0,1.4fr)_4rem_5rem] items-center gap-1 border-t border-orange-200 px-3 py-2 text-sm dark:border-orange-700/70"
+                                            >
+                                                <div class="flex justify-center">
+                                                    <Button
+                                                        v-if="canEditItems && canDeleteOrderItems && line.id != null"
+                                                        type="button"
+                                                        size="small"
+                                                        text
+                                                        severity="danger"
+                                                        :loading="removingId === line.id"
+                                                        :disabled="removingId != null && removingId !== line.id"
+                                                        @click="confirmRemoveLine(line)"
+                                                    >
+                                                        <template #icon>
+                                                            <AppIcon name="pi pi-trash" />
+                                                        </template>
+                                                    </Button>
+                                                </div>
+                                                <div class="min-w-0 truncate font-medium text-surface-900 dark:text-surface-100">
+                                                    {{ line.name ?? "—" }}
+                                                </div>
+                                                <div class="text-center tabular-nums">{{ line.quantity ?? "—" }}</div>
+                                                <div class="text-end tabular-nums text-surface-700 dark:text-surface-300">
+                                                    {{ line.batch_no ?? "—" }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 flex justify-end border-t border-orange-200 pt-3 dark:border-orange-700/70">
+                                        <Button
+                                            type="button"
+                                            size="small"
+                                            :label="$t('OrderDetail.ConfirmBatchInCard')"
+                                            :loading="printing"
+                                            :disabled="printing"
+                                            @click="confirmOperationInvoice"
+                                        >
+                                            <template #icon>
+                                                <AppIcon name="hi-printer" />
+                                            </template>
+                                        </Button>
+                                    </div>
+                                </template>
+                            </Card>
+
                             <Card class="overflow-hidden rounded-xl border border-surface-200/80 shadow-sm dark:border-surface-700">
                                 <template #title>
-                                    <span class="text-base font-semibold">{{ $t("OrderDetail.LineItemsTitle") }}</span>
+                                    <span class="text-base font-semibold">{{ $t("OrderDetail.OtherOrderItemsTitle") }}</span>
                                 </template>
                                 <template #content>
                                     <div
-                                        v-if="!order.items?.length"
+                                        v-if="!mergedPrintedOrderItems.length"
                                         class="rounded-xl border border-dashed border-surface-300 p-6 text-center text-sm text-surface-600 dark:border-surface-600 dark:text-surface-400"
                                     >
                                         {{ $t("OrderDetail.EmptyItems") }}
                                     </div>
                                     <div v-else class="overflow-hidden rounded-lg border border-surface-200 dark:border-surface-700">
                                         <div
-                                            class="sticky top-0 z-10 grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_7rem_8rem] bg-surface-100 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-surface-700 dark:bg-surface-800 dark:text-surface-300"
+                                            class="sticky top-0 z-10 grid grid-cols-[2.5rem_minmax(0,1.4fr)_minmax(0,1fr)_4rem] items-center gap-1 bg-surface-100 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-surface-700 dark:bg-surface-800 dark:text-surface-300"
                                         >
+                                            <span class="sr-only">{{ $t("OrderDetail.LineActionsColumn") }}</span>
                                             <span>Product</span>
                                             <span class="text-end">Unit Price</span>
                                             <span class="text-center">Qty</span>
-                                            <span class="text-end">Subtotal</span>
                                         </div>
                                         <div
-                                            v-for="(line, idx) in order.items"
-                                            :key="line.id ?? `line-${idx}`"
-                                            class="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_7rem_8rem] items-center border-t border-surface-200 px-3 py-2 text-sm dark:border-surface-700"
+                                            v-for="(line, idx) in mergedPrintedOrderItems"
+                                            :key="line.key ?? ('merged-line-' + idx)"
+                                            class="grid grid-cols-[2.5rem_minmax(0,1.4fr)_minmax(0,1fr)_4rem] items-center gap-1 border-t border-surface-200 px-3 py-2 text-sm dark:border-surface-700"
                                         >
-                                            <div class="truncate font-medium text-surface-900 dark:text-surface-100">
-                                                {{ line.name ?? "—" }}
-                                            </div>
-                                            <div class="text-end text-surface-700 dark:text-surface-300">
-                                                {{ formatMoney(line.price) }}
-                                            </div>
-                                            <div class="flex items-center justify-center gap-1">
+                                            <div class="flex justify-center">
                                                 <Button
-                                                    v-if="canEditItems && line.id != null"
+                                                    v-if="canEditItems && canDeleteOrderItems && line.canRemove && line.removeId != null"
                                                     type="button"
                                                     size="small"
                                                     text
                                                     severity="danger"
-                                                    :loading="removingId === line.id"
-                                                    :disabled="removingId != null && removingId !== line.id"
-                                                    @click="confirmRemoveLine(line)"
+                                                    :loading="removingId === line.removeId"
+                                                    :disabled="removingId != null && removingId !== line.removeId"
+                                                    @click="confirmRemoveLine({ id: line.removeId })"
                                                 >
                                                     <template #icon>
                                                         <AppIcon name="pi pi-trash" />
                                                     </template>
                                                 </Button>
-                                                <span class="min-w-6 text-center tabular-nums">{{ line.quantity ?? "—" }}</span>
                                             </div>
-                                            <div class="text-end font-semibold tabular-nums text-surface-900 dark:text-surface-50">
-                                                {{ formatMoney(line.total) }}
+                                            <div class="min-w-0 truncate font-medium text-surface-900 dark:text-surface-100">
+                                                {{ line.name ?? "—" }}
                                             </div>
+                                            <div class="text-end text-surface-700 dark:text-surface-300">
+                                                {{ formatMoney(line.price) }}
+                                            </div>
+                                            <div class="text-center tabular-nums">{{ line.quantity ?? "—" }}</div>
                                         </div>
                                         <div
                                             class="sticky bottom-0 z-10 flex items-center justify-between border-t border-surface-200 bg-surface-50 px-3 py-2 dark:border-surface-700 dark:bg-surface-800/95"
@@ -302,12 +377,131 @@
                 </template>
             </div>
         </div>
+
+        <Dialog
+            v-model:visible="patchPreviewVisible"
+            modal
+            :header="$t('OrderDetail.BatchPreviewTitle')"
+            :style="{ width: 'min(96vw, 42rem)' }"
+        >
+            <div v-if="!patchPreviewPatches.length" class="text-sm text-surface-600 dark:text-surface-300">
+                {{ $t("OrderDetail.EmptyItems") }}
+            </div>
+            <div v-else class="max-h-[min(70vh,520px)] space-y-4 overflow-y-auto pe-1">
+                <div
+                    v-for="patch in patchPreviewPatches"
+                    :key="'pv-patch-' + patch.batchKey"
+                    class="rounded-xl border border-surface-200 p-3 dark:border-surface-700"
+                >
+                    <p class="mb-3 text-sm font-semibold text-surface-900 dark:text-surface-100">
+                        {{
+                            patch.isOpenPatch
+                                ? $t("OrderDetail.BatchOpenLabel")
+                                : $t("OrderDetail.BatchLabel", { n: patch.batch_no })
+                        }}
+                    </p>
+                    <div class="space-y-3">
+                        <article
+                            v-for="section in patch.sections"
+                            :key="'pv-' + patch.batchKey + '-' + section.section_code"
+                            class="rounded-lg border border-surface-200/90 p-3 dark:border-surface-600"
+                        >
+                            <div class="mb-2 flex items-center justify-between gap-2">
+                                <div>
+                                    <p class="font-semibold text-surface-900 dark:text-surface-100">
+                                        {{ section.section_name || section.section_code }}
+                                    </p>
+                                    <p class="text-xs text-surface-500 dark:text-surface-400">
+                                        {{ section.items.length }} item(s)
+                                    </p>
+                                </div>
+                                <Button
+                                    type="button"
+                                    size="small"
+                                    outlined
+                                    :label="$t('OrderDetail.PrintSectionAction')"
+                                    @click="printOperationSection(section, patch.batch_no)"
+                                />
+                            </div>
+                            <ul class="space-y-1 text-sm">
+                                <li
+                                    v-for="row in section.items"
+                                    :key="row.id"
+                                    class="flex items-center justify-between gap-2"
+                                >
+                                    <span class="truncate">{{ row.name || "—" }}</span>
+                                    <span class="shrink-0 tabular-nums">x{{ row.quantity ?? "—" }}</span>
+                                </li>
+                            </ul>
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </Dialog>
+
+        <Dialog
+            v-model:visible="operationInvoiceVisible"
+            modal
+            :header="$t('OrderDetail.SubmitBatchResultTitle')"
+            :style="{ width: 'min(96vw, 42rem)' }"
+        >
+            <div v-if="!operationPatches.length" class="text-sm text-surface-600 dark:text-surface-300">
+                {{ $t("OrderDetail.PrintBySectionNothing") }}
+            </div>
+            <div v-else class="space-y-4">
+                <div
+                    v-for="patch in operationPatches"
+                    :key="'op-patch-' + (patch.batch_no ?? 'open')"
+                    class="rounded-xl border border-surface-200 p-3 dark:border-surface-700"
+                >
+                    <p class="mb-3 text-sm font-semibold text-surface-900 dark:text-surface-100">
+                        {{
+                            patch.batch_no != null
+                                ? $t("OrderDetail.BatchLabel", { n: patch.batch_no })
+                                : $t("OrderDetail.BatchOpenLabel")
+                        }}
+                    </p>
+                    <div class="space-y-3">
+                        <article
+                            v-for="section in patch.sections"
+                            :key="(patch.batch_no ?? 'open') + '-' + section.section_code"
+                            class="rounded-lg border border-surface-200/90 p-3 dark:border-surface-600"
+                        >
+                            <div class="mb-2 flex items-center justify-between gap-2">
+                                <div>
+                                    <p class="font-semibold text-surface-900 dark:text-surface-100">
+                                        {{ section.section_name || section.section_code }}
+                                    </p>
+                                    <p class="text-xs text-surface-500 dark:text-surface-400">
+                                        {{ section.items.length }} item(s)
+                                    </p>
+                                </div>
+                                <Button
+                                    type="button"
+                                    size="small"
+                                    outlined
+                                    :label="$t('OrderDetail.PrintSectionAction')"
+                                    @click="printOperationSection(section, patch.batch_no)"
+                                />
+                            </div>
+                            <ul class="space-y-1 text-sm">
+                                <li v-for="line in section.items" :key="line.id" class="flex items-center justify-between gap-2">
+                                    <span class="truncate">{{ line.name || "—" }}</span>
+                                    <span class="shrink-0 tabular-nums">x{{ line.quantity ?? "—" }}</span>
+                                </li>
+                            </ul>
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </Dialog>
     </Drawer>
 </template>
 
 <script setup>
 import { Button } from "primevue";
 import Card from "primevue/card";
+import Dialog from "primevue/dialog";
 import Drawer from "primevue/drawer";
 import Message from "primevue/message";
 import Skeleton from "primevue/skeleton";
@@ -320,6 +514,7 @@ import { useRouter } from "vue-router";
 import { ordersService } from "../../../apis/services/orders/orders.apis";
 import { productsService } from "../../../apis/services/products/products.apis";
 import { OrderStatus } from "../../../apis/services/orders/orders.type";
+import { useUserStore } from "../../../stores/user";
 
 const props = defineProps({
     visible: {
@@ -338,6 +533,7 @@ const { t } = useI18n();
 const router = useRouter();
 const confirm = useConfirm();
 const toast = useToast();
+const userStore = useUserStore();
 
 const innerVisible = computed({
     get: () => props.visible,
@@ -355,7 +551,11 @@ const selectedProductId = ref(null);
 const addQuantity = ref(1);
 const adding = ref(false);
 const removingId = ref(null);
+const printing = ref(false);
 const quickQuantities = reactive({});
+const operationInvoiceVisible = ref(false);
+const operationPatches = ref([]);
+const patchPreviewVisible = ref(false);
 
 const canEditItems = computed(
     () =>
@@ -363,6 +563,7 @@ const canEditItems = computed(
         (order.value.status === OrderStatus.Active ||
             order.value.status === OrderStatus.Open)
 );
+const canDeleteOrderItems = computed(() => userStore.hasPermission("order item delete"));
 const activeProductCategory = ref("all");
 const productCategoryTabs = computed(() => {
     const tabs = [{ key: "all", label: "All" }];
@@ -388,6 +589,130 @@ const filteredProducts = computed(() => {
             (category) => String(category?.id ?? "").trim() === activeProductCategory.value
         )
     );
+});
+const pendingOrderItems = computed(() =>
+    (order.value?.items ?? []).filter((line) => !line?.is_printed)
+);
+const printedOrderItems = computed(() =>
+    (order.value?.items ?? []).filter((line) => !!line?.is_printed)
+);
+
+/** Unprinted lines grouped by batch (one patch can include multiple lines). */
+const PENDING_PATCH_KEY = "__open__";
+
+const pendingPatches = computed(() => {
+    const byBatch = new Map();
+    for (const line of pendingOrderItems.value) {
+        const b = line.batch_no == null ? PENDING_PATCH_KEY : line.batch_no;
+        if (!byBatch.has(b)) {
+            byBatch.set(b, []);
+        }
+        byBatch.get(b).push(line);
+    }
+    return [...byBatch.entries()]
+        .sort((a, b) => {
+            if (a[0] === PENDING_PATCH_KEY) {
+                return -1;
+            }
+            if (b[0] === PENDING_PATCH_KEY) {
+                return 1;
+            }
+            return a[0] - b[0];
+        })
+        .map(([batchKey, items]) => ({
+            batchKey,
+            batch_no: batchKey === PENDING_PATCH_KEY ? null : batchKey,
+            isOpenPatch: batchKey === PENDING_PATCH_KEY,
+            items,
+        }));
+});
+
+/** All lines: patch → section (read-only preview modal). */
+const patchPreviewPatches = computed(() => {
+    const items = order.value?.items ?? [];
+    if (!items.length) {
+        return [];
+    }
+    const byBatch = new Map();
+    for (const line of items) {
+        const b = line.batch_no == null ? PENDING_PATCH_KEY : line.batch_no;
+        if (!byBatch.has(b)) {
+            byBatch.set(b, []);
+        }
+        byBatch.get(b).push(line);
+    }
+    return [...byBatch.entries()]
+        .sort((a, b) => {
+            if (a[0] === PENDING_PATCH_KEY) {
+                return -1;
+            }
+            if (b[0] === PENDING_PATCH_KEY) {
+                return 1;
+            }
+            return a[0] - b[0];
+        })
+        .map(([batchKey, lines]) => {
+            const bySec = new Map();
+            for (const line of lines) {
+                const code = line.section_code || "general";
+                if (!bySec.has(code)) {
+                    bySec.set(code, {
+                        section_code: code,
+                        section_name: line.section_name || (code === "general" ? "General" : code),
+                        items: [],
+                    });
+                }
+                bySec.get(code).items.push({
+                    id: line.id,
+                    name: line.name,
+                    quantity: line.quantity,
+                    notes: line.notes ?? null,
+                });
+            }
+            return {
+                batchKey,
+                batch_no: batchKey === PENDING_PATCH_KEY ? null : batchKey,
+                isOpenPatch: batchKey === PENDING_PATCH_KEY,
+                sections: [...bySec.values()],
+            };
+        });
+});
+
+/** Printed lines merged by product + price + name (qty and totals summed). */
+const mergedPrintedOrderItems = computed(() => {
+    const map = new Map();
+    for (const line of printedOrderItems.value) {
+        const key = `${line.product_id ?? "n"}|${String(line.price ?? "")}|${String(line.name ?? "")}`;
+        const qty = Number(line.quantity ?? 0) || 0;
+        const lineTotal = Number(line.total);
+        const t = Number.isFinite(lineTotal) ? lineTotal : 0;
+        let g = map.get(key);
+        if (!g) {
+            g = {
+                key,
+                name: line.name,
+                price: line.price,
+                quantity: 0,
+                total: 0,
+                sourceIds: [],
+            };
+            map.set(key, g);
+        }
+        g.quantity += qty;
+        g.total += t;
+        if (line.id != null) {
+            g.sourceIds.push(line.id);
+        }
+    }
+    return [...map.values()].map((g) => ({
+        key: g.key,
+        name: g.name,
+        price: g.price,
+        quantity: g.quantity,
+        total: g.total,
+        canRemove: g.sourceIds.length === 1,
+        removeId: g.sourceIds[0],
+    }));
 });
 
 function pickOrderPayload(res) {
@@ -668,6 +993,94 @@ async function removeLine(itemId) {
     }
 }
 
+async function confirmOperationInvoice() {
+    if (!order.value?.id || printing.value) {
+        return;
+    }
+    confirm.require({
+        message: t("OrderDetail.SubmitBatchConfirmMessage"),
+        header: t("OrderDetail.SubmitBatchConfirmTitle"),
+        icon: "pi pi-exclamation-triangle",
+        rejectProps: {
+            label: t("Cancel"),
+            severity: "secondary",
+            outlined: true,
+        },
+        acceptProps: {
+            label: t("OrderDetail.SubmitBatchConfirmAction"),
+            severity: "primary",
+        },
+        accept: () => processOperationInvoice(),
+    });
+}
+
+async function processOperationInvoice() {
+    if (!order.value?.id || printing.value) {
+        return;
+    }
+
+    printing.value = true;
+    try {
+        const { data } = await ordersService.printOrder(order.value.id);
+        const payload = data?.data ?? data;
+        const printedCount = Number(payload?.printed_items_count ?? 0);
+        const sectionsCount = Array.isArray(payload?.sections)
+            ? payload.sections.length
+            : 0;
+
+        toast.add({
+            severity: "success",
+            summary:
+                printedCount > 0
+                    ? t("OrderDetail.PrintBySectionSuccess", {
+                          sections: sectionsCount,
+                          count: printedCount,
+                      })
+                    : t("OrderDetail.PrintBySectionNothing"),
+            life: 2500,
+        });
+
+        let patches = Array.isArray(payload?.patches) ? payload.patches : [];
+        if (!patches.length && Array.isArray(payload?.sections) && payload.sections.length) {
+            patches = [{ batch_no: 1, sections: payload.sections }];
+        }
+        operationPatches.value = patches;
+        operationInvoiceVisible.value = patches.length > 0;
+        await fetchOrder();
+        emit("updated");
+    } catch {
+        toast.add({
+            severity: "error",
+            summary: t("OrderDetail.PrintBySectionError"),
+            life: 4000,
+        });
+    } finally {
+        printing.value = false;
+    }
+}
+
+function printOperationSection(section, batchNo) {
+    const w = window.open("", "_blank", "width=520,height=760");
+    if (!w) {
+        return;
+    }
+    const sectionTitle = section?.section_name || section?.section_code || "Section";
+    const title =
+        batchNo != null ? `${t("OrderDetail.BatchLabel", { n: batchNo })} · ${sectionTitle}` : sectionTitle;
+    const rows = (section?.items ?? [])
+        .map((line) => {
+            const name = String(line?.name ?? "—");
+            const qty = String(line?.quantity ?? "—");
+            const notes = line?.notes ? `<div style="font-size:11px;color:#666;">${String(line.notes)}</div>` : "";
+            return `<tr><td style="padding:8px 6px;border-bottom:1px solid #ddd;">${name}${notes}</td><td style="padding:8px 6px;border-bottom:1px solid #ddd;text-align:center;width:72px;">${qty}</td></tr>`;
+        })
+        .join("");
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title></head><body style="font-family:Arial,sans-serif;padding:16px"><h3 style="margin:0 0 10px;">${title}</h3><table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:8px 6px;border-bottom:1px solid #000">Item</th><th style="text-align:center;padding:8px 6px;border-bottom:1px solid #000">Qty</th></tr></thead><tbody>${rows || '<tr><td colspan="2" style="padding:8px 6px;text-align:center;color:#666">—</td></tr>'}</tbody></table><scr` + `ipt>window.onload=function(){window.focus();window.print();}</scr` + `ipt></body></html>`;
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+}
+
 function onHide() {
     loadError.value = null;
 }
@@ -678,14 +1091,6 @@ function openFullPage() {
     }
     innerVisible.value = false;
     router.push(`/orders/${order.value.id}`);
-}
-
-function showInvoice() {
-    if (!order.value?.id) {
-        return;
-    }
-    innerVisible.value = false;
-    router.push(`/orders/${order.value.id}/invoice`);
 }
 
 watch(

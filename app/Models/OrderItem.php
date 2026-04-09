@@ -16,12 +16,16 @@ class OrderItem extends Model
         'total',
         'type',
         'meta',
+        'batch_no',
+        'is_printed',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
         'total' => 'decimal:2',
         'meta' => 'array',
+        'batch_no' => 'integer',
+        'is_printed' => 'boolean',
     ];
 
     /*
@@ -50,5 +54,4 @@ class OrderItem extends Model
     {
         $this->total = $this->price * $this->quantity;
     }
-
 }

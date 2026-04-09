@@ -1,7 +1,7 @@
 import type { AxiosResponse } from "axios";
 import http from "../../http";
 import { Items } from "../../types";
-import { Order } from "./orders.type";
+import { Order, OrderPrintResponse } from "./orders.type";
 
 export const ordersService = {
     getOrders: async (params?: {
@@ -36,5 +36,10 @@ export const ordersService = {
         itemId: string | number
     ): Promise<AxiosResponse<Order>> => {
         return http.delete<Order>(`/api/orders/${orderId}/items/${itemId}`);
+    },
+    printOrder: async (
+        orderId: string | number
+    ): Promise<AxiosResponse<OrderPrintResponse>> => {
+        return http.post<OrderPrintResponse>(`/api/orders/${orderId}/print`);
     },
 };

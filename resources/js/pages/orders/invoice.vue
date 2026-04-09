@@ -78,8 +78,8 @@
                             </thead>
                             <tbody>
                                 <tr
-                                    v-for="(line, idx) in order.items ?? []"
-                                    :key="line.id ?? idx"
+                                    v-for="(line, idx) in mergedInvoiceLines"
+                                    :key="line.key + '-' + idx"
                                     class="border-t border-surface-200 dark:border-surface-700"
                                 >
                                     <td class="px-3 py-2">{{ line.name ?? "—" }}</td>
@@ -87,7 +87,7 @@
                                     <td class="px-3 py-2 text-right">{{ formatMoney(line.price) }}</td>
                                     <td class="px-3 py-2 text-right">{{ formatMoney(line.total) }}</td>
                                 </tr>
-                                <tr v-if="!(order.items?.length)">
+                                <tr v-if="!mergedInvoiceLines.length">
                                     <td colspan="4" class="px-3 py-4 text-center text-surface-500">—</td>
                                 </tr>
                             </tbody>
@@ -111,10 +111,11 @@ import { Button } from "primevue";
 import Card from "primevue/card";
 import Message from "primevue/message";
 import Skeleton from "primevue/skeleton";
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { ordersService } from "../../apis/services/orders/orders.apis";
+import { mergeOrderItems } from "../../utils/orderItemsMerge";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -123,6 +124,8 @@ const router = useRouter();
 const loading = ref(true);
 const loadError = ref("");
 const order = ref(null);
+
+const mergedInvoiceLines = computed(() => mergeOrderItems(order.value?.items));
 
 function formatMoney(value) {
     if (value === undefined || value === null || value === "") {

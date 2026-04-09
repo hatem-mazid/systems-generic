@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\ProductType;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Section;
 use Illuminate\Database\Seeder;
 
 class ProductsSeeder extends Seeder
@@ -16,6 +17,7 @@ class ProductsSeeder extends Seeder
     public function run(): void
     {
         $cat = fn (string $name) => Category::where('name', $name)->first()?->id;
+        $section = fn (string $code) => Section::where('code', $code)->first()?->id;
 
         $rows = [
             // --- Physical: limited stock, in stock, active ---
@@ -27,6 +29,7 @@ class ProductsSeeder extends Seeder
                 'is_limited' => true,
                 'stock_quantity' => 500,
                 'active' => true,
+                'section_id' => $section('bar'),
                 'categories' => array_filter([$cat('Beverages')]),
                 'translations' => [
                     ['locale' => 'en', 'key' => 'name', 'value' => 'Espresso'],
@@ -43,6 +46,7 @@ class ProductsSeeder extends Seeder
                 'is_limited' => true,
                 'stock_quantity' => 40,
                 'active' => true,
+                'section_id' => $section('kitchen'),
                 'categories' => array_filter([$cat('Desserts')]),
             ],
             [
@@ -53,6 +57,7 @@ class ProductsSeeder extends Seeder
                 'is_limited' => true,
                 'stock_quantity' => 25,
                 'active' => true,
+                'section_id' => $section('kitchen'),
                 'categories' => array_filter([$cat('Main Dishes')]),
             ],
 
@@ -65,6 +70,7 @@ class ProductsSeeder extends Seeder
                 'is_limited' => false,
                 'stock_quantity' => null,
                 'active' => true,
+                'section_id' => $section('bar'),
                 'categories' => array_filter([$cat('Beverages')]),
             ],
 
@@ -77,6 +83,7 @@ class ProductsSeeder extends Seeder
                 'is_limited' => true,
                 'stock_quantity' => 0,
                 'active' => true,
+                'section_id' => $section('kitchen'),
                 'categories' => array_filter([$cat('Desserts')]),
             ],
 
@@ -89,6 +96,7 @@ class ProductsSeeder extends Seeder
                 'is_limited' => true,
                 'stock_quantity' => 100,
                 'active' => true,
+                'section_id' => $section('kitchen'),
                 'categories' => array_filter([$cat('Desserts'), $cat('Main Dishes')]),
             ],
 
@@ -101,6 +109,7 @@ class ProductsSeeder extends Seeder
                 'is_limited' => true,
                 'stock_quantity' => 8,
                 'active' => true,
+                'section_id' => $section('kitchen'),
                 'categories' => array_filter([$cat('Main Dishes')]),
             ],
 
@@ -113,6 +122,7 @@ class ProductsSeeder extends Seeder
                 'is_limited' => true,
                 'stock_quantity' => 0,
                 'active' => false,
+                'section_id' => $section('kitchen'),
             ],
 
             // --- Service (fixed price): standard ---
@@ -124,6 +134,7 @@ class ProductsSeeder extends Seeder
                 'is_limited' => false,
                 'stock_quantity' => null,
                 'active' => true,
+                'section_id' => null,
             ],
 
             // --- Service (fixed): zero price ---
@@ -135,6 +146,7 @@ class ProductsSeeder extends Seeder
                 'is_limited' => false,
                 'stock_quantity' => null,
                 'active' => true,
+                'section_id' => null,
             ],
 
             // --- Service (timer): hourly-style rate ---
@@ -146,6 +158,7 @@ class ProductsSeeder extends Seeder
                 'is_limited' => false,
                 'stock_quantity' => null,
                 'active' => true,
+                'section_id' => null,
             ],
 
             // --- Service (timer): price to be set / quote ---
@@ -157,6 +170,7 @@ class ProductsSeeder extends Seeder
                 'is_limited' => false,
                 'stock_quantity' => null,
                 'active' => true,
+                'section_id' => null,
             ],
         ];
 

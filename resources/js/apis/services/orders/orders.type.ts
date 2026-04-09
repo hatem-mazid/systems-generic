@@ -8,6 +8,8 @@ export enum OrderItemType {
 export enum OrderStatus {
     Active = "active",
     Reserved = "reserved",
+    Open = "open",
+    Pending = "pending",
     Closed = "closed",
     Cancelled = "cancelled",
 }
@@ -22,6 +24,10 @@ export interface OrderItem {
     total?: string | number;
     type?: OrderItemType | string;
     meta?: Record<string, unknown>;
+    batch_no?: number | null;
+    is_printed?: boolean;
+    section_code?: string | null;
+    section_name?: string | null;
     created_at?: string;
     updated_at?: string;
     /** Single product image URL (default media), when product is loaded on order show. */
@@ -42,4 +48,32 @@ export interface Order {
     user_name?: string;
     unit_name?: string;
     items?: OrderItem[];
+}
+
+export interface OrderSectionPrintItem {
+    id: number;
+    batch_no?: number;
+    name?: string;
+    notes?: string | null;
+    quantity?: number;
+    type?: string;
+}
+
+export interface OrderSectionPrintGroup {
+    section_code: string;
+    section_name?: string;
+    printer_name?: string | null;
+    items: OrderSectionPrintItem[];
+}
+
+export interface OrderPrintPatch {
+    batch_no: number;
+    sections: OrderSectionPrintGroup[];
+}
+
+export interface OrderPrintResponse {
+    order_id: number;
+    sections: OrderSectionPrintGroup[];
+    patches?: OrderPrintPatch[];
+    printed_items_count: number;
 }

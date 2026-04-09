@@ -20,7 +20,7 @@ return new class extends Migration
             $table->enum('type', [
                 'physical',
                 'service_fixed',
-                'service_timer'
+                'service_timer',
             ]);
 
             $table->decimal('price', 10, 2)->nullable();
@@ -31,6 +31,8 @@ return new class extends Migration
 
             // $table->boolean('is_available')->default(true);
             $table->boolean('active')->default(true);
+            $table->unsignedBigInteger('section_id')->nullable();
+            $table->index('section_id');
 
             $table->timestamps();
         });

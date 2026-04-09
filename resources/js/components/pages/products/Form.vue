@@ -203,6 +203,37 @@
                         </div>
                         <div>
                             <label
+                                for="product-section"
+                                class="mb-2 block font-medium"
+                                >{{ $t("ProductForm.Section") }}</label
+                            >
+                            <Select
+                                id="product-section"
+                                v-model="form.section_id"
+                                :options="sectionOptions"
+                                option-label="label"
+                                option-value="value"
+                                class="w-full"
+                                fluid
+                                show-clear
+                                :loading="sectionsLoading"
+                                :invalid="!!validation.section_id"
+                                :placeholder="
+                                    $t('ProductForm.SectionPlaceholder')
+                                "
+                            />
+                            <Message
+                                v-if="validation.section_id"
+                                severity="error"
+                                size="small"
+                                variant="simple"
+                                class="mt-1"
+                            >
+                                {{ validation.section_id[0] }}
+                            </Message>
+                        </div>
+                        <div>
+                            <label
                                 for="product-type"
                                 class="mb-2 block font-medium"
                                 >{{ $t("ProductForm.Type") }}</label
@@ -517,6 +548,7 @@ import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { categoriesService } from "../../../apis/services/categories/categories.apis";
 import { productsService } from "../../../apis/services/products/products.apis";
+import { sectionsService } from "../../../apis/services/sections/sections.apis";
 import type {
     Product,
     ProductTranslation,
@@ -543,6 +575,10 @@ const deletingMediaId = ref<string | number | null>(null);
 const defaultLoadingId = ref<string | number | null>(null);
 const categoriesLoading = ref(false);
 const categories = ref<Array<{ id: string | number; name: string }>>([]);
+const sectionsLoading = ref(false);
+const sections = ref<Array<{ id: string | number; name: string; code: string }>>(
+    []
+);
 
 interface PendingUpload {
     file: File;
@@ -558,6 +594,7 @@ const form = ref({
     arName: "",
     arDescription: "",
     category_id: null as string | number | null,
+    section_id: null as string | number | null,
     type: "physical" as ProductTypeValue,
     price: null as number | null,
     is_limited: false,
@@ -577,6 +614,15 @@ const categoryOptions = computed(() =>
     categories.value.map((category) => ({
         label: category.name || "—",
         value: category.id,
+    }))
+);
+
+const sectionOptions = computed(() =>
+    sections.value.map((section) => ({
+        label: section.code
+            ? `${section.name} (${section.code})`
+            : section.name || "—",
+        value: section.id,
     }))
 );
 
@@ -603,6 +649,7 @@ function applyProduct(data: Product) {
             "description"
         ),
         category_id: data.categories?.[0]?.id ?? null,
+        section_id: data.section_id ?? null,
         type: (data.type as ProductTypeValue) ?? "physical",
         price:
             data.price === null || data.price === undefined
@@ -773,6 +820,7 @@ function buildPayload() {
         name: form.value.name.trim(),
         description: form.value.description.trim() || null,
         category_id: form.value.category_id,
+        section_id: form.value.section_id,
         type: form.value.type,
         price: form.value.price,
         is_limited: form.value.is_limited,
@@ -882,6 +930,25 @@ onMounted(async () => {
         });
     } finally {
         categoriesLoading.value = false;
+    }
+
+    try {
+        sectionsLoading.value = true;
+        const sectionsRes = await sectionsService.getSections();
+        sections.value =
+            sectionsRes.data.items?.map((item) => ({
+                id: item.id,
+                name: item.name ?? "",
+                code: item.code ?? "",
+            })) ?? [];
+    } catch {
+        toast.add({
+            severity: "error",
+            summary: t("ProductForm.SectionsLoadError"),
+            life: 4000,
+        });
+    } finally {
+        sectionsLoading.value = false;
     }
 
     if (!props.productId) {

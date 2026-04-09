@@ -45,6 +45,7 @@ const normalizedName = computed(() => {
         "play": "hi-play",
         "eye": "hi-eye",
         "language": "hi-translate",
+        "list": "hi-view-list",
         "sun": "hi-sun",
         "cog": "hi-cog",
         "inbox": "hi-inbox",
@@ -59,7 +60,7 @@ const normalizedName = computed(() => {
     };
 
     if (!raw) {
-        return "hi-question-mark-circle";
+        return "hi-solid-question-mark-circle";
     }
 
     if (raw.startsWith("hi-")) {
@@ -79,12 +80,12 @@ const normalizedName = computed(() => {
                 return iconPart;
             }
             const key = iconPart.replace(/^(pi|pr)-/, "");
-            return nameMap[key] || "hi-question-mark-circle";
+            return nameMap[key] || "hi-solid-question-mark-circle";
         }
     }
     if (raw.startsWith("pi-") || raw.startsWith("pr-")) {
         const key = raw.replace(/^(pi|pr)-/, "");
-        return nameMap[key] || "hi-question-mark-circle";
+        return nameMap[key] || "hi-solid-question-mark-circle";
     }
     return raw;
 });

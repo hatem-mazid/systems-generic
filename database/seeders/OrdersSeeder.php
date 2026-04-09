@@ -67,6 +67,8 @@ class OrdersSeeder extends Seeder
                     'total' => $lineTotal,
                     'type' => 'product',
                     'meta' => null,
+                    'batch_no' => null,
+                    'is_printed' => false,
                 ]);
             }
 
