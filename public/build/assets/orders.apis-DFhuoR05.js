@@ -1,0 +1,1 @@
+import{h as e}from"./http-S15ffY3O.js";const d={getOrders:async r=>e.get("/api/orders",{params:r}),getOrder:async r=>e.get(`/api/orders/${r}`),addOrderItem:async(r,t)=>e.post(`/api/orders/${r}/items`,t),removeOrderItem:async(r,t)=>e.delete(`/api/orders/${r}/items/${t}`),printOrder:async r=>e.post(`/api/orders/${r}/print`)};export{d as o};
