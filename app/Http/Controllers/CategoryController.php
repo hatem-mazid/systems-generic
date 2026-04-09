@@ -11,6 +11,8 @@ class CategoryController extends Controller
 {
     public function index(Request $request)
     {
+        $this->ensureCan('categories index');
+
         $categories = Category::with(['translations', 'media'])
             ->orderBy('order')
             ->paginate($request->integer('per_page', 10));
@@ -20,6 +22,8 @@ class CategoryController extends Controller
 
     public function show(string $id)
     {
+        $this->ensureCan('categories edit');
+
         $category = Category::with(['translations', 'media'])->find($id);
         if (! $category) {
             return response()->json(['message' => 'Category not found'], 404);
@@ -30,6 +34,8 @@ class CategoryController extends Controller
 
     public function store(Request $request)
     {
+        $this->ensureCan('categories create');
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -53,6 +59,8 @@ class CategoryController extends Controller
 
     public function update(Request $request, string $id)
     {
+        $this->ensureCan('categories edit');
+
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
@@ -83,6 +91,8 @@ class CategoryController extends Controller
 
     public function destroy(string $id)
     {
+        $this->ensureCan('categories delete');
+
         $category = Category::with('translations')->find($id);
         if (! $category) {
             return response()->json(['message' => 'Category not found'], 404);
@@ -98,6 +108,8 @@ class CategoryController extends Controller
      */
     public function storeMedia(Request $request, Category $category)
     {
+        $this->ensureCan('categories edit');
+
         $validated = $request->validate([
             'file' => ['required', 'file', 'image', 'max:10240'],
             'collection' => ['sometimes', 'string', 'max:255', 'in:image'],
@@ -124,6 +136,8 @@ class CategoryController extends Controller
      */
     public function destroyMedia(Request $request, Category $category)
     {
+        $this->ensureCan('categories edit');
+
         $validated = $request->validate([
             'collection' => ['sometimes', 'string', 'max:255', 'in:image'],
         ]);
@@ -173,5 +187,10 @@ class CategoryController extends Controller
                 }
             }
         }
+    }
+
+    private function ensureCan(string $permission): void
+    {
+        abort_unless(auth()->user()?->can($permission), 403, 'Forbidden');
     }
 }

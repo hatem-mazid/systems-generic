@@ -127,6 +127,7 @@
                     class="flex items-center justify-end gap-3 border-t border-surface-200/80 pt-4 dark:border-surface-700"
                 >
                     <Button
+                        v-if="canEditProduct"
                         as="router-link"
                         :to="`/products/${product.id}`"
                         size="large"
@@ -141,6 +142,7 @@
                     </Button>
 
                     <DeleteButton
+                        v-if="canDeleteProduct"
                         :product="product"
                         @deleted="$emit('deleted')"
                     />
@@ -155,6 +157,7 @@ import Card from "primevue/card";
 import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import DeleteButton from "./DeleteButton.vue";
+import { useUserStore } from "../../../stores/user";
 
 const props = defineProps({
     product: {
@@ -166,6 +169,9 @@ const props = defineProps({
 defineEmits(["deleted"]);
 
 const { t } = useI18n();
+const { hasPermission } = useUserStore();
+const canEditProduct = hasPermission("products edit");
+const canDeleteProduct = hasPermission("products delete");
 
 /** Ordered for gallery: default image first, then others by id. */
 const galleryItems = computed(() => {

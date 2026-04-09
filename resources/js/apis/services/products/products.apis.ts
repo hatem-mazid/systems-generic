@@ -75,4 +75,22 @@ export const productsService = {
             payload
         );
     },
+    importProducts: async (
+        file: File
+    ): Promise<AxiosResponse<{ message: string; created: number; updated: number }>> => {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        return http.post("/api/products/import", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+    },
+    exportProductsTemplate: async (): Promise<Blob> => {
+        const response = await http.get("/api/products/import/template", {
+            responseType: "blob",
+        });
+        return response.data as Blob;
+    },
 };

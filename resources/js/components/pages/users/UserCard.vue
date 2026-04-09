@@ -81,6 +81,7 @@
                     class="flex justify-end gap-2 border-t border-surface-200/80 pt-3 dark:border-surface-700"
                 >
                     <Button
+                        v-if="canEdit"
                         v-tooltip.top="$t('UserForm.Edit')"
                         variant="outlined"
                         size="large"
@@ -95,6 +96,7 @@
                         </template>
                     </Button>
                     <Button
+                        v-if="canDelete"
                         v-tooltip.top="$t('Delete')"
                         variant="outlined"
                         size="large"
@@ -131,6 +133,14 @@ const props = defineProps({
     disableDelete: {
         type: Boolean,
         default: false,
+    },
+    canEdit: {
+        type: Boolean,
+        default: true,
+    },
+    canDelete: {
+        type: Boolean,
+        default: true,
     },
 });
 

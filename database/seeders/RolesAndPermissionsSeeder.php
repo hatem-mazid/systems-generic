@@ -22,10 +22,25 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::create(['name' => 'users edit']);
         Permission::create(['name' => 'users delete']);
 
+        Permission::create(['name' => 'roles index']);
+        Permission::create(['name' => 'roles create']);
+        Permission::create(['name' => 'roles edit']);
+        Permission::create(['name' => 'roles delete']);
+
         Permission::create(['name' => 'products index']);
         Permission::create(['name' => 'products create']);
         Permission::create(['name' => 'products edit']);
         Permission::create(['name' => 'products delete']);
+
+        Permission::create(['name' => 'categories index']);
+        Permission::create(['name' => 'categories create']);
+        Permission::create(['name' => 'categories edit']);
+        Permission::create(['name' => 'categories delete']);
+
+        Permission::create(['name' => 'unit-groups index']);
+        Permission::create(['name' => 'unit-groups create']);
+        Permission::create(['name' => 'unit-groups edit']);
+        Permission::create(['name' => 'unit-groups delete']);
 
         Permission::create(['name' => 'units index']);
         Permission::create(['name' => 'units create']);

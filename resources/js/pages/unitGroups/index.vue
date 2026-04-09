@@ -10,6 +10,7 @@
             </h1>
 
             <Button
+                v-if="canCreateUnitGroup"
                 to="/unit-groups-setup/create"
                 as="router-link"
                 size="large"
@@ -90,10 +91,13 @@ import { computed, onMounted, ref } from "vue";
 import { unitGroupsService } from "../../apis/services/unitGroups/unitGroups.apis";
 import UnitGroupCard from "../../components/pages/unitGroups/UnitGroupCard.vue";
 import { useConfigStore } from "../../stores/config";
+import { useUserStore } from "../../stores/user";
 
 const isLoading = ref(true);
 const unitGroups = ref([]);
 const configStore = useConfigStore();
+const { hasPermission } = useUserStore();
+const canCreateUnitGroup = hasPermission("unit-groups create");
 const viewMode = computed(() => configStore.unitGroupsViewMode);
 const paginator = ref({
     current_page: 1,

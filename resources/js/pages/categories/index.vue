@@ -10,6 +10,7 @@
             </h1>
 
             <Button
+                v-if="canCreateCategory"
                 to="/categories/create"
                 as="router-link"
                 size="large"
@@ -91,10 +92,13 @@ import { computed, onMounted, ref } from "vue";
 import { categoriesService } from "../../apis/services/categories/categories.apis";
 import CategoryCard from "../../components/pages/categories/CategoryCard.vue";
 import { useConfigStore } from "../../stores/config";
+import { useUserStore } from "../../stores/user";
 
 const isLoading = ref(true);
 const categories = ref([]);
 const configStore = useConfigStore();
+const { hasPermission } = useUserStore();
+const canCreateCategory = hasPermission("categories create");
 const viewMode = computed(() => configStore.categoriesViewMode);
 const paginator = ref({
     current_page: 1,

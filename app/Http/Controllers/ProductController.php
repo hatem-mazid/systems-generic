@@ -7,12 +7,231 @@ use App\Http\Resources\ProductCollection;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ProductController extends Controller
 {
+    public function import(Request $request)
+    {
+        $this->ensureCan('products create');
+
+        $validated = $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
+        ]);
+
+        $spreadsheet = IOFactory::load($validated['file']->getRealPath());
+        $sheet = $spreadsheet->getActiveSheet();
+        $highestRow = $sheet->getHighestDataRow();
+        $highestColumn = $sheet->getHighestDataColumn();
+        $highestColumnIndex = Coordinate::columnIndexFromString($highestColumn);
+
+        if ($highestRow < 2) {
+            return response()->json([
+                'message' => 'The import file is empty.',
+            ], 422);
+        }
+
+        $headers = [];
+        for ($column = 1; $column <= $highestColumnIndex; $column++) {
+            $header = (string) $sheet->getCell([$column, 1])->getCalculatedValue();
+            $headers[$column] = strtolower(trim($header));
+        }
+
+        $requiredHeaders = ['name', 'category_id', 'type', 'is_limited', 'stock_quantity', 'active'];
+        foreach ($requiredHeaders as $requiredHeader) {
+            if (! in_array($requiredHeader, $headers, true)) {
+                return response()->json([
+                    'message' => "Missing required column: {$requiredHeader}",
+                ], 422);
+            }
+        }
+
+        $created = 0;
+        $updated = 0;
+        $errors = [];
+
+        DB::beginTransaction();
+        try {
+            for ($row = 2; $row <= $highestRow; $row++) {
+                $rowData = [];
+                foreach ($headers as $column => $header) {
+                    if ($header === '') {
+                        continue;
+                    }
+                    $value = $sheet->getCell([$column, $row])->getCalculatedValue();
+                    $rowData[$header] = is_string($value) ? trim($value) : $value;
+                }
+
+                if ($this->isImportRowEmpty($rowData)) {
+                    continue;
+                }
+
+                $rowData = $this->normalizeImportRow($rowData);
+
+                $rowValidator = validator($rowData, [
+                    'id' => 'nullable|integer|exists:products,id',
+                    'name' => 'required|string|max:255',
+                    'description' => 'nullable|string',
+                    'ar_name' => 'nullable|string|max:255',
+                    'ar_description' => 'nullable|string',
+                    'category_id' => 'nullable|integer|exists:categories,id',
+                    'type' => ['required', Rule::enum(ProductType::class)],
+                    'price' => 'nullable|numeric|min:0|max:99999999.99',
+                    'is_limited' => 'required|boolean',
+                    'stock_quantity' => [
+                        'nullable',
+                        'integer',
+                        'min:0',
+                        Rule::requiredIf(fn () => (bool) $rowData['is_limited']),
+                    ],
+                    'active' => 'required|boolean',
+                ]);
+
+                if ($rowValidator->fails()) {
+                    $errors[] = [
+                        'row' => $row,
+                        'errors' => $rowValidator->errors(),
+                    ];
+                    continue;
+                }
+
+                $payload = $rowValidator->validated();
+                $productId = $payload['id'] ?? null;
+                unset($payload['id']);
+
+                $translations = [
+                    'ar' => [
+                        'name' => $payload['ar_name'] ?? null,
+                        'description' => $payload['ar_description'] ?? null,
+                    ],
+                ];
+                unset($payload['ar_name'], $payload['ar_description']);
+
+                $categoryId = $payload['category_id'] ?? null;
+                unset($payload['category_id']);
+
+                if ($productId) {
+                    $product = Product::find($productId);
+                    if (! $product) {
+                        $errors[] = [
+                            'row' => $row,
+                            'errors' => ['id' => ['Product not found.']],
+                        ];
+                        continue;
+                    }
+                    $product->update($payload);
+                    $updated++;
+                } else {
+                    $product = Product::create($payload);
+                    $created++;
+                }
+
+                $this->syncProductCategory($product, $categoryId);
+                $this->syncProductTranslations($product, $translations);
+            }
+
+            if (! empty($errors)) {
+                DB::rollBack();
+
+                return response()->json([
+                    'message' => 'Import failed. Please fix the reported rows and try again.',
+                    'errors' => $errors,
+                ], 422);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Products imported successfully.',
+                'created' => $created,
+                'updated' => $updated,
+            ]);
+        } catch (\Throwable $exception) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Import failed due to an unexpected error.',
+            ], 500);
+        }
+    }
+
+    public function exportTemplate(): StreamedResponse
+    {
+        $this->ensureCan('products index');
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $headers = [
+            'id',
+            'name',
+            'description',
+            'ar_name',
+            'ar_description',
+            'category_id',
+            'type',
+            'price',
+            'is_limited',
+            'stock_quantity',
+            'active',
+        ];
+
+        foreach ($headers as $index => $header) {
+            $column = Coordinate::stringFromColumnIndex($index + 1);
+            $sheet->setCellValue($column.'1', $header);
+        }
+
+        $products = Product::with(['translations', 'categories'])->orderBy('id')->get();
+        $rowNumber = 2;
+
+        foreach ($products as $product) {
+            $sheet->setCellValue('A'.$rowNumber, $product->id);
+            $sheet->setCellValue('B'.$rowNumber, $product->name);
+            $sheet->setCellValue('C'.$rowNumber, $product->description);
+            $sheet->setCellValue('D'.$rowNumber, $this->extractTranslationValue($product, 'ar', 'name'));
+            $sheet->setCellValue('E'.$rowNumber, $this->extractTranslationValue($product, 'ar', 'description'));
+            $sheet->setCellValue('F'.$rowNumber, $product->categories->first()?->id);
+            $sheet->setCellValue('G'.$rowNumber, $product->type?->value ?? (string) $product->type);
+            $sheet->setCellValue('H'.$rowNumber, $product->price);
+            $sheet->setCellValue('I'.$rowNumber, $product->is_limited ? 1 : 0);
+            $sheet->setCellValue('J'.$rowNumber, $product->stock_quantity);
+            $sheet->setCellValue('K'.$rowNumber, $product->active ? 1 : 0);
+
+            $rowNumber++;
+        }
+
+        if ($products->isEmpty()) {
+            $sheet->setCellValue('A2', '');
+            $sheet->setCellValue('B2', 'Sample Product');
+            $sheet->setCellValue('C2', 'Sample English description');
+            $sheet->setCellValue('D2', 'منتج تجريبي');
+            $sheet->setCellValue('E2', 'وصف عربي تجريبي');
+            $sheet->setCellValue('F2', 1);
+            $sheet->setCellValue('G2', 'physical');
+            $sheet->setCellValue('H2', 25.5);
+            $sheet->setCellValue('I2', 1);
+            $sheet->setCellValue('J2', 10);
+            $sheet->setCellValue('K2', 1);
+        }
+
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, 'products-import-template.xlsx', [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
     public function index(Request $request)
     {
+        $this->ensureCan('products index');
+
         $validated = $request->validate([
             'per_page' => 'sometimes|integer|min:1|max:100',
             'category_id' => 'sometimes|nullable|integer|exists:categories,id',
@@ -55,6 +274,8 @@ class ProductController extends Controller
 
     public function show(string $id)
     {
+        $this->ensureCan('products edit');
+
         $product = Product::with(['translations', 'media', 'categories.translations'])->find($id);
         if (! $product) {
             return response()->json(['message' => 'Product not found'], 404);
@@ -65,6 +286,8 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
+        $this->ensureCan('products create');
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -100,6 +323,8 @@ class ProductController extends Controller
 
     public function update(Request $request, string $id)
     {
+        $this->ensureCan('products edit');
+
         $product = Product::find($id);
         if (! $product) {
             return response()->json(['message' => 'Product not found'], 404);
@@ -151,6 +376,8 @@ class ProductController extends Controller
 
     public function destroy(string $id)
     {
+        $this->ensureCan('products delete');
+
         $product = Product::find($id);
         if (! $product) {
             return response()->json(['message' => 'Product not found'], 404);
@@ -166,6 +393,8 @@ class ProductController extends Controller
      */
     public function storeMedia(Request $request, Product $product)
     {
+        $this->ensureCan('products edit');
+
         $request->validate([
             'file' => ['required', 'file', 'image', 'max:10240'],
             'collection' => ['sometimes', 'string', 'max:255', 'in:default'],
@@ -194,6 +423,8 @@ class ProductController extends Controller
      */
     public function destroyMedia(Request $request, Product $product)
     {
+        $this->ensureCan('products edit');
+
         $validated = $request->validate([
             'media_id' => ['required', 'integer', 'exists:media,id'],
         ]);
@@ -220,6 +451,8 @@ class ProductController extends Controller
      */
     public function setDefaultMedia(Request $request, Product $product)
     {
+        $this->ensureCan('products edit');
+
         $validated = $request->validate([
             'media_id' => ['required', 'integer'],
         ]);
@@ -281,5 +514,74 @@ class ProductController extends Controller
         }
 
         $product->categories()->sync([$categoryId]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $rowData
+     */
+    private function isImportRowEmpty(array $rowData): bool
+    {
+        foreach ($rowData as $value) {
+            if ($value !== null && $value !== '') {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param  array<string, mixed>  $rowData
+     * @return array<string, mixed>
+     */
+    private function normalizeImportRow(array $rowData): array
+    {
+        foreach (['id', 'category_id', 'stock_quantity'] as $key) {
+            if (($rowData[$key] ?? null) === '') {
+                $rowData[$key] = null;
+            }
+        }
+
+        foreach (['description', 'ar_name', 'ar_description'] as $key) {
+            if (($rowData[$key] ?? null) === '') {
+                $rowData[$key] = null;
+            }
+        }
+
+        if (array_key_exists('price', $rowData) && $rowData['price'] === '') {
+            $rowData['price'] = null;
+        }
+
+        if (array_key_exists('is_limited', $rowData)) {
+            $rowData['is_limited'] = $this->toBoolean($rowData['is_limited']);
+        }
+
+        if (array_key_exists('active', $rowData)) {
+            $rowData['active'] = $this->toBoolean($rowData['active']);
+        }
+
+        return $rowData;
+    }
+
+    private function toBoolean(mixed $value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        return in_array(strtolower(trim((string) $value)), ['1', 'true', 'yes', 'y', 'on'], true);
+    }
+
+    private function extractTranslationValue(Product $product, string $locale, string $key): ?string
+    {
+        $translation = $product->translations
+            ->first(fn ($item) => $item->locale === $locale && $item->key === $key);
+
+        return $translation?->value;
+    }
+
+    private function ensureCan(string $permission): void
+    {
+        abort_unless(auth()->user()?->can($permission), 403, 'Forbidden');
     }
 }

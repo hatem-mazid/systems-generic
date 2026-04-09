@@ -18,6 +18,18 @@ const routes = [
         component: () => import("./pages/users/[id].vue"),
     },
     {
+        path: "/roles",
+        component: () => import("./pages/roles/index.vue"),
+    },
+    {
+        path: "/roles/create",
+        component: () => import("./pages/roles/create.vue"),
+    },
+    {
+        path: "/roles/:id",
+        component: () => import("./pages/roles/[id].vue"),
+    },
+    {
         path: "/categories",
         component: () => import("./pages/categories/index.vue"),
     },

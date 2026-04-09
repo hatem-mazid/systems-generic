@@ -7,18 +7,59 @@
         {{ $t("Sidebar.Products") }}
       </h1>
 
-      <Button
-        to="/products/create"
-        as="router-link"
-        size="large"
-        class="min-h-[48px] w-full shrink-0 sm:w-auto"
-        :label="$t('Add Product')"
-      >
-        <template #icon>
-          <AppIcon name="pi pi-plus" />
-        </template>
-      </Button>
+      <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+        <Button
+          type="button"
+          outlined
+          severity="secondary"
+          size="large"
+          class="min-h-[48px] w-full sm:w-auto"
+          :label="$t('ProductsList.DownloadTemplate')"
+          :loading="templateLoading"
+          @click="downloadTemplate"
+        >
+          <template #icon>
+            <AppIcon name="pi pi-download" />
+          </template>
+        </Button>
+
+        <Button
+          v-if="canCreateProduct"
+          type="button"
+          outlined
+          severity="secondary"
+          size="large"
+          class="min-h-[48px] w-full sm:w-auto"
+          :label="$t('ProductsList.BulkImport')"
+          :loading="importLoading"
+          @click="openImportDialog"
+        >
+          <template #icon>
+            <AppIcon name="pi pi-upload" />
+          </template>
+        </Button>
+
+        <Button
+          v-if="canCreateProduct"
+          to="/products/create"
+          as="router-link"
+          size="large"
+          class="min-h-[48px] w-full shrink-0 sm:w-auto"
+          :label="$t('Add Product')"
+        >
+          <template #icon>
+            <AppIcon name="pi pi-plus" />
+          </template>
+        </Button>
+      </div>
     </div>
+    <input
+      ref="importInputRef"
+      type="file"
+      class="hidden"
+      accept=".xlsx,.xls,.csv"
+      @change="onImportFileChange"
+    />
 
     <div class="mt-4 flex items-center justify-end gap-2">
       <span class="text-sm text-surface-600 dark:text-surface-300">
@@ -208,20 +249,29 @@
 </template>
 
 <script setup>
+import { isAxiosError } from "axios";
 import { useDebounceFn } from "@vueuse/core";
 import { Button } from "primevue";
+import { useToast } from "primevue/usetoast";
 import { computed, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { categoriesService } from "../../apis/services/categories/categories.apis";
 import { productsService } from "../../apis/services/products/products.apis";
 import ProductCard from "../../components/pages/products/Card.vue";
 import { useConfigStore } from "../../stores/config";
+import { useUserStore } from "../../stores/user";
 
 const { t } = useI18n();
+const toast = useToast();
 const configStore = useConfigStore();
+const { hasPermission } = useUserStore();
+const canCreateProduct = hasPermission("products create");
 const viewMode = computed(() => configStore.productsViewMode);
 
 const isLoading = ref(true);
+const importLoading = ref(false);
+const templateLoading = ref(false);
+const importInputRef = ref(null);
 const products = ref([]);
 const categories = ref([]);
 const search = ref("");
@@ -353,6 +403,78 @@ const handleProductDeleted = () => {
 const onPageChange = (event) => {
   paginator.value.per_page = event.rows;
   fetchProducts(event.page + 1);
+};
+
+const downloadTemplate = async () => {
+  templateLoading.value = true;
+  try {
+    const blob = await productsService.exportProductsTemplate();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "products-import-template.xlsx";
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Error downloading product template:", error);
+    toast.add({
+      severity: "error",
+      summary: t("ProductsList.TemplateDownloadError"),
+      life: 4000,
+    });
+  } finally {
+    templateLoading.value = false;
+  }
+};
+
+const openImportDialog = () => {
+  if (importLoading.value) {
+    return;
+  }
+  importInputRef.value?.click();
+};
+
+const onImportFileChange = async (event) => {
+  const input = event.target;
+  const file = input?.files?.[0];
+  input.value = "";
+  if (!file) {
+    return;
+  }
+
+  importLoading.value = true;
+  try {
+    const { data } = await productsService.importProducts(file);
+    toast.add({
+      severity: "success",
+      summary:
+        data?.message ??
+        t("ProductsList.ImportSuccess", {
+          created: data?.created ?? 0,
+          updated: data?.updated ?? 0,
+        }),
+      life: 4500,
+    });
+    fetchProducts(1);
+  } catch (error) {
+    const fallbackMessage = t("ProductsList.ImportError");
+    if (isAxiosError(error)) {
+      const serverMessage = error.response?.data?.message;
+      toast.add({
+        severity: "error",
+        summary: serverMessage || fallbackMessage,
+        life: 5500,
+      });
+    } else {
+      toast.add({
+        severity: "error",
+        summary: fallbackMessage,
+        life: 5500,
+      });
+    }
+  } finally {
+    importLoading.value = false;
+  }
 };
 
 const loadCategories = () => {

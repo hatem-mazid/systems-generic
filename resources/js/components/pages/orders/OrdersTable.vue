@@ -142,7 +142,7 @@ import { useI18n } from "vue-i18n";
 import { OrderStatus } from "../../../apis/services/orders/orders.type";
 import { formatCurrency } from "../../../utils/formatCurrency";
 
-defineProps({
+const props = defineProps({
     orders: {
         type: Array,
         default: () => [],
@@ -154,6 +154,14 @@ defineProps({
     emptyMessage: {
         type: String,
         default: "",
+    },
+    canViewOrder: {
+        type: Boolean,
+        default: true,
+    },
+    canPrintInvoice: {
+        type: Boolean,
+        default: true,
     },
 });
 
@@ -184,22 +192,26 @@ const rowMenuItems = computed(() => {
     if (!activeRow.value) {
         return [];
     }
-    return [
-        {
+    const items = [];
+    if (props.canViewOrder) {
+        items.push({
             label: t("OrdersList.ViewOrder"),
             icon: "pi pi-eye",
             command: () => {
                 emit("view", activeRow.value.id);
             },
-        },
-        {
+        });
+    }
+    if (props.canPrintInvoice) {
+        items.push({
             label: t("OrderDetail.ShowInvoice"),
             icon: "hi-receipt-tax",
             command: () => {
                 emit("invoice", activeRow.value.id);
             },
-        },
-    ];
+        });
+    }
+    return items;
 });
 
 function openRowMenu(event, data) {

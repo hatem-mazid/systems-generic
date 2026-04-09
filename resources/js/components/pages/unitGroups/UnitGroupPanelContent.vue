@@ -21,6 +21,7 @@
 
             <div v-if="!managementMode || isAdmin" class="flex items-center gap-3">
                 <Button
+                    v-if="canCreateUnit"
                     as="router-link"
                     :to="`/units/create?unit_group_id=${unitGroup.id}`"
                     size="large"
@@ -34,6 +35,7 @@
                     </template>
                 </Button>
                 <Button
+                    v-if="canEditUnitGroup"
                     as="router-link"
                     :to="`/unit-groups-setup/${unitGroup.id}`"
                     size="large"
@@ -47,6 +49,7 @@
                     </template>
                 </Button>
                 <DeleteUnitGroupButton
+                    v-if="canDeleteUnitGroup"
                     :unit-group="unitGroup"
                     @deleted="$emit('deleted')"
                 />
@@ -115,6 +118,9 @@ const props = defineProps({
 });
 
 const userStore = useUserStore();
+const canCreateUnit = userStore.hasPermission("units create");
+const canEditUnitGroup = userStore.hasPermission("unit-groups edit");
+const canDeleteUnitGroup = userStore.hasPermission("unit-groups delete");
 
 const isAdmin = computed(() => {
     const r = userStore.info?.role;

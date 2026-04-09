@@ -1,6 +1,8 @@
 {
     "Users": "Users",
+    "Roles": "Roles",
     "Add User": "Add User",
+    "Add Role": "Add Role",
     "Add Category": "Add Category",
     "Add Unit Group": "Add Unit Group",
     "Add Unit": "Add Unit",
@@ -13,6 +15,12 @@
         "DeleteMessage": "Are you sure you want to delete {name}? This cannot be undone.",
         "DeleteSuccess": "User deleted successfully.",
         "DeleteError": "Could not delete the user."
+    },
+    "RolesList": {
+        "DeleteTitle": "Delete role",
+        "DeleteMessage": "Are you sure you want to delete {name}? This cannot be undone.",
+        "DeleteSuccess": "Role deleted successfully.",
+        "DeleteError": "Could not delete the role."
     },
     "UserForm": {
         "Create": "Create User",
@@ -43,6 +51,19 @@
             "waiter": "Waiter"
         }
     },
+    "RoleForm": {
+        "Create": "Create Role",
+        "Edit": "Edit Role",
+        "Name": "Role name",
+        "Permissions": "Permissions",
+        "PermissionsPlaceholder": "Select permissions",
+        "SubmitCreate": "Create",
+        "SubmitUpdate": "Update",
+        "CreatedSuccess": "Role created successfully.",
+        "UpdatedSuccess": "Role updated successfully.",
+        "ValidationError": "Please fix the errors and try again.",
+        "SaveError": "Something went wrong. Please try again."
+    },
     "Sidebar": {
         "Dashboard": "Dashboard",
         "Categories": "Categories",
@@ -50,7 +71,8 @@
         "UnitGroups": "Unit Settings",
         "UnitsManagement": "Units Management",
         "Orders": "Orders",
-        "Users": "Users"
+        "Users": "Users",
+        "Roles": "Roles"
     },
     "UnitsManagement": {
         "more": "More actions",
@@ -266,6 +288,11 @@
         "AllCategories": "All categories",
         "AllTypes": "All types",
         "AllStatuses": "All statuses",
+        "BulkImport": "Bulk import",
+        "DownloadTemplate": "Download template",
+        "ImportSuccess": "Import completed. Created: {created}, Updated: {updated}.",
+        "ImportError": "Could not import products.",
+        "TemplateDownloadError": "Could not download import template.",
         "CreatePlaceholder": "Product creation form will be added here.",
         "BackToList": "Back to products",
         "Types": {

@@ -133,6 +133,8 @@
                 :orders="orders"
                 :loading="isLoading"
                 :empty-message="$t('OrdersList.Empty')"
+                :can-view-order="canViewOrder"
+                :can-print-invoice="canPrintInvoice"
                 @view="onViewOrder"
                 @invoice="onInvoiceOrder"
             />
@@ -159,9 +161,13 @@ import { OrderStatus } from "../../apis/services/orders/orders.type";
 import { usersService } from "../../apis/services/users/users.apis";
 import { UserRole } from "../../apis/services/users/users.type";
 import OrdersTable from "../../components/pages/orders/OrdersTable.vue";
+import { useUserStore } from "../../stores/user";
 
 const { t } = useI18n();
 const router = useRouter();
+const { hasPermission } = useUserStore();
+const canViewOrder = hasPermission("order index");
+const canPrintInvoice = hasPermission("order index");
 
 const isLoading = ref(true);
 const usersLoading = ref(true);

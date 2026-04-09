@@ -46,7 +46,7 @@
 
         <div class="flex items-center justify-end gap-2">
             <Button
-                v-if="canEditOrDelete"
+                v-if="canEditUnit"
                 as="router-link"
                 :to="`/units/${unit.id}`"
                 size="large"
@@ -74,7 +74,7 @@
             </Button>
             <DeleteUnitButton
                 :unit="unit"
-                :disabled="!canEditOrDelete"
+                :disabled="!canDeleteUnit"
                 @deleted="$emit('deleted')"
             />
         </div>
@@ -86,8 +86,12 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { UnitStatus, UnitType } from "../../../apis/services/units/units.type";
 import DeleteUnitButton from "./DeleteUnitButton.vue";
+import { useUserStore } from "../../../stores/user";
 
 const { t } = useI18n();
+const { hasPermission } = useUserStore();
+const canEditUnitPermission = hasPermission("units edit");
+const canDeleteUnitPermission = hasPermission("units delete");
 
 const props = defineProps({
     unit: {
@@ -122,6 +126,10 @@ const canEditOrDelete = computed(() => {
     }
     return String(raw).trim().toLowerCase() === UnitStatus.Available;
 });
+const canEditUnit = computed(() => canEditUnitPermission && canEditOrDelete.value);
+const canDeleteUnit = computed(
+    () => canDeleteUnitPermission && canEditOrDelete.value
+);
 
 const statusLabel = computed(() => {
     const value = props.unit?.status;

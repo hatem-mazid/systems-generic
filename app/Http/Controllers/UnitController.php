@@ -19,6 +19,8 @@ class UnitController extends Controller
 {
     public function index(Request $request)
     {
+        $this->ensureCan('units index');
+
         $request->validate([
             'per_page' => 'sometimes|integer|min:1|max:100',
             'unit_group_id' => 'sometimes|integer|exists:unit_groups,id',
@@ -38,6 +40,8 @@ class UnitController extends Controller
 
     public function show(string $id)
     {
+        $this->ensureCan('units edit');
+
         $unit = Unit::with(['group', 'currentOrder'])->find($id);
         if (! $unit) {
             return response()->json(['message' => 'Unit not found'], 404);
@@ -48,6 +52,8 @@ class UnitController extends Controller
 
     public function store(Request $request)
     {
+        $this->ensureCan('units create');
+
         $validated = $this->validateJsonOrFail($request, [
             'unit_group_id' => 'required|integer|exists:unit_groups,id',
             'name' => 'required|string|max:255',
@@ -75,6 +81,8 @@ class UnitController extends Controller
 
     public function update(Request $request, string $id)
     {
+        $this->ensureCan('units edit');
+
         $validated = $this->validateJsonOrFail($request, [
             'unit_group_id' => 'sometimes|required|integer|exists:unit_groups,id',
             'name' => 'sometimes|required|string|max:255',
@@ -109,6 +117,8 @@ class UnitController extends Controller
 
     public function destroy(string $id)
     {
+        $this->ensureCan('units delete');
+
         $unit = Unit::find($id);
         if (! $unit) {
             return response()->json(['message' => 'Unit not found'], 404);
@@ -121,6 +131,8 @@ class UnitController extends Controller
 
     public function startOrder(Request $request, string $id)
     {
+        $this->ensureCan('order create');
+
         $unit = Unit::with('currentOrder')->find($id);
         if (! $unit) {
             return response()->json(['message' => 'Unit not found'], 404);
@@ -193,6 +205,8 @@ class UnitController extends Controller
 
     public function reserve(Request $request, string $id)
     {
+        $this->ensureCan('order create');
+
         $validated = $this->validateJsonOrFail($request, [
             'reserved_at' => 'sometimes|nullable|date',
             'reserved_by' => 'sometimes|nullable|string|max:255',
@@ -287,6 +301,8 @@ class UnitController extends Controller
 
     public function close(string $id)
     {
+        $this->ensureCan('order close');
+
         $unit = Unit::with('currentOrder')->find($id);
         if (! $unit) {
             return response()->json(['message' => 'Unit not found'], 404);
@@ -323,6 +339,8 @@ class UnitController extends Controller
 
     public function cancelReservation(string $id)
     {
+        $this->ensureCan('order edit');
+
         $unit = Unit::with('currentOrder')->find($id);
         if (! $unit) {
             return response()->json(['message' => 'Unit not found'], 404);
@@ -356,6 +374,8 @@ class UnitController extends Controller
 
     public function transferGuests(Request $request, string $id)
     {
+        $this->ensureCan('order edit');
+
         $validated = $this->validateJsonOrFail($request, [
             'target_unit_id' => 'required|integer|exists:units,id',
         ]);
@@ -551,5 +571,10 @@ class UnitController extends Controller
         ]);
 
         $order->recalculateTotal();
+    }
+
+    private function ensureCan(string $permission): void
+    {
+        abort_unless(auth()->user()?->can($permission), 403, 'Forbidden');
     }
 }

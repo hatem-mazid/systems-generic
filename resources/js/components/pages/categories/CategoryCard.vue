@@ -58,6 +58,7 @@
                     class="flex items-center justify-end gap-2 border-t border-surface-200/80 pt-3 dark:border-surface-700"
                 >
                     <Button
+                        v-if="canEditCategory"
                         as="router-link"
                         :to="`/categories/${category.id}`"
                         size="large"
@@ -72,6 +73,7 @@
                     </Button>
 
                     <DeleteCategoryButton
+                        v-if="canDeleteCategory"
                         :category="category"
                         @deleted="$emit('deleted')"
                     />
@@ -85,6 +87,7 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import DeleteCategoryButton from "./DeleteCategoryButton.vue";
+import { useUserStore } from "../../../stores/user";
 
 const props = defineProps({
     category: {
@@ -96,6 +99,9 @@ const props = defineProps({
 defineEmits(["deleted"]);
 
 const { t } = useI18n();
+const { hasPermission } = useUserStore();
+const canEditCategory = hasPermission("categories edit");
+const canDeleteCategory = hasPermission("categories delete");
 
 const categoryImage = computed(() => {
     const media = props.category?.media ?? [];

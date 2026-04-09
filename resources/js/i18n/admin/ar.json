@@ -1,6 +1,8 @@
 {
     "Users": "المستخدمين",
+    "Roles": "الأدوار",
     "Add User": "إضافة مستخدم",
+    "Add Role": "إضافة دور",
     "Add Category": "إضافة تصنيف",
     "Add Unit Group": "إضافة مجموعة وحدات",
     "Add Unit": "إضافة وحدة",
@@ -13,6 +15,12 @@
         "DeleteMessage": "هل أنت متأكد من حذف {name}؟ لا يمكن التراجع عن هذا الإجراء.",
         "DeleteSuccess": "تم حذف المستخدم بنجاح.",
         "DeleteError": "تعذر حذف المستخدم."
+    },
+    "RolesList": {
+        "DeleteTitle": "حذف دور",
+        "DeleteMessage": "هل أنت متأكد من حذف {name}؟ لا يمكن التراجع عن هذا الإجراء.",
+        "DeleteSuccess": "تم حذف الدور بنجاح.",
+        "DeleteError": "تعذر حذف الدور."
     },
     "UserForm": {
         "Create": "إنشاء مستخدم",
@@ -43,6 +51,19 @@
             "waiter": "نادل"
         }
     },
+    "RoleForm": {
+        "Create": "إنشاء دور",
+        "Edit": "تعديل دور",
+        "Name": "اسم الدور",
+        "Permissions": "الصلاحيات",
+        "PermissionsPlaceholder": "اختر الصلاحيات",
+        "SubmitCreate": "إنشاء",
+        "SubmitUpdate": "تحديث",
+        "CreatedSuccess": "تم إنشاء الدور بنجاح.",
+        "UpdatedSuccess": "تم تحديث الدور بنجاح.",
+        "ValidationError": "يرجى تصحيح الأخطاء والمحاولة مرة أخرى.",
+        "SaveError": "حدث خطأ. يرجى المحاولة مرة أخرى."
+    },
     "Sidebar": {
         "Dashboard": "لوحة التحكم",
         "Categories": "التصنيفات",
@@ -50,7 +71,8 @@
         "UnitGroups": "إعدادات الوحدات",
         "UnitsManagement": "إدارة الوحدات",
         "Orders": "الطلبات",
-        "Users": "المستخدمين"
+        "Users": "المستخدمين",
+        "Roles": "الأدوار"
     },
     "UnitsManagement": {
         "more": "المزيد من الإجراءات",
@@ -265,6 +287,11 @@
         "AllCategories": "كل التصنيفات",
         "AllTypes": "كل الأنواع",
         "AllStatuses": "كل الحالات",
+        "BulkImport": "استيراد جماعي",
+        "DownloadTemplate": "تنزيل القالب",
+        "ImportSuccess": "اكتمل الاستيراد. تمت الإضافة: {created}، وتم التحديث: {updated}.",
+        "ImportError": "تعذر استيراد المنتجات.",
+        "TemplateDownloadError": "تعذر تنزيل قالب الاستيراد.",
         "CreatePlaceholder": "سيتم إضافة نموذج إنشاء المنتج هنا.",
         "BackToList": "العودة إلى المنتجات",
         "Types": {

@@ -11,6 +11,8 @@ class UnitGroupController extends Controller
 {
     public function index(Request $request)
     {
+        $this->ensureCan('unit-groups index');
+
         $unitGroups = UnitGroup::with(['units.currentOrder'])
             ->orderBy('position')
             ->paginate($request->integer('per_page', 10));
@@ -20,6 +22,8 @@ class UnitGroupController extends Controller
 
     public function show(string $id)
     {
+        $this->ensureCan('unit-groups edit');
+
         $unitGroup = UnitGroup::with(['units.currentOrder'])->find($id);
         if (! $unitGroup) {
             return response()->json(['message' => 'Unit group not found'], 404);
@@ -30,6 +34,8 @@ class UnitGroupController extends Controller
 
     public function store(Request $request)
     {
+        $this->ensureCan('unit-groups create');
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'color' => 'nullable|string|max:255',
@@ -44,6 +50,8 @@ class UnitGroupController extends Controller
 
     public function update(Request $request, string $id)
     {
+        $this->ensureCan('unit-groups edit');
+
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'color' => 'nullable|string|max:255',
@@ -65,6 +73,8 @@ class UnitGroupController extends Controller
 
     public function destroy(string $id)
     {
+        $this->ensureCan('unit-groups delete');
+
         $unitGroup = UnitGroup::find($id);
         if (! $unitGroup) {
             return response()->json(['message' => 'Unit group not found'], 404);
@@ -73,5 +83,10 @@ class UnitGroupController extends Controller
         $unitGroup->delete();
 
         return response()->noContent();
+    }
+
+    private function ensureCan(string $permission): void
+    {
+        abort_unless(auth()->user()?->can($permission), 403, 'Forbidden');
     }
 }

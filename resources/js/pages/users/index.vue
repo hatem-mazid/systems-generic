@@ -10,6 +10,7 @@
             </h1>
 
             <Button
+                v-if="canCreateUser"
                 to="/users/create"
                 as="router-link"
                 size="large"
@@ -44,6 +45,8 @@
                     :disable-delete="
                         deletingId !== null && deletingId !== user.id
                     "
+                    :can-edit="canEditUser"
+                    :can-delete="canDeleteUser"
                     @delete="confirmDelete"
                 />
             </div>
@@ -67,10 +70,15 @@ import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { usersService } from "../../apis/services/users/users.apis";
 import UserCard from "../../components/pages/users/UserCard.vue";
+import { useUserStore } from "../../stores/user";
 
 const { t } = useI18n();
 const confirm = useConfirm();
 const toast = useToast();
+const { hasPermission } = useUserStore();
+const canCreateUser = hasPermission("users create");
+const canEditUser = hasPermission("users edit");
+const canDeleteUser = hasPermission("users delete");
 
 const isLoading = ref(true);
 const deletingId = ref(null);

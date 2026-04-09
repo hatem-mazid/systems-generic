@@ -16,6 +16,8 @@ class OrderController extends Controller
 {
     public function index(Request $request)
     {
+        $this->ensureCan('order index');
+
         $validated = $request->validate([
             'per_page' => 'sometimes|integer|min:1|max:100',
             'user_id' => 'sometimes|nullable|integer|exists:users,id',
@@ -68,6 +70,8 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
+        $this->ensureCan('order index');
+
         return new OrderResource($order->load([
             'user:id,name',
             'unit:id,name',
@@ -78,6 +82,8 @@ class OrderController extends Controller
 
     public function storeItem(Request $request, Order $order)
     {
+        $this->ensureCan('order edit');
+
         if (! $order->isOpen()) {
             return response()->json(['message' => 'Order is not active.'], 422);
         }
@@ -150,6 +156,8 @@ class OrderController extends Controller
 
     public function destroyItem(Order $order, string $item)
     {
+        $this->ensureCan('order edit');
+
         if (! $order->isOpen()) {
             return response()->json(['message' => 'Order is not active.'], 422);
         }
@@ -181,5 +189,10 @@ class OrderController extends Controller
                 'items.product.media',
             ]));
         });
+    }
+
+    private function ensureCan(string $permission): void
+    {
+        abort_unless(auth()->user()?->can($permission), 403, 'Forbidden');
     }
 }

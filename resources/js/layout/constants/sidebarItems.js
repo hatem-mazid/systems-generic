@@ -6,6 +6,7 @@ export const SIDEBAR_TITLES = {
     UnitsManagement: "Sidebar.UnitsManagement",
     Orders: "Sidebar.Orders",
     Users: "Sidebar.Users",
+    Roles: "Sidebar.Roles",
 };
 
 export const sidebarItems = [
@@ -19,7 +20,7 @@ export const sidebarItems = [
         icon: "hi-tag",
         title: SIDEBAR_TITLES.Categories,
         to: "/categories",
-        permission: null,
+        permission: "categories index",
     },
     {
         icon: "hi-shopping-bag",
@@ -31,13 +32,13 @@ export const sidebarItems = [
         icon: "hi-view-grid",
         title: SIDEBAR_TITLES.UnitGroups,
         to: "/unit-groups-setup",
-        permission: null,
+        permission: "unit-groups index",
     },
     {
         icon: "hi-table",
         title: SIDEBAR_TITLES.UnitsManagement,
         to: "/units-management",
-        permission: null,
+        permission: "units index",
     },
     {
         icon: "hi-receipt-tax",
@@ -50,5 +51,11 @@ export const sidebarItems = [
         title: SIDEBAR_TITLES.Users,
         to: "/users",
         permission: "users index",
+    },
+    {
+        icon: "hi-shield-check",
+        title: SIDEBAR_TITLES.Roles,
+        to: "/roles",
+        permission: "roles index",
     },
 ];

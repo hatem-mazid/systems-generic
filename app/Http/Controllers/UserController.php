@@ -14,6 +14,8 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+        $this->ensureCan('users index');
+
         $validated = $request->validate([
             'per_page' => 'sometimes|integer|min:1|max:100',
             'role' => 'sometimes|nullable|string|exists:roles,name',
@@ -34,6 +36,8 @@ class UserController extends Controller
 
     public function show(string $id)
     {
+        $this->ensureCan('users edit');
+
         $user = User::with('roles')->find($id);
 
         if (!$user) {
@@ -48,6 +52,8 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        $this->ensureCan('users create');
+
         $formData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -73,6 +79,8 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $this->ensureCan('users edit');
+
         $formData = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $id,
@@ -96,6 +104,8 @@ class UserController extends Controller
 
     public function updatePassword(Request $request, string $id)
     {
+        $this->ensureCan('users edit');
+
         $formData = $request->validate([
             'password' => 'required|string|min:8|confirmed',
         ]);
@@ -119,6 +129,8 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
+        $this->ensureCan('users delete');
+
         $user = User::find($id);
         if (!$user) {
             return response()->json(['message' => __('messages.User not found')], 404);
@@ -129,5 +141,10 @@ class UserController extends Controller
         return response()->json([
             'message' => __('messages.User deleted successfully'),
         ]);
+    }
+
+    private function ensureCan(string $permission): void
+    {
+        abort_unless(auth()->user()?->can($permission), 403, 'Forbidden');
     }
 }
