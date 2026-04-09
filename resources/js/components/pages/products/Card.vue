@@ -3,7 +3,7 @@
         class="group h-full overflow-hidden rounded-2xl border border-surface-200/80 bg-surface-0 shadow-sm transition-all duration-200 hover:border-primary-200/60 hover:shadow-md dark:border-surface-700 dark:bg-surface-900 dark:hover:border-primary-700/40"
     >
         <template #content>
-            <div class="flex touch-manipulation flex-col gap-3 p-2 sm:p-3">
+            <div class="flex touch-manipulation flex-col gap-3">
                 <div
                     class="relative aspect-video w-full overflow-hidden rounded-lg bg-surface-200 dark:bg-surface-700"
                 >

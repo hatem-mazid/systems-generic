@@ -77,8 +77,8 @@
                         </Chip>
                         <Chip
                             class="w-fit max-w-full text-xs"
-                            :label="dateChipLabel('OrdersList.CreatedShort', data.created_at)"
-                            :title="dateChipTitle('OrdersList.CreatedShort', data.created_at)"
+                            :label="dateChipLabel('OrdersList.ClosedShort', data.closed_at)"
+                            :title="dateChipTitle('OrdersList.ClosedShort', data.closed_at)"
                         >
                             <template #icon>
                                 <AppIcon name="pi pi-calendar-plus" />

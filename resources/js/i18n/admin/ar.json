@@ -147,7 +147,7 @@
         "ColumnStatus": "الحالة",
         "ColumnOpenedCreated": "الفتح / الإنشاء",
         "OpenedShort": "فُتح",
-        "CreatedShort": "أُنشئ",
+        "ClosedShort": "مغلق",
         "ColumnActions": "إجراءات",
         "MoreActions": "المزيد من الإجراءات",
         "ViewOrder": "عرض الطلب",

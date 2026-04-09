@@ -23,8 +23,28 @@ class OrderResource extends JsonResource
             'user_name' => $this->whenLoaded('user', fn () => $this->user?->name),
             'unit_name' => $this->whenLoaded('unit', fn () => $this->unit?->name),
             'items' => $this->whenLoaded('items', function () {
-                return $this->items->map(function ($item) {
+                $locale = app()->getLocale();
+
+                return $this->items->map(function ($item) use ($locale) {
                     $product = $item->relationLoaded('product') ? $item->product : null;
+                    $translatedName = $item->name;
+                    if ($product && $product->relationLoaded('translations')) {
+                        $translatedName = $product->t('name', $locale) ?: $item->name;
+                    } elseif ($item->type === 'unitFees') {
+                        $meta = is_array($item->meta) ? $item->meta : [];
+                        $unitName = $meta['unit_name'] ?? null;
+
+                        if (! $unitName && is_string($item->name)) {
+                            if (preg_match('/^Unit fee \((.*)\)$/', $item->name, $matches) === 1) {
+                                $unitName = $matches[1];
+                            }
+                        }
+
+                        $translatedName = $unitName
+                            ? __('messages.unit_fee_with_name', ['name' => $unitName])
+                            : __('messages.unit_fee');
+                    }
+
                     $imageUrl = null;
                     if ($product && $product->relationLoaded('media')) {
                         $m = $product->media
@@ -38,7 +58,7 @@ class OrderResource extends JsonResource
                     return [
                         'id' => $item->id,
                         'product_id' => $item->product_id,
-                        'name' => $item->name,
+                        'name' => $translatedName,
                         'notes' => $item->notes,
                         'price' => $item->price,
                         'quantity' => $item->quantity,

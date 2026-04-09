@@ -147,6 +147,7 @@
         "ColumnStatus": "Status",
         "ColumnOpenedCreated": "Opened / created",
         "OpenedShort": "Opened",
+        "ClosedShort": "Closed",
         "CreatedShort": "Created",
         "ColumnActions": "Actions",
         "MoreActions": "More actions",

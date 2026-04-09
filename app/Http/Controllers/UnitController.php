@@ -529,8 +529,8 @@ class UnitController extends Controller
 
         $labelUnit = $session->unit ?? $unit;
         $name = $labelUnit->name
-            ? sprintf('Unit fee (%s)', $labelUnit->name)
-            : 'Unit fee';
+            ? __('messages.unit_fee_with_name', ['name' => $labelUnit->name])
+            : __('messages.unit_fee');
 
         OrderItem::create([
             'order_id' => $order->id,
@@ -543,6 +543,7 @@ class UnitController extends Controller
             'type' => 'unitFees',
             'meta' => [
                 'timer_session_id' => $session->id,
+                'unit_name' => $labelUnit->name,
                 'duration_minutes' => $minutes,
                 'duration_seconds' => $seconds,
                 'price_per_hour' => (string) $session->price_per_hour_snapshot,

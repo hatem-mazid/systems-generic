@@ -34,6 +34,7 @@ class OrderController extends Controller
         $query = Order::with([
             'user:id,name',
             'unit:id,name',
+            'items.product.translations',
             'items.product.media',
         ]);
 
@@ -70,6 +71,7 @@ class OrderController extends Controller
         return new OrderResource($order->load([
             'user:id,name',
             'unit:id,name',
+            'items.product.translations',
             'items.product.media',
         ]));
     }
@@ -140,6 +142,7 @@ class OrderController extends Controller
             return new OrderResource($order->load([
                 'user:id,name',
                 'unit:id,name',
+                'items.product.translations',
                 'items.product.media',
             ]));
         });
@@ -174,6 +177,7 @@ class OrderController extends Controller
             return new OrderResource($order->load([
                 'user:id,name',
                 'unit:id,name',
+                'items.product.translations',
                 'items.product.media',
             ]));
         });
