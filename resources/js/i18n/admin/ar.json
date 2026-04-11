@@ -71,8 +71,24 @@
         "UnitGroups": "إعدادات الوحدات",
         "UnitsManagement": "إدارة الوحدات",
         "Orders": "الطلبات",
+        "Reports": "التقارير",
         "Users": "المستخدمين",
         "Roles": "الأدوار"
+    },
+    "ReportsOrders": {
+        "Title": "تقارير الطلبات",
+        "Subtitle": "الطلبات المغلقة فقط — الإيرادات وعدد الطلبات حسب الفترة.",
+        "GroupBy": "التجميع",
+        "GroupByDay": "يوم",
+        "GroupByWeek": "أسبوع",
+        "GroupByMonth": "شهر",
+        "DateFrom": "من",
+        "DateTo": "إلى",
+        "Apply": "تطبيق",
+        "ChartValueTitle": "قيمة الطلبات",
+        "ChartOrderCountTitle": "عدد الطلبات",
+        "Loading": "جاري التحميل…",
+        "Empty": "لا توجد بيانات لهذا النطاق."
     },
     "UnitsManagement": {
         "more": "المزيد من الإجراءات",

@@ -29,8 +29,8 @@ app.use(PrimeVue, {
     },
 });
 app.use(i18n);
-app.use(router);
 app.use(pinia);
+app.use(router);
 app.use(ConfirmationService);
 app.use(ToastService);
 

@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\UnitController;
@@ -51,6 +52,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/api/products/import', [ProductController::class, 'import']);
     Route::get('/api/products/import/template', [ProductController::class, 'exportTemplate']);
     Route::resource('/api/products', ProductController::class);
+
+    Route::get('/api/reports/orders', [ReportController::class, 'orders']);
 
     Route::resource('/api/orders', OrderController::class);
     Route::post('/api/orders/{order}/items', [OrderController::class, 'storeItem']);

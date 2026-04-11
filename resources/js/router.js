@@ -1,4 +1,6 @@
+import http from "./apis/http";
 import { createRouter, createWebHistory } from "vue-router";
+import { useUserStore } from "./stores/user";
 
 const routes = [
     {
@@ -70,6 +72,11 @@ const routes = [
         component: () => import("./pages/unitsManagement/index.vue"),
     },
     {
+        path: "/reports/orders",
+        component: () => import("./pages/reports/orders.vue"),
+        meta: { permission: "view reports" },
+    },
+    {
         path: "/orders",
         component: () => import("./pages/orders/index.vue"),
     },
@@ -102,6 +109,27 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes,
+});
+
+router.beforeEach(async (to) => {
+    const perm = to.meta?.permission;
+    if (!perm) {
+        return true;
+    }
+    const store = useUserStore();
+    if (!store.permissions?.length) {
+        try {
+            const { data } = await http.get("/user");
+            store.setInfo(data.info);
+            store.setPermissions(data.permissions);
+        } catch {
+            return { path: "/login" };
+        }
+    }
+    if (!store.hasPermission(perm)) {
+        return { path: "/" };
+    }
+    return true;
 });
 
 export default router;

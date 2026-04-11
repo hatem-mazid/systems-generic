@@ -71,8 +71,24 @@
         "UnitGroups": "Unit Settings",
         "UnitsManagement": "Units Management",
         "Orders": "Orders",
+        "Reports": "Reports",
         "Users": "Users",
         "Roles": "Roles"
+    },
+    "ReportsOrders": {
+        "Title": "Order reports",
+        "Subtitle": "Closed orders only — revenue and number of orders by period.",
+        "GroupBy": "Group by",
+        "GroupByDay": "Day",
+        "GroupByWeek": "Week",
+        "GroupByMonth": "Month",
+        "DateFrom": "From",
+        "DateTo": "To",
+        "Apply": "Apply",
+        "ChartValueTitle": "Order value",
+        "ChartOrderCountTitle": "Order count",
+        "Loading": "Loading…",
+        "Empty": "No data for this range."
     },
     "UnitsManagement": {
         "more": "More actions",

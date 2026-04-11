@@ -5,6 +5,7 @@ export const SIDEBAR_TITLES = {
     UnitGroups: "Sidebar.UnitGroups",
     UnitsManagement: "Sidebar.UnitsManagement",
     Orders: "Sidebar.Orders",
+    Reports: "Sidebar.Reports",
     Users: "Sidebar.Users",
     Roles: "Sidebar.Roles",
 };
@@ -45,6 +46,12 @@ export const sidebarItems = [
         title: SIDEBAR_TITLES.Orders,
         to: "/orders",
         permission: "order index",
+    },
+    {
+        icon: "hi-chart-bar",
+        title: SIDEBAR_TITLES.Reports,
+        to: "/reports/orders",
+        permission: "view reports",
     },
     {
         icon: "hi-users",

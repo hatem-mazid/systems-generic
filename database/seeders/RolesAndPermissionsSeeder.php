@@ -65,9 +65,9 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $admin->givePermissionTo(Permission::all());
 
-        // $accounting->givePermissionTo([
-        //     'view reports'
-        // ]);
+        $accounting->givePermissionTo([
+            'view reports',
+        ]);
 
         // $waiter->givePermissionTo([
         //     'create order',
