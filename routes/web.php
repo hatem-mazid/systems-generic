@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
@@ -54,9 +55,14 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('/api/products', ProductController::class);
 
     Route::get('/api/reports/orders', [ReportController::class, 'orders']);
+    Route::get('/api/reports/expenses', [ReportController::class, 'expenses']);
+
+    Route::get('/api/expenses/user-options', [ExpenseController::class, 'userOptions']);
+    Route::resource('/api/expenses', ExpenseController::class)->only(['index', 'show', 'store', 'update']);
 
     Route::resource('/api/orders', OrderController::class);
     Route::post('/api/orders/{order}/items', [OrderController::class, 'storeItem']);
+    Route::patch('/api/orders/{order}/items/{item}', [OrderController::class, 'updateItem']);
     Route::post('/api/orders/{order}/print', [OrderController::class, 'print']);
     Route::delete('/api/orders/{order}/items/{item}', [OrderController::class, 'destroyItem']);
 

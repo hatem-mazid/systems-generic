@@ -174,6 +174,88 @@ class OrderController extends Controller
         });
     }
 
+    public function updateItem(Request $request, Order $order, string $item)
+    {
+        $this->ensureCan('order edit');
+
+        if (! $order->isOpen()) {
+            return response()->json(['message' => 'Order is not active.'], 422);
+        }
+
+        $validated = $request->validate([
+            'quantity' => 'required|integer|min:1|max:9999',
+        ]);
+
+        $qtyNew = (int) $validated['quantity'];
+
+        return DB::transaction(function () use ($order, $item, $qtyNew) {
+            $orderItem = OrderItem::query()
+                ->where('order_id', $order->id)
+                ->where('id', $item)
+                ->lockForUpdate()
+                ->first();
+
+            if (! $orderItem) {
+                return response()->json(['message' => 'Line item not found.'], 404);
+            }
+
+            if ($orderItem->is_printed) {
+                return response()->json(['message' => 'Item is already printed.'], 422);
+            }
+
+            if ($orderItem->batch_no !== null) {
+                return response()->json(['message' => 'Only open batch lines can be updated.'], 422);
+            }
+
+            $qtyOld = (int) ($orderItem->quantity ?? 0);
+            $delta = $qtyNew - $qtyOld;
+
+            if ($delta === 0) {
+                $order->refresh();
+
+                return new OrderResource($order->load([
+                    'user:id,name',
+                    'unit:id,name',
+                    'items.product.translations',
+                    'items.product.media',
+                    'items.product.section',
+                ]));
+            }
+
+            if ($orderItem->product_id) {
+                $product = Product::query()->lockForUpdate()->find($orderItem->product_id);
+                if ($product && $product->is_limited) {
+                    if ($delta > 0) {
+                        $available = (int) ($product->stock_quantity ?? 0);
+                        if ($available < $delta) {
+                            return response()->json(['message' => 'Insufficient stock quantity.'], 422);
+                        }
+                        $product->stock_quantity = max(0, $available - $delta);
+                        $product->save();
+                    } else {
+                        $product->stock_quantity = max(0, (int) ($product->stock_quantity ?? 0) + (-$delta));
+                        $product->save();
+                    }
+                }
+            }
+
+            $orderItem->quantity = $qtyNew;
+            $orderItem->calculateTotal();
+            $orderItem->save();
+
+            $order->refresh();
+            $order->recalculateTotal();
+
+            return new OrderResource($order->load([
+                'user:id,name',
+                'unit:id,name',
+                'items.product.translations',
+                'items.product.media',
+                'items.product.section',
+            ]));
+        });
+    }
+
     public function print(Order $order)
     {
         $this->ensureCan('order edit');

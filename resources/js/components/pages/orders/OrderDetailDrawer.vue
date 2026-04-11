@@ -259,17 +259,17 @@
                                                 }}
                                             </div>
                                             <div
-                                                class="sticky top-0 z-10 grid grid-cols-[2.5rem_minmax(0,1.4fr)_4rem_5rem] items-center gap-1 bg-orange-50 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-orange-900 dark:bg-orange-900/40 dark:text-orange-100"
+                                                class="sticky top-0 z-10 grid grid-cols-[2.5rem_minmax(0,1.4fr)_minmax(6.5rem,1fr)] items-center gap-1 bg-orange-50 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-orange-900 dark:bg-orange-900/40 dark:text-orange-100"
                                             >
                                                 <span class="sr-only">{{ $t("OrderDetail.LineActionsColumn") }}</span>
+                                                <span class="text-end"></span>
                                                 <span>Product</span>
                                                 <span class="text-center">Qty</span>
-                                                <span class="text-end">Batch</span>
                                             </div>
                                             <div
                                                 v-for="(line, idx) in patch.items"
                                                 :key="line.id ?? ('pending-line-' + patch.batchKey + '-' + idx)"
-                                                class="grid grid-cols-[2.5rem_minmax(0,1.4fr)_4rem_5rem] items-center gap-1 border-t border-orange-200 px-3 py-2 text-sm dark:border-orange-700/70"
+                                                class="grid grid-cols-[2.5rem_minmax(0,1.4fr)_minmax(6.5rem,1fr)] items-center gap-1 border-t border-orange-200 px-3 py-2 text-sm dark:border-orange-700/70"
                                             >
                                                 <div class="flex justify-center">
                                                     <Button
@@ -290,10 +290,43 @@
                                                 <div class="min-w-0 truncate font-medium text-surface-900 dark:text-surface-100">
                                                     {{ line.name ?? "—" }}
                                                 </div>
-                                                <div class="text-center tabular-nums">{{ line.quantity ?? "—" }}</div>
-                                                <div class="text-end tabular-nums text-surface-700 dark:text-surface-300">
-                                                    {{ line.batch_no ?? "—" }}
+                                                <div
+                                                    v-if="canEditOpenBatchLineQty(patch, line)"
+                                                    class="flex items-center justify-center gap-0.5"
+                                                >
+                                                    <Button
+                                                        type="button"
+                                                        size="small"
+                                                        outlined
+                                                        :disabled="
+                                                            (updatingLineId != null && updatingLineId !== line.id) ||
+                                                            Number(line.quantity ?? 0) <= 1
+                                                        "
+                                                        :loading="updatingLineId === line.id"
+                                                        @click="adjustOpenBatchLineQty(patch, line, -1)"
+                                                    >
+                                                        <template #icon>
+                                                            <AppIcon name="pi pi-minus" />
+                                                        </template>
+                                                    </Button>
+                                                    <span
+                                                        class="inline-flex min-w-7 justify-center tabular-nums text-sm font-medium"
+                                                        >{{ line.quantity ?? "—" }}</span
+                                                    >
+                                                    <Button
+                                                        type="button"
+                                                        size="small"
+                                                        outlined
+                                                        :disabled="updatingLineId != null && updatingLineId !== line.id"
+                                                        :loading="updatingLineId === line.id"
+                                                        @click="adjustOpenBatchLineQty(patch, line, 1)"
+                                                    >
+                                                        <template #icon>
+                                                            <AppIcon name="pi pi-plus" />
+                                                        </template>
+                                                    </Button>
                                                 </div>
+                                                <div v-else class="text-center tabular-nums">{{ line.quantity ?? "—" }}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -551,6 +584,7 @@ const selectedProductId = ref(null);
 const addQuantity = ref(1);
 const adding = ref(false);
 const removingId = ref(null);
+const updatingLineId = ref(null);
 const printing = ref(false);
 const quickQuantities = reactive({});
 const operationInvoiceVisible = ref(false);
@@ -564,6 +598,7 @@ const canEditItems = computed(
             order.value.status === OrderStatus.Open)
 );
 const canDeleteOrderItems = computed(() => userStore.hasPermission("order item delete"));
+const canEditOrder = computed(() => userStore.hasPermission("order edit"));
 const activeProductCategory = ref("all");
 const productCategoryTabs = computed(() => {
     const tabs = [{ key: "all", label: "All" }];
@@ -886,6 +921,75 @@ function decreaseLocalProductStock(productId, quantity) {
     }
 }
 
+/** Positive delta means more units were committed from stock (qty increased). */
+function applyDeltaToLocalProductStock(productId, delta) {
+    if (productId == null || delta === 0) {
+        return;
+    }
+    const product = products.value.find((item) => item?.id === productId);
+    if (!product?.is_limited) {
+        return;
+    }
+    const current = Number(product.stock_quantity ?? 0);
+    if (!Number.isFinite(current)) {
+        product.stock_quantity = 0;
+        return;
+    }
+    product.stock_quantity = Math.max(0, Math.floor(current - delta));
+
+    const key = String(productId ?? "");
+    if (key) {
+        const currentQty = quickQty(product);
+        const maxQty = availableStock(product);
+        if (maxQty !== null && currentQty > maxQty) {
+            quickQuantities[key] = maxQty < 1 ? 1 : maxQty;
+        }
+    }
+}
+
+function canEditOpenBatchLineQty(patch, line) {
+    return (
+        canEditItems.value &&
+        canEditOrder.value &&
+        patch.isOpenPatch &&
+        line.id != null
+    );
+}
+
+async function adjustOpenBatchLineQty(patch, line, delta) {
+    if (!order.value?.id || line.id == null || !canEditOpenBatchLineQty(patch, line)) {
+        return;
+    }
+    const oldQty = Number(line.quantity ?? 0) || 0;
+    const next = oldQty + delta;
+    if (next < 1) {
+        return;
+    }
+
+    updatingLineId.value = line.id;
+    try {
+        const res = await ordersService.updateOrderItem(order.value.id, line.id, {
+            quantity: next,
+        });
+        order.value = pickOrderPayload(res);
+        emit("updated");
+        applyDeltaToLocalProductStock(line.product_id, next - oldQty);
+        toast.add({
+            severity: "success",
+            summary: t("OrderDetail.UpdateQtySuccess"),
+            life: 2000,
+        });
+    } catch {
+        toast.add({
+            severity: "error",
+            summary: t("UnitsManagement.actionError"),
+            life: 4000,
+        });
+    } finally {
+        updatingLineId.value = null;
+    }
+}
+
 async function onAddProduct(overrideProductId = null, overrideQuantity = null) {
     const resolvedProductId = overrideProductId ?? selectedProductId.value;
     if (!order.value?.id || resolvedProductId == null) {
@@ -1106,6 +1210,7 @@ watch(
             order.value = null;
             selectedProductId.value = null;
             addQuantity.value = 1;
+            updatingLineId.value = null;
         }
     },
     { immediate: true }

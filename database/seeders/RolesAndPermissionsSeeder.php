@@ -56,6 +56,10 @@ class RolesAndPermissionsSeeder extends Seeder
 
         Permission::create(['name' => 'view reports']);
 
+        Permission::create(['name' => 'expenses index']);
+        Permission::create(['name' => 'expenses create']);
+        Permission::create(['name' => 'expenses edit']);
+
         // Roles
         $admin = Role::create(['name' => 'admin']);
         $accounting = Role::create(['name' => 'accounting']);
@@ -67,6 +71,9 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $accounting->givePermissionTo([
             'view reports',
+            'expenses index',
+            'expenses create',
+            'expenses edit',
         ]);
 
         // $waiter->givePermissionTo([

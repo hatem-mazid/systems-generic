@@ -12,6 +12,14 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': path.resolve(__dirname, 'resources/js'),
+            '@assets': path.resolve(__dirname, 'resources/assets'),
+            '@images': path.resolve(__dirname, 'resources/assets/images'),
+            '@css': path.resolve(__dirname, 'resources/assets/css'),
+            '@js': path.resolve(__dirname, 'resources/assets/js'),
+            '@fonts': path.resolve(__dirname, 'resources/assets/fonts'),
+            '@videos': path.resolve(__dirname, 'resources/assets/videos'),
+            '@sounds': path.resolve(__dirname, 'resources/assets/sounds'),
+            '@docs': path.resolve(__dirname, 'resources/assets/docs'),
         },
     },
     plugins: [

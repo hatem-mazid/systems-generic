@@ -37,6 +37,16 @@ export const ordersService = {
     ): Promise<AxiosResponse<Order>> => {
         return http.delete<Order>(`/api/orders/${orderId}/items/${itemId}`);
     },
+    updateOrderItem: async (
+        orderId: string | number,
+        itemId: string | number,
+        payload: { quantity: number }
+    ): Promise<AxiosResponse<Order>> => {
+        return http.patch<Order>(
+            `/api/orders/${orderId}/items/${itemId}`,
+            payload
+        );
+    },
     printOrder: async (
         orderId: string | number
     ): Promise<AxiosResponse<OrderPrintResponse>> => {

@@ -77,6 +77,26 @@ const routes = [
         meta: { permission: "view reports" },
     },
     {
+        path: "/reports/expenses",
+        component: () => import("./pages/reports/expenses.vue"),
+        meta: { permission: "view reports" },
+    },
+    {
+        path: "/expenses",
+        component: () => import("./pages/expenses/index.vue"),
+        meta: { permission: "expenses index" },
+    },
+    {
+        path: "/expenses/create",
+        component: () => import("./pages/expenses/create.vue"),
+        meta: { permission: "expenses create" },
+    },
+    {
+        path: "/expenses/:id(\\d+)",
+        component: () => import("./pages/expenses/[id].vue"),
+        meta: { permission: "expenses edit" },
+    },
+    {
         path: "/orders",
         component: () => import("./pages/orders/index.vue"),
     },

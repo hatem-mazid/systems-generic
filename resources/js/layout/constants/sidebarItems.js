@@ -6,6 +6,8 @@ export const SIDEBAR_TITLES = {
     UnitsManagement: "Sidebar.UnitsManagement",
     Orders: "Sidebar.Orders",
     Reports: "Sidebar.Reports",
+    ReportsExpenses: "Sidebar.ReportsExpenses",
+    Expenses: "Sidebar.Expenses",
     Users: "Sidebar.Users",
     Roles: "Sidebar.Roles",
 };
@@ -48,9 +50,21 @@ export const sidebarItems = [
         permission: "order index",
     },
     {
+        icon: "hi-currency-dollar",
+        title: SIDEBAR_TITLES.Expenses,
+        to: "/expenses",
+        permission: "expenses index",
+    },
+    {
         icon: "hi-chart-bar",
         title: SIDEBAR_TITLES.Reports,
         to: "/reports/orders",
+        permission: "view reports",
+    },
+    {
+        icon: "hi-chart-pie",
+        title: SIDEBAR_TITLES.ReportsExpenses,
+        to: "/reports/expenses",
         permission: "view reports",
     },
     {

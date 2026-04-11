@@ -16,6 +16,19 @@ export type OrderReportResponse = {
     series: OrderReportSeriesRow[];
 };
 
+export type ExpenseReportSeriesRow = {
+    period: string;
+    total_amount: number;
+    expense_count: number;
+};
+
+export type ExpenseReportResponse = {
+    group_by: OrderReportGroupBy;
+    date_from: string;
+    date_to: string;
+    series: ExpenseReportSeriesRow[];
+};
+
 export const reportsService = {
     getOrdersReport: async (params?: {
         group_by?: OrderReportGroupBy;
@@ -23,6 +36,16 @@ export const reportsService = {
         date_to?: string | null;
     }): Promise<AxiosResponse<OrderReportResponse>> => {
         return http.get<OrderReportResponse>("/api/reports/orders", {
+            params,
+        });
+    },
+
+    getExpensesReport: async (params?: {
+        group_by?: OrderReportGroupBy;
+        date_from?: string | null;
+        date_to?: string | null;
+    }): Promise<AxiosResponse<ExpenseReportResponse>> => {
+        return http.get<ExpenseReportResponse>("/api/reports/expenses", {
             params,
         });
     },
