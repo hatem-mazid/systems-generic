@@ -1,0 +1,1 @@
+function i(r){if(r==null||r==="")return"—";const n=Number(r);return Number.isNaN(n)?String(r):new Intl.NumberFormat(void 0,{style:"currency",currency:"IQD",minimumFractionDigits:0,maximumFractionDigits:2}).format(n)}export{i as f};

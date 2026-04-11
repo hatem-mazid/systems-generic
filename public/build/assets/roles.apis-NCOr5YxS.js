@@ -1,1 +1,0 @@
-import{h as r}from"./http-S15ffY3O.js";const o={getRoles:async e=>r.get("/api/roles",{params:e}),getRole:async e=>r.get(`/api/roles/${e}`),createRole:async e=>r.post("/api/roles",e),updateRole:async(e,s)=>r.put(`/api/roles/${e}`,s),deleteRole:async e=>r.delete(`/api/roles/${e}`),getPermissions:async()=>r.get("/api/permissions")};export{o as r};
