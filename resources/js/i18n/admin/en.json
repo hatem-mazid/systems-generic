@@ -199,6 +199,15 @@
         "BackToList": "Back to orders",
         "Title": "Order #{id}",
         "LoadError": "We could not load this order.",
+        "EditItems": "Edit items",
+        "SubmitTakeaway": "Submit takeaway",
+        "SubmitTakeawayConfirm": "Submit this ordering as takeaway?",
+        "SubmitTakeawaySuccess": "Order submitted as takeaway.",
+        "SubmitTakeawayError": "Could not submit takeaway order.",
+        "CloseOrder": "Close order",
+        "CloseOrderSuccess": "Order closed.",
+        "CloseOrderError": "Could not close this order.",
+        "CloseOrderConfirm": "Close this order and finalize the bill?",
         "SummaryTitle": "Summary",
         "LineItemsTitle": "Line items",
         "GrandTotal": "Grand total",
@@ -258,6 +267,8 @@
     },
     "OrdersList": {
         "Title": "Orders",
+        "CreateOrder": "New order",
+        "CreateOrderError": "Could not create order.",
         "Empty": "No orders match the current filters.",
         "FilterDateFrom": "From date",
         "FilterDateTo": "To date",
@@ -292,6 +303,8 @@
             "reserved": "Reserved",
             "open": "Open",
             "pending": "Pending",
+            "ordering": "Ordering",
+            "takeaway": "Takeaway",
             "closed": "Closed",
             "cancelled": "Cancelled"
         }

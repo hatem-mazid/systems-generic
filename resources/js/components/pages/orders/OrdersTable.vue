@@ -65,7 +65,18 @@
 
             <Column :header="$t('OrdersList.ColumnOpenedCreated')">
                 <template #body="{ data }">
-                    <div class="flex flex-col gap-1.5">
+                    <div v-if="isTakeawayFlowOrder(data)" class="flex flex-col gap-1.5">
+                        <Chip
+                            class="w-fit max-w-full text-xs"
+                            :label="dateChipLabel('OrdersList.CreatedShort', data.created_at)"
+                            :title="dateChipTitle('OrdersList.CreatedShort', data.created_at)"
+                        >
+                            <template #icon>
+                                <AppIcon name="pi pi-clock" />
+                            </template>
+                        </Chip>
+                    </div>
+                    <div v-else class="flex flex-col gap-1.5">
                         <Chip
                             class="w-fit max-w-full text-xs"
                             :label="dateChipLabel('OrdersList.OpenedShort', data.opened_at)"
@@ -223,6 +234,12 @@ function formatTotal(value) {
     return formatCurrency(value);
 }
 
+/** Takeaway workflow: ordering → takeaway (no table open/close times). */
+function isTakeawayFlowOrder(row) {
+    const s = String(row?.status ?? "").toLowerCase();
+    return s === OrderStatus.Ordering || s === OrderStatus.Takeaway;
+}
+
 function formatDt(iso) {
     if (!iso) {
         return "—";
@@ -254,7 +271,10 @@ function statusSeverity(status) {
     switch (status) {
         case OrderStatus.Active:
         case OrderStatus.Open:
+        case OrderStatus.Ordering:
             return "success";
+        case OrderStatus.Takeaway:
+            return "info";
         case OrderStatus.Reserved:
         case OrderStatus.Pending:
             return "warn";

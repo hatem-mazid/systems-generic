@@ -21,6 +21,19 @@ export const ordersService = {
     ): Promise<AxiosResponse<Order>> => {
         return http.get<Order>(`/api/orders/${id}`);
     },
+    createOrder: async (): Promise<AxiosResponse<Order>> => {
+        return http.post<Order>("/api/orders/takeaway");
+    },
+    closeOrder: async (
+        id: string | number
+    ): Promise<AxiosResponse<Order>> => {
+        return http.post<Order>(`/api/orders/${id}/close`);
+    },
+    submitTakeawayOrder: async (
+        id: string | number
+    ): Promise<AxiosResponse<Order>> => {
+        return http.post<Order>(`/api/orders/${id}/submit-takeaway`);
+    },
     addOrderItem: async (
         orderId: string | number,
         payload: {

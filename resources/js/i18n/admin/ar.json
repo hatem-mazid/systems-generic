@@ -199,6 +199,11 @@
         "BackToList": "العودة إلى الطلبات",
         "Title": "طلب #{id}",
         "LoadError": "تعذر تحميل هذا الطلب.",
+        "EditItems": "تعديل العناصر",
+        "SubmitTakeaway": "إرسال كسفري",
+        "SubmitTakeawayConfirm": "هل تريد إرسال هذا الطلب كسفري؟",
+        "SubmitTakeawaySuccess": "تم إرسال الطلب كسفري.",
+        "SubmitTakeawayError": "تعذر إرسال الطلب كسفري.",
         "SummaryTitle": "ملخص",
         "LineItemsTitle": "بنود الطلب",
         "GrandTotal": "الإجمالي",
@@ -258,6 +263,8 @@
     },
     "OrdersList": {
         "Title": "الطلبات",
+        "CreateOrder": "طلب جديد",
+        "CreateOrderError": "تعذر إنشاء الطلب.",
         "Empty": "لا توجد طلبات تطابق عوامل التصفية الحالية.",
         "FilterDateFrom": "من تاريخ",
         "FilterDateTo": "إلى تاريخ",
@@ -275,6 +282,7 @@
         "ColumnOpenedCreated": "الفتح / الإنشاء",
         "OpenedShort": "فُتح",
         "ClosedShort": "مغلق",
+        "CreatedShort": "أُنشئ",
         "ColumnActions": "إجراءات",
         "MoreActions": "المزيد من الإجراءات",
         "ViewOrder": "عرض الطلب",
@@ -291,6 +299,8 @@
             "reserved": "محجوز",
             "open": "مفتوح",
             "pending": "قيد الانتظار",
+            "ordering": "قيد الطلب",
+            "takeaway": "سفري",
             "closed": "مغلق",
             "cancelled": "ملغى"
         }

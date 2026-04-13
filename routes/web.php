@@ -60,6 +60,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/expenses/user-options', [ExpenseController::class, 'userOptions']);
     Route::resource('/api/expenses', ExpenseController::class)->only(['index', 'show', 'store', 'update']);
 
+    Route::post('/api/orders/takeaway', [OrderController::class, 'storeTakeaway']);
+    Route::post('/api/orders/{order}/submit-takeaway', [OrderController::class, 'submitTakeaway']);
+    Route::post('/api/orders/{order}/close', [OrderController::class, 'close']);
     Route::resource('/api/orders', OrderController::class);
     Route::post('/api/orders/{order}/items', [OrderController::class, 'storeItem']);
     Route::patch('/api/orders/{order}/items/{item}', [OrderController::class, 'updateItem']);

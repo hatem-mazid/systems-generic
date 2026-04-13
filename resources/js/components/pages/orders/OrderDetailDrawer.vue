@@ -595,7 +595,8 @@ const canEditItems = computed(
     () =>
         order.value &&
         (order.value.status === OrderStatus.Active ||
-            order.value.status === OrderStatus.Open)
+            order.value.status === OrderStatus.Open ||
+            order.value.status === OrderStatus.Ordering)
 );
 const canDeleteOrderItems = computed(() => userStore.hasPermission("order item delete"));
 const canEditOrder = computed(() => userStore.hasPermission("order edit"));
@@ -792,7 +793,10 @@ function statusSeverity(status) {
     switch (status) {
         case OrderStatus.Active:
         case OrderStatus.Open:
+        case OrderStatus.Ordering:
             return "success";
+        case OrderStatus.Takeaway:
+            return "info";
         case OrderStatus.Reserved:
         case OrderStatus.Pending:
             return "warn";

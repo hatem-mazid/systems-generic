@@ -57,7 +57,7 @@ class Order extends Model
 
     public function isOpen(): bool
     {
-        return in_array($this->status, ['active', 'open'], true);
+        return in_array($this->status, ['active', 'open', 'ordering'], true);
     }
 
     public function isClosed(): bool

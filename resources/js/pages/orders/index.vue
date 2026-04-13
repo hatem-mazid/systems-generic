@@ -8,6 +8,20 @@
             >
                 {{ $t("OrdersList.Title") }}
             </h1>
+            <Button
+                v-if="canCreateOrder"
+                type="button"
+                size="large"
+                class="min-h-[48px]"
+                :loading="orderCreating"
+                :disabled="orderCreating"
+                @click="createOrder"
+                :label="$t('OrdersList.CreateOrder')"
+            >
+                <template #icon>
+                    <AppIcon name="pi pi-plus" />
+                </template>
+            </Button>
         </div>
 
         <div
@@ -153,6 +167,7 @@
 <script setup>
 import { Button } from "primevue";
 import DatePicker from "primevue/datepicker";
+import { useToast } from "primevue/usetoast";
 import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
@@ -165,11 +180,14 @@ import { useUserStore } from "../../stores/user";
 
 const { t } = useI18n();
 const router = useRouter();
+const toast = useToast();
 const { hasPermission } = useUserStore();
 const canViewOrder = hasPermission("order index");
 const canPrintInvoice = hasPermission("order index");
+const canCreateOrder = hasPermission("order create");
 
 const isLoading = ref(true);
+const orderCreating = ref(false);
 const usersLoading = ref(true);
 const orders = ref([]);
 const users = ref([]);
@@ -191,6 +209,8 @@ const statusOptions = computed(() => [
     { label: t("OrdersList.AllStatuses"), value: null },
     { label: t("OrdersList.Statuses.active"), value: OrderStatus.Active },
     { label: t("OrdersList.Statuses.reserved"), value: OrderStatus.Reserved },
+    { label: t("OrdersList.Statuses.ordering"), value: OrderStatus.Ordering },
+    { label: t("OrdersList.Statuses.takeaway"), value: OrderStatus.Takeaway },
     { label: t("OrdersList.Statuses.closed"), value: OrderStatus.Closed },
     { label: t("OrdersList.Statuses.cancelled"), value: OrderStatus.Cancelled },
 ]);
@@ -313,6 +333,31 @@ function onInvoiceOrder(id) {
         return;
     }
     router.push(`/orders/${id}/invoice`);
+}
+
+async function createOrder() {
+    if (orderCreating.value) {
+        return;
+    }
+
+    orderCreating.value = true;
+    try {
+        const { data } = await ordersService.createOrder();
+        const payload = data?.data ?? data;
+        if (payload?.id != null) {
+            router.push(`/orders/${payload.id}`);
+        }
+    } catch (error) {
+        const message =
+            error?.response?.data?.message ?? t("OrdersList.CreateOrderError");
+        toast.add({
+            severity: "error",
+            summary: message,
+            life: 5000,
+        });
+    } finally {
+        orderCreating.value = false;
+    }
 }
 
 onMounted(() => {

@@ -10,6 +10,8 @@ export enum OrderStatus {
     Reserved = "reserved",
     Open = "open",
     Pending = "pending",
+    Ordering = "ordering",
+    Takeaway = "takeaway",
     Closed = "closed",
     Cancelled = "cancelled",
 }

@@ -41,6 +41,34 @@
             </div>
             <div class="flex shrink-0 flex-wrap gap-2">
                 <Button
+                    v-if="order && canEditOrderItems && isOrdering"
+                    type="button"
+                    size="large"
+                    severity="secondary"
+                    outlined
+                    class="min-h-[48px]"
+                    :label="$t('OrderDetail.EditItems')"
+                    @click="editorVisible = true"
+                >
+                    <template #icon>
+                        <AppIcon name="pi pi-pencil" />
+                    </template>
+                </Button>
+                <Button
+                    v-if="order && canEditOrderItems && isOrdering"
+                    type="button"
+                    size="large"
+                    class="min-h-[48px]"
+                    :loading="submittingTakeaway"
+                    :disabled="submittingTakeaway"
+                    :label="$t('OrderDetail.SubmitTakeaway')"
+                    @click="submitTakeaway"
+                >
+                    <template #icon>
+                        <AppIcon name="pi pi-check" />
+                    </template>
+                </Button>
+                <Button
                     v-if="order"
                     type="button"
                     outlined
@@ -414,6 +442,11 @@
                 </Card>
             </div>
         </template>
+        <OrderDetailDrawer
+            v-model:visible="editorVisible"
+            :order-id="orderId"
+            @updated="fetchOrder"
+        />
     </div>
 </template>
 
@@ -424,23 +457,32 @@ import Divider from "primevue/divider";
 import Message from "primevue/message";
 import Skeleton from "primevue/skeleton";
 import Tag from "primevue/tag";
+import { useToast } from "primevue/usetoast";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import { ordersService } from "../../apis/services/orders/orders.apis";
 import { OrderStatus } from "../../apis/services/orders/orders.type";
+import OrderDetailDrawer from "../../components/pages/orders/OrderDetailDrawer.vue";
+import { useUserStore } from "../../stores/user";
 import { mergeOrderItems } from "../../utils/orderItemsMerge";
 
 const { t } = useI18n();
 const route = useRoute();
+const toast = useToast();
+const userStore = useUserStore();
 
 const loading = ref(true);
 const loadError = ref(null);
 const order = ref(null);
+const editorVisible = ref(false);
+const submittingTakeaway = ref(false);
 /** Hide thumbnails that fail to load. */
 const lineImageFailed = reactive({});
 
 const orderId = computed(() => String(route.params.id ?? ""));
+const isOrdering = computed(() => order.value?.status === OrderStatus.Ordering);
+const canEditOrderItems = computed(() => userStore.hasPermission("order edit"));
 
 const mergedOrderLines = computed(() => mergeOrderItems(order.value?.items));
 
@@ -496,7 +538,10 @@ function statusSeverity(status) {
     switch (status) {
         case OrderStatus.Active:
         case OrderStatus.Open:
+        case OrderStatus.Ordering:
             return "success";
+        case OrderStatus.Takeaway:
+            return "info";
         case OrderStatus.Reserved:
         case OrderStatus.Pending:
             return "warn";
@@ -521,6 +566,39 @@ function mergedLineImageKey(line, lineIdx) {
 
 function onMergedLineImageError(line, lineIdx) {
     lineImageFailed[mergedLineImageKey(line, lineIdx)] = true;
+}
+
+async function submitTakeaway() {
+    const id = orderId.value;
+    if (!id || submittingTakeaway.value || !isOrdering.value) {
+        return;
+    }
+
+    if (!window.confirm(t("OrderDetail.SubmitTakeawayConfirm"))) {
+        return;
+    }
+
+    submittingTakeaway.value = true;
+    try {
+        const { data } = await ordersService.submitTakeawayOrder(id);
+        order.value = data?.data ?? data;
+        toast.add({
+            severity: "success",
+            summary: t("OrderDetail.SubmitTakeawaySuccess"),
+            life: 3000,
+        });
+    } catch (error) {
+        const message =
+            error?.response?.data?.message ??
+            t("OrderDetail.SubmitTakeawayError");
+        toast.add({
+            severity: "error",
+            summary: message,
+            life: 5000,
+        });
+    } finally {
+        submittingTakeaway.value = false;
+    }
 }
 
 async function fetchOrder() {

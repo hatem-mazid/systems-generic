@@ -7,6 +7,7 @@ use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Services\OrderUnitBillingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -15,6 +16,10 @@ use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
+    public function __construct(
+        private OrderUnitBillingService $orderUnitBilling
+    ) {}
+
     public function index(Request $request)
     {
         $this->ensureCan('order index');
@@ -22,7 +27,7 @@ class OrderController extends Controller
         $validated = $request->validate([
             'per_page' => 'sometimes|integer|min:1|max:100',
             'user_id' => 'sometimes|nullable|integer|exists:users,id',
-            'status' => 'sometimes|nullable|string|in:active,reserved,open,pending,closed,cancelled',
+            'status' => 'sometimes|nullable|string|in:active,reserved,open,pending,ordering,takeaway,closed,cancelled',
             'date_from' => 'sometimes|nullable|date',
             'date_to' => [
                 'sometimes',
@@ -49,7 +54,7 @@ class OrderController extends Controller
         if (! empty($validated['status'] ?? null)) {
             $status = $validated['status'];
             if ($status === 'active') {
-                $query->whereIn('status', ['active', 'open']);
+                $query->whereIn('status', ['active', 'open', 'ordering']);
             } elseif ($status === 'reserved') {
                 $query->whereIn('status', ['reserved', 'pending']);
             } else {
@@ -68,6 +73,93 @@ class OrderController extends Controller
         $orders = $query->orderByDesc('id')->paginate($perPage);
 
         return new OrderCollection($orders);
+    }
+
+    public function storeTakeaway(Request $request)
+    {
+        $this->ensureCan('order create');
+
+        return DB::transaction(function () use ($request) {
+            $order = Order::create([
+                'unit_id' => null,
+                'user_id' => $request->user()?->id,
+                'status' => 'ordering',
+                'total' => 0,
+                'reserved_at' => null,
+                'opened_at' => now(),
+                'closed_at' => null,
+            ]);
+
+            return new OrderResource($order->fresh()->load([
+                'user:id,name',
+                'unit:id,name',
+                'items.product.translations',
+                'items.product.media',
+                'items.product.section',
+            ]));
+        });
+    }
+
+    public function close(Order $order)
+    {
+        $this->ensureCan('order close');
+
+        if (in_array($order->status, ['closed', 'cancelled'], true)) {
+            return response()->json(['message' => 'Order is already finished.'], 422);
+        }
+
+        $order->loadMissing('unit');
+        $unit = $order->unit;
+
+        return DB::transaction(function () use ($order, $unit) {
+            if ($unit) {
+                $this->orderUnitBilling->finalizeOpenUnitTimerSessionAndAddFees($order, $unit);
+            }
+
+            $order->refresh();
+            $order->update([
+                'status' => 'closed',
+                'closed_at' => now(),
+            ]);
+
+            if ($unit && (int) ($unit->current_order_id ?? 0) === (int) $order->id) {
+                $unit->update([
+                    'status' => 'available',
+                    'current_order_id' => null,
+                    'reserved_at' => null,
+                    'reserved_by' => null,
+                ]);
+            }
+
+            return new OrderResource($order->fresh()->load([
+                'user:id,name',
+                'unit:id,name',
+                'items.product.translations',
+                'items.product.media',
+                'items.product.section',
+            ]));
+        });
+    }
+
+    public function submitTakeaway(Order $order)
+    {
+        $this->ensureCan('order edit');
+
+        if ($order->status !== 'ordering') {
+            return response()->json(['message' => 'Only ordering orders can be submitted as takeaway.'], 422);
+        }
+
+        $order->update([
+            'status' => 'takeaway',
+        ]);
+
+        return new OrderResource($order->fresh()->load([
+            'user:id,name',
+            'unit:id,name',
+            'items.product.translations',
+            'items.product.media',
+            'items.product.section',
+        ]));
     }
 
     public function show(Order $order)
