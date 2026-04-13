@@ -1,0 +1,1 @@
+import{h as r}from"./app-BbiGz4Zg.js";const p={getUnitGroups:async t=>r.get("/api/unit-groups",{params:t}),getUnitGroup:async t=>r.get(`/api/unit-groups/${t}`),createUnitGroup:async t=>r.post("/api/unit-groups",t),updateUnitGroup:async(t,u)=>r.put(`/api/unit-groups/${t}`,u),deleteUnitGroup:async t=>r.delete(`/api/unit-groups/${t}`)};export{p as u};

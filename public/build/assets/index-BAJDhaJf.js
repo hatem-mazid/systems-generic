@@ -1,0 +1,1 @@
+import{_ as e}from"./_plugin-vue_export-helper-DlAUqK2U.js";import{B as t,A as c}from"./primevue-Cq3R5EK-.js";import"./primeuix-DKb4qMHN.js";const o={},r={class:"touch-manipulation p-4 text-surface-800 dark:text-surface-100 sm:p-6"};function s(n,a){return c(),t("div",r," index ")}const m=e(o,[["render",s]]);export{m as default};
