@@ -87,6 +87,13 @@
                                     <td class="px-3 py-2 text-right">{{ formatMoney(line.price) }}</td>
                                     <td class="px-3 py-2 text-right">{{ formatMoney(line.total) }}</td>
                                 </tr>
+                                <tr
+                                    v-if="mergedInvoiceLines.length"
+                                    class="border-t-2 border-surface-300 bg-surface-50 dark:border-surface-600 dark:bg-surface-800/60"
+                                >
+                                    <td colspan="3" class="px-3 py-2 text-right font-semibold">{{ $t("OrdersList.ColumnTotal") }}</td>
+                                    <td class="px-3 py-2 text-right font-bold">{{ formatMoney(invoiceLinesTotal) }}</td>
+                                </tr>
                                 <tr v-if="!mergedInvoiceLines.length">
                                     <td colspan="4" class="px-3 py-4 text-center text-surface-500">—</td>
                                 </tr>
@@ -126,6 +133,12 @@ const loadError = ref("");
 const order = ref(null);
 
 const mergedInvoiceLines = computed(() => mergeOrderItems(order.value?.items));
+const invoiceLinesTotal = computed(() =>
+    mergedInvoiceLines.value.reduce((sum, line) => {
+        const lineTotal = Number(line?.total);
+        return sum + (Number.isNaN(lineTotal) ? 0 : lineTotal);
+    }, 0),
+);
 
 function formatMoney(value) {
     if (value === undefined || value === null || value === "") {
@@ -215,6 +228,23 @@ onMounted(fetchOrder);
         max-width: none !important;
         margin: 0 !important;
         padding: 0 !important;
+    }
+
+    .invoice-page,
+    .invoice-page * {
+        color: #000 !important;
+    }
+
+    .invoice-page [class*="bg-surface-"] {
+        background: #fff !important;
+    }
+
+    .invoice-page [class*="border-surface-"] {
+        border-color: #d1d5db !important;
+    }
+
+    .invoice-page thead {
+        background: #f3f4f6 !important;
     }
 }
 </style>
