@@ -143,6 +143,9 @@
         "Apply": "تطبيق",
         "ChartValueTitle": "قيمة الطلبات",
         "ChartOrderCountTitle": "عدد الطلبات",
+        "UnitGroupTakeawayTitle": "قيمة وعدد الطلبات حسب مجموعة الوحدة",
+        "UnitGroupColumn": "مجموعة الوحدة",
+        "TakeawayGroup": "سفري",
         "Loading": "جاري التحميل…",
         "Empty": "لا توجد بيانات لهذا النطاق."
     },

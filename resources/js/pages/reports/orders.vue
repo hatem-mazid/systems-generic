@@ -109,6 +109,59 @@
                 <h2
                     class="mb-4 text-lg font-semibold text-surface-800 dark:text-surface-100"
                 >
+                    {{ $t("ReportsOrders.UnitGroupTakeawayTitle") }}
+                </h2>
+
+                <div
+                    v-if="!unitGroupBreakdownRows.length"
+                    class="rounded-xl border border-dashed border-surface-300 px-4 py-6 text-center text-surface-600 dark:border-surface-600 dark:text-surface-400"
+                >
+                    {{ $t("ReportsOrders.Empty") }}
+                </div>
+
+                <div v-else class="overflow-x-auto">
+                    <table class="min-w-full text-left text-sm">
+                        <thead>
+                            <tr
+                                class="border-b border-surface-200 text-surface-600 dark:border-surface-700 dark:text-surface-300"
+                            >
+                                <th class="px-3 py-2 font-semibold">
+                                    {{ $t("ReportsOrders.UnitGroupColumn") }}
+                                </th>
+                                <th class="px-3 py-2 font-semibold">
+                                    {{ $t("ReportsOrders.ChartValueTitle") }}
+                                </th>
+                                <th class="px-3 py-2 font-semibold">
+                                    {{ $t("ReportsOrders.ChartOrderCountTitle") }}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                v-for="row in unitGroupBreakdownRows"
+                                :key="
+                                    row.is_takeaway
+                                        ? 'takeaway'
+                                        : `${row.unit_group_id ?? row.group_name}`
+                                "
+                                class="border-b border-surface-200/70 text-surface-700 dark:border-surface-700/80 dark:text-surface-200"
+                            >
+                                <td class="px-3 py-2">{{ row.group_name }}</td>
+                                <td class="px-3 py-2">
+                                    {{ formatMoney(row.total_value) }}
+                                </td>
+                                <td class="px-3 py-2">{{ row.order_count }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div
+                class="rounded-2xl border border-surface-200/80 bg-surface-0 p-4 shadow-sm dark:border-surface-700 dark:bg-surface-900 sm:p-6"
+            >
+                <h2
+                    class="mb-4 text-lg font-semibold text-surface-800 dark:text-surface-100"
+                >
                     {{ $t("ReportsOrders.ChartValueTitle") }}
                 </h2>
                 <div class="h-80 w-full min-w-0">
@@ -157,6 +210,7 @@ const router = useRouter();
 
 const loading = ref(true);
 const series = ref([]);
+const unitGroupBreakdown = ref([]);
 const meta = ref({ group_by: "day" });
 
 const filters = ref({
@@ -273,6 +327,15 @@ const labels = computed(() =>
     )
 );
 
+const takeawayLabel = computed(() => t("ReportsOrders.TakeawayGroup"));
+
+const unitGroupBreakdownRows = computed(() =>
+    unitGroupBreakdown.value.map((row) => ({
+        ...row,
+        group_name: row.is_takeaway ? takeawayLabel.value : row.group_name,
+    }))
+);
+
 const valueChartData = computed(() => ({
     labels: labels.value,
     datasets: [
@@ -319,6 +382,7 @@ async function fetchReport() {
             group_by: data.group_by,
         };
         series.value = data.series ?? [];
+        unitGroupBreakdown.value = data.unit_group_breakdown ?? [];
     } catch (e) {
         if (e.response?.status === 403) {
             await router.replace("/");
@@ -326,9 +390,20 @@ async function fetchReport() {
         }
         console.error(e);
         series.value = [];
+        unitGroupBreakdown.value = [];
     } finally {
         loading.value = false;
     }
+}
+
+function formatMoney(value) {
+    const numericValue = Number(value ?? 0);
+    const safeValue = Number.isFinite(numericValue) ? numericValue : 0;
+    const localeKey = locale.value === "ar" ? "ar" : "en";
+    return new Intl.NumberFormat(localeKey, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(safeValue);
 }
 
 onMounted(() => {

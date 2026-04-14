@@ -9,11 +9,20 @@ export type OrderReportSeriesRow = {
     order_count: number;
 };
 
+export type OrderReportUnitGroupRow = {
+    unit_group_id: number | null;
+    group_name: string;
+    is_takeaway: boolean;
+    total_value: number;
+    order_count: number;
+};
+
 export type OrderReportResponse = {
     group_by: OrderReportGroupBy;
     date_from: string;
     date_to: string;
     series: OrderReportSeriesRow[];
+    unit_group_breakdown: OrderReportUnitGroupRow[];
 };
 
 export type ExpenseReportSeriesRow = {

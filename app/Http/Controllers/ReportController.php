@@ -52,11 +52,40 @@ class ReportController extends Controller
             ];
         })->all();
 
+        $unitGroupBreakdownRows = Order::query()
+            ->leftJoin('units', 'orders.unit_id', '=', 'units.id')
+            ->leftJoin('unit_groups', 'units.unit_group_id', '=', 'unit_groups.id')
+            ->whereIn('orders.status', ['closed', 'takeaway'])
+            ->whereRaw(
+                'COALESCE(orders.closed_at, orders.opened_at, orders.created_at) BETWEEN ? AND ?',
+                [$dateFrom, $dateTo]
+            )
+            ->selectRaw('unit_groups.id as unit_group_id')
+            ->selectRaw('CASE WHEN orders.unit_id IS NULL THEN 1 ELSE 0 END as is_takeaway')
+            ->selectRaw("CASE WHEN orders.unit_id IS NULL THEN 'takeaway' ELSE COALESCE(unit_groups.name, 'Unassigned group') END as group_name")
+            ->selectRaw('SUM(orders.total) as total_value')
+            ->selectRaw('COUNT(orders.id) as order_count')
+            ->groupBy('unit_group_id', 'is_takeaway', 'group_name')
+            ->orderBy('is_takeaway')
+            ->orderBy('group_name')
+            ->get();
+
+        $unitGroupBreakdown = $unitGroupBreakdownRows->map(function ($row) {
+            return [
+                'unit_group_id' => $row->unit_group_id !== null ? (int) $row->unit_group_id : null,
+                'group_name' => (string) $row->group_name,
+                'is_takeaway' => (int) $row->is_takeaway === 1,
+                'total_value' => round((float) $row->total_value, 2),
+                'order_count' => (int) $row->order_count,
+            ];
+        })->all();
+
         return response()->json([
             'group_by' => $groupBy,
             'date_from' => $dateFrom->toDateString(),
             'date_to' => $dateTo->toDateString(),
             'series' => $series,
+            'unit_group_breakdown' => $unitGroupBreakdown,
         ]);
     }
 

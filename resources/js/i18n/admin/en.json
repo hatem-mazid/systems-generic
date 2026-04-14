@@ -143,6 +143,9 @@
         "Apply": "Apply",
         "ChartValueTitle": "Order value",
         "ChartOrderCountTitle": "Order count",
+        "UnitGroupTakeawayTitle": "Order value and count by unit group",
+        "UnitGroupColumn": "Unit group",
+        "TakeawayGroup": "Takeaway",
         "Loading": "Loading…",
         "Empty": "No data for this range."
     },
