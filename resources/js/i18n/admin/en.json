@@ -75,8 +75,31 @@
         "Reports": "Order reports",
         "ReportsExpenses": "Expense reports",
         "Expenses": "Expenses",
+        "Settings": "Settings",
         "Users": "Users",
         "Roles": "Roles"
+    },
+    "Dashboard": {
+        "Title": "Dashboard",
+        "Subtitle": "Quick access to daily actions.",
+        "NoQuickAccess": "No quick actions available for your permissions.",
+        "Products": "Products",
+        "UnitsManagement": "Units Management",
+        "Orders": "Orders",
+        "NewTakeawayOrder": "New takeaway order",
+        "CreateProduct": "Create product"
+    },
+    "SettingsPage": {
+        "Title": "Settings",
+        "Subtitle": "Manage default working hours used by filters.",
+        "BusinessHoursTab": "Business hours",
+        "OpeningTime": "Opening time",
+        "ClosingTime": "Closing time",
+        "Hint": "These times are used to build default date ranges for orders and expenses pages/reports.",
+        "Save": "Save settings",
+        "LoadError": "Could not load settings.",
+        "SaveSuccess": "Settings saved successfully.",
+        "SaveError": "Could not save settings."
     },
     "ExpensesList": {
         "FilterType": "Type",

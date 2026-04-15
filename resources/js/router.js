@@ -97,6 +97,11 @@ const routes = [
         meta: { permission: "expenses edit" },
     },
     {
+        path: "/settings",
+        component: () => import("./pages/settings/index.vue"),
+        meta: { permission: "users index" },
+    },
+    {
         path: "/orders",
         component: () => import("./pages/orders/index.vue"),
     },

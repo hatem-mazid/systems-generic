@@ -25,10 +25,10 @@ class ReportController extends Controller
         $groupBy = $validated['group_by'] ?? 'day';
 
         $dateTo = isset($validated['date_to'])
-            ? Carbon::parse($validated['date_to'])->endOfDay()
+            ? $this->parseDateFilterBoundary($validated['date_to'], false)
             : Carbon::now()->endOfDay();
         $dateFrom = isset($validated['date_from'])
-            ? Carbon::parse($validated['date_from'])->startOfDay()
+            ? $this->parseDateFilterBoundary($validated['date_from'], true)
             : (clone $dateTo)->subMonthsNoOverflow(3)->startOfDay();
 
         $periodSql = $this->periodExpression('orders.closed_at', $groupBy);
@@ -105,10 +105,10 @@ class ReportController extends Controller
         $groupBy = $validated['group_by'] ?? 'day';
 
         $dateTo = isset($validated['date_to'])
-            ? Carbon::parse($validated['date_to'])->endOfDay()
+            ? $this->parseDateFilterBoundary($validated['date_to'], false)
             : Carbon::now()->endOfDay();
         $dateFrom = isset($validated['date_from'])
-            ? Carbon::parse($validated['date_from'])->startOfDay()
+            ? $this->parseDateFilterBoundary($validated['date_from'], true)
             : (clone $dateTo)->subMonthsNoOverflow(3)->startOfDay();
 
         $periodSql = $this->periodExpression('expenses.expense_date', $groupBy);
@@ -157,5 +157,15 @@ class ReportController extends Controller
     private function ensureCan(string $permission): void
     {
         abort_unless(auth()->user()?->can($permission), 403, 'Forbidden');
+    }
+
+    private function parseDateFilterBoundary(string $value, bool $isStart): Carbon
+    {
+        $dt = Carbon::parse($value);
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', trim($value)) === 1) {
+            return $isStart ? $dt->startOfDay() : $dt->endOfDay();
+        }
+
+        return $dt;
     }
 }

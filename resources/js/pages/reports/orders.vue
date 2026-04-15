@@ -30,6 +30,8 @@
                         id="report-date-from"
                         v-model="filters.dateFrom"
                         date-format="yy-mm-dd"
+                        show-time
+                        hour-format="24"
                         show-icon
                         fluid
                         size="large"
@@ -48,6 +50,8 @@
                         id="report-date-to"
                         v-model="filters.dateTo"
                         date-format="yy-mm-dd"
+                        show-time
+                        hour-format="24"
                         show-icon
                         fluid
                         size="large"
@@ -204,6 +208,11 @@ import Select from "primevue/select";
 import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
+import { configService } from "@/apis/services/config/config.apis";
+import {
+    buildFilterRangeFromConfig,
+    toDateTimeParam,
+} from "@/utils/configDefaults";
 
 const { t, locale } = useI18n();
 const router = useRouter();
@@ -214,36 +223,16 @@ const unitGroupBreakdown = ref([]);
 const meta = ref({ group_by: "day" });
 
 const filters = ref({
-    dateFrom: defaultDateFrom(),
-    dateTo: new Date(),
+    dateFrom: null,
+    dateTo: null,
     groupBy: "day",
 });
-
-function defaultDateFrom() {
-    const d = new Date();
-    d.setMonth(d.getMonth() - 3);
-    return d;
-}
 
 const groupByOptions = computed(() => [
     { label: t("ReportsOrders.GroupByDay"), value: "day" },
     { label: t("ReportsOrders.GroupByWeek"), value: "week" },
     { label: t("ReportsOrders.GroupByMonth"), value: "month" },
 ]);
-
-function toYmd(d) {
-    if (!d) {
-        return null;
-    }
-    const dt = d instanceof Date ? d : new Date(d);
-    if (Number.isNaN(dt.getTime())) {
-        return null;
-    }
-    const y = dt.getFullYear();
-    const m = String(dt.getMonth() + 1).padStart(2, "0");
-    const day = String(dt.getDate()).padStart(2, "0");
-    return `${y}-${m}-${day}`;
-}
 
 function formatPeriodLabel(period, groupBy) {
     if (!period) {
@@ -374,8 +363,8 @@ async function fetchReport() {
     try {
         const params = {
             group_by: filters.value.groupBy,
-            date_from: toYmd(filters.value.dateFrom),
-            date_to: toYmd(filters.value.dateTo),
+            date_from: toDateTimeParam(filters.value.dateFrom, "start"),
+            date_to: toDateTimeParam(filters.value.dateTo, "end"),
         };
         const { data } = await reportsService.getOrdersReport(params);
         meta.value = {
@@ -407,6 +396,19 @@ function formatMoney(value) {
 }
 
 onMounted(() => {
-    fetchReport();
+    initializeDefaultsAndFetch();
 });
+
+async function initializeDefaultsAndFetch() {
+    try {
+        const { data } = await configService.getConfig();
+        const range = buildFilterRangeFromConfig(data);
+        filters.value.dateFrom = range.from;
+        filters.value.dateTo = range.to;
+    } catch (error) {
+        console.error("Error loading config:", error);
+    } finally {
+        fetchReport();
+    }
+}
 </script>

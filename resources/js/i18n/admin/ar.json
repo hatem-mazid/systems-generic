@@ -75,8 +75,31 @@
         "Reports": "تقارير الطلبات",
         "ReportsExpenses": "تقارير المصروفات",
         "Expenses": "المصروفات",
+        "Settings": "الإعدادات",
         "Users": "المستخدمين",
         "Roles": "الأدوار"
+    },
+    "Dashboard": {
+        "Title": "لوحة التحكم",
+        "Subtitle": "وصول سريع للمهام اليومية.",
+        "NoQuickAccess": "لا توجد اختصارات متاحة حسب صلاحياتك.",
+        "Products": "المنتجات",
+        "UnitsManagement": "إدارة الوحدات",
+        "Orders": "الطلبات",
+        "NewTakeawayOrder": "طلب سفري جديد",
+        "CreateProduct": "إنشاء منتج"
+    },
+    "SettingsPage": {
+        "Title": "الإعدادات",
+        "Subtitle": "إدارة أوقات العمل الافتراضية المستخدمة في الفلاتر.",
+        "BusinessHoursTab": "ساعات العمل",
+        "OpeningTime": "وقت الفتح",
+        "ClosingTime": "وقت الإغلاق",
+        "Hint": "تُستخدم هذه الأوقات لبناء نطاق التاريخ الافتراضي في صفحات وتقارير الطلبات والمصروفات.",
+        "Save": "حفظ الإعدادات",
+        "LoadError": "تعذر تحميل الإعدادات.",
+        "SaveSuccess": "تم حفظ الإعدادات بنجاح.",
+        "SaveError": "تعذر حفظ الإعدادات."
     },
     "ExpensesList": {
         "FilterType": "النوع",

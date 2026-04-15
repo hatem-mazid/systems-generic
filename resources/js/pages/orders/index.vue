@@ -44,6 +44,8 @@
                             id="orders-date-from"
                             v-model="filters.dateFrom"
                             date-format="yy-mm-dd"
+                            show-time
+                            hour-format="24"
                             show-icon
                             fluid
                             size="large"
@@ -62,6 +64,8 @@
                             id="orders-date-to"
                             v-model="filters.dateTo"
                             date-format="yy-mm-dd"
+                            show-time
+                            hour-format="24"
                             show-icon
                             fluid
                             size="large"
@@ -177,6 +181,11 @@ import { usersService } from "../../apis/services/users/users.apis";
 import { UserRole } from "../../apis/services/users/users.type";
 import OrdersTable from "../../components/pages/orders/OrdersTable.vue";
 import { useUserStore } from "../../stores/user";
+import { configService } from "@/apis/services/config/config.apis";
+import {
+    buildFilterRangeFromConfig,
+    toDateTimeParam,
+} from "@/utils/configDefaults";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -224,20 +233,6 @@ const waiterOptions = computed(() => {
     return [all, ...rest];
 });
 
-function toYmd(d) {
-    if (!d) {
-        return null;
-    }
-    const dt = d instanceof Date ? d : new Date(d);
-    if (Number.isNaN(dt.getTime())) {
-        return null;
-    }
-    const y = dt.getFullYear();
-    const m = String(dt.getMonth() + 1).padStart(2, "0");
-    const day = String(dt.getDate()).padStart(2, "0");
-    return `${y}-${m}-${day}`;
-}
-
 function buildQueryParams(page = 1) {
     const params = {
         page,
@@ -252,12 +247,12 @@ function buildQueryParams(page = 1) {
         params.user_id = filters.value.userId;
     }
 
-    const from = toYmd(filters.value.dateFrom);
+    const from = toDateTimeParam(filters.value.dateFrom, "start");
     if (from) {
         params.date_from = from;
     }
 
-    const to = toYmd(filters.value.dateTo);
+    const to = toDateTimeParam(filters.value.dateTo, "end");
     if (to) {
         params.date_to = to;
     }
@@ -362,6 +357,19 @@ async function createOrder() {
 
 onMounted(() => {
     loadUsers();
-    fetchOrders();
+    initializeDefaultsAndFetch();
 });
+
+async function initializeDefaultsAndFetch() {
+    try {
+        const { data } = await configService.getConfig();
+        const range = buildFilterRangeFromConfig(data);
+        filters.value.dateFrom = range.from;
+        filters.value.dateTo = range.to;
+    } catch (error) {
+        console.error("Error loading config:", error);
+    } finally {
+        fetchOrders();
+    }
+}
 </script>

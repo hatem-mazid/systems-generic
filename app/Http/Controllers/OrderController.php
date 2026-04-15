@@ -63,11 +63,11 @@ class OrderController extends Controller
         }
 
         if (! empty($validated['date_from'] ?? null)) {
-            $query->where('opened_at', '>=', Carbon::parse($validated['date_from'])->startOfDay());
+            $query->where('opened_at', '>=', $this->parseDateFilterBoundary($validated['date_from'], true));
         }
 
         if (! empty($validated['date_to'] ?? null)) {
-            $query->where('opened_at', '<=', Carbon::parse($validated['date_to'])->endOfDay());
+            $query->where('opened_at', '<=', $this->parseDateFilterBoundary($validated['date_to'], false));
         }
 
         $orders = $query->orderByDesc('id')->paginate($perPage);
@@ -439,6 +439,16 @@ class OrderController extends Controller
     private function ensureCan(string $permission): void
     {
         abort_unless(auth()->user()?->can($permission), 403, 'Forbidden');
+    }
+
+    private function parseDateFilterBoundary(string $value, bool $isStart): Carbon
+    {
+        $dt = Carbon::parse($value);
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', trim($value)) === 1) {
+            return $isStart ? $dt->startOfDay() : $dt->endOfDay();
+        }
+
+        return $dt;
     }
 
     private function groupItemsBySectionForPrinting(Collection $items): array

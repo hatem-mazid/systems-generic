@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\OrderController;
@@ -26,6 +27,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/logout', [AuthController::class, 'logout']);
 
     Route::get('/user', [AuthController::class, 'user']);
+    Route::get('/api/config', [ConfigController::class, 'show']);
+    Route::put('/api/config', [ConfigController::class, 'update']);
 
     Route::resource('/api/users', UserController::class);
     Route::post('/api/users/{id}/updatePassword', [UserController::class, 'updatePassword']);

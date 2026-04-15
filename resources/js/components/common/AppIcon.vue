@@ -16,6 +16,7 @@ const normalizedName = computed(() => {
     const raw = String(props.name || "").trim();
     const nameMap = {
         "plus": "hi-plus",
+        "plus-circle": "hi-plus-circle",
         "search": "hi-search",
         "filter-slash": "hi-filter",
         "trash": "hi-trash",
@@ -25,6 +26,7 @@ const normalizedName = computed(() => {
         "check": "hi-check",
         "key": "hi-key",
         "arrow-left": "hi-arrow-left",
+        "arrow-right": "hi-arrow-right",
         "print": "hi-printer",
         "external-link": "hi-external-link",
         "minus": "hi-minus",

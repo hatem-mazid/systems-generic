@@ -59,6 +59,8 @@
                         id="exp-filter-from"
                         v-model="filters.dateFrom"
                         date-format="yy-mm-dd"
+                        show-time
+                        hour-format="24"
                         show-icon
                         fluid
                         size="large"
@@ -77,6 +79,8 @@
                         id="exp-filter-to"
                         v-model="filters.dateTo"
                         date-format="yy-mm-dd"
+                        show-time
+                        hour-format="24"
                         show-icon
                         fluid
                         size="large"
@@ -170,6 +174,7 @@ import Paginator from "primevue/paginator";
 import Select from "primevue/select";
 import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { configService } from "@/apis/services/config/config.apis";
 import {
     expensesService,
     type Expense,
@@ -177,6 +182,10 @@ import {
 import { expenseTypeLabelKey } from "../../constants/expenseTypes";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { useUserStore } from "../../stores/user";
+import {
+    buildFilterRangeFromConfig,
+    toDateTimeParam,
+} from "@/utils/configDefaults";
 
 const { t } = useI18n();
 const { hasPermission } = useUserStore();
@@ -211,20 +220,6 @@ const typeFilterOptions = computed(() => [
     { value: "other", label: t(expenseTypeLabelKey("other")) },
 ]);
 
-function toYmd(d: Date | null): string | null {
-    if (!d) {
-        return null;
-    }
-    const dt = d instanceof Date ? d : new Date(d);
-    if (Number.isNaN(dt.getTime())) {
-        return null;
-    }
-    const y = dt.getFullYear();
-    const m = String(dt.getMonth() + 1).padStart(2, "0");
-    const day = String(dt.getDate()).padStart(2, "0");
-    return `${y}-${m}-${day}`;
-}
-
 let fetchTimer: ReturnType<typeof setTimeout> | null = null;
 function scheduleFetch() {
     if (fetchTimer) {
@@ -238,8 +233,9 @@ function buildParams(page: number) {
         page,
         per_page: paginator.value.per_page,
         type: filters.value.type ? filters.value.type : undefined,
-        date_from: toYmd(filters.value.dateFrom) ?? undefined,
-        date_to: toYmd(filters.value.dateTo) ?? undefined,
+        date_from:
+            toDateTimeParam(filters.value.dateFrom, "start") ?? undefined,
+        date_to: toDateTimeParam(filters.value.dateTo, "end") ?? undefined,
     };
 }
 
@@ -271,6 +267,19 @@ const onPageChange = (event: { page: number; rows: number }) => {
 };
 
 onMounted(() => {
-    fetchExpenses();
+    initializeDefaultsAndFetch();
 });
+
+async function initializeDefaultsAndFetch() {
+    try {
+        const { data } = await configService.getConfig();
+        const range = buildFilterRangeFromConfig(data);
+        filters.value.dateFrom = range.from;
+        filters.value.dateTo = range.to;
+    } catch (error) {
+        console.error("Error loading config:", error);
+    } finally {
+        fetchExpenses();
+    }
+}
 </script>

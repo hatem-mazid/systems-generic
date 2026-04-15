@@ -1,1 +1,0 @@
-import{h as s}from"./app-BbiGz4Zg.js";const a={getUsers:async e=>s.get("/api/users",{params:e}),getUser:async e=>s.get(`/api/users/${e}`),createUser:async e=>s.post("/api/users",e),updateUser:async(e,r)=>s.put(`/api/users/${e}`,r),deleteUser:async e=>s.delete(`/api/users/${e}`),resetPassword:async(e,r)=>s.post(`/api/users/${e}/updatePassword`,r)};export{a as u};

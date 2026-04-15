@@ -8,6 +8,7 @@ export const SIDEBAR_TITLES = {
     Reports: "Sidebar.Reports",
     ReportsExpenses: "Sidebar.ReportsExpenses",
     Expenses: "Sidebar.Expenses",
+    Settings: "Sidebar.Settings",
     Users: "Sidebar.Users",
     Roles: "Sidebar.Roles",
 };
@@ -66,6 +67,12 @@ export const sidebarItems = [
         title: SIDEBAR_TITLES.ReportsExpenses,
         to: "/reports/expenses",
         permission: "view reports",
+    },
+    {
+        icon: "hi-cog",
+        title: SIDEBAR_TITLES.Settings,
+        to: "/settings",
+        permission: "users index",
     },
     {
         icon: "hi-users",
