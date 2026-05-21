@@ -87,7 +87,11 @@
         "UnitsManagement": "Units Management",
         "Orders": "Orders",
         "NewTakeawayOrder": "New takeaway order",
-        "CreateProduct": "Create product"
+        "CreateProduct": "Create product",
+        "LatestOrders": "Latest Orders",
+        "LatestOrdersSubtitle": "Live feed — refreshes every 60 seconds",
+        "LatestOrdersEmpty": "No orders found.",
+        "ViewAllOrders": "View all orders"
     },
     "SettingsPage": {
         "Title": "Settings",

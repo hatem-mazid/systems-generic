@@ -87,7 +87,11 @@
         "UnitsManagement": "إدارة الوحدات",
         "Orders": "الطلبات",
         "NewTakeawayOrder": "طلب سفري جديد",
-        "CreateProduct": "إنشاء منتج"
+        "CreateProduct": "إنشاء منتج",
+        "LatestOrders": "أحدث الطلبات",
+        "LatestOrdersSubtitle": "تحديث مباشر — يتجدد كل 60 ثانية",
+        "LatestOrdersEmpty": "لا توجد طلبات.",
+        "ViewAllOrders": "عرض جميع الطلبات"
     },
     "SettingsPage": {
         "Title": "الإعدادات",

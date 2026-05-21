@@ -1,67 +1,107 @@
 <template>
-    <div class="touch-manipulation p-4 text-surface-800 dark:text-surface-100 sm:p-6">
-        <div class="mb-6">
-            <h1 class="text-2xl font-semibold sm:text-3xl">
-                {{ $t("Dashboard.Title") }}
-            </h1>
-            <p class="mt-1 text-surface-600 dark:text-surface-400">
-                {{ $t("Dashboard.Subtitle") }}
-            </p>
+   <div class="touch-manipulation p-4 text-surface-800 dark:text-surface-100 sm:p-6">
+        
+        <!-- Latest Orders -->
+        <div v-if="canViewOrders" class="mt-8 mb-6">
+           <div class="mb-4 flex items-center justify-between gap-4">
+               <div>
+                   <h2 class="text-xl font-semibold sm:text-2xl">
+                       {{ $t("Dashboard.LatestOrders") }}
+                   </h2>
+                   <p class="mt-0.5 flex items-center gap-1.5 text-sm text-surface-500 dark:text-surface-400">
+                       <span
+                           class="inline-block h-2 w-2 shrink-0 rounded-full"
+                           :class="ordersLoading && !latestOrders.length ? 'bg-surface-400' : 'animate-pulse bg-green-500'"
+                       />
+                       {{ $t("Dashboard.LatestOrdersSubtitle") }}
+                   </p>
+               </div>
+               <RouterLink
+                   to="/orders"
+                   class="shrink-0 text-sm font-medium text-primary hover:underline"
+               >
+                   {{ $t("Dashboard.ViewAllOrders") }}
+               </RouterLink>
+           </div>
+
+           <div
+               class="min-w-0 overflow-x-auto rounded-2xl border border-surface-200/80 bg-surface-0 p-1 shadow-sm dark:border-surface-700 dark:bg-surface-900 sm:p-2"
+           >
+               <OrdersTable
+                   :orders="latestOrders"
+                   :loading="ordersLoading && !latestOrders.length"
+                   :empty-message="$t('Dashboard.LatestOrdersEmpty')"
+                   :can-view-order="canViewOrders"
+                   :can-print-invoice="canViewOrders"
+                   @view="(id) => router.push(`/orders/${id}`)"
+                   @invoice="(id) => router.push(`/orders/${id}/invoice`)"
+               />
+           </div>
         </div>
 
-        <div
-            v-if="quickActions.length"
-            class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
-        >
-            <component
-                :is="action.to ? 'RouterLink' : 'button'"
-                v-for="action in quickActions"
-                :key="action.key"
-                :to="action.to"
-                type="button"
-                class="group flex min-h-[136px] items-center gap-4 rounded-2xl border border-surface-200/80 bg-surface-0 p-5 text-start shadow-sm transition hover:border-primary/40 hover:shadow dark:border-surface-700 dark:bg-surface-900"
-                :disabled="action.loading"
-                @click="action.onClick ? action.onClick() : null"
-            >
-                <span
-                    class="grid h-14 w-14 shrink-0 place-content-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary/15"
-                >
-                    <AppIcon :name="action.icon" class="text-3xl" />
-                </span>
-                <span class="min-w-0 flex-1">
-                    <span
-                        class="block truncate text-lg font-semibold text-surface-800 dark:text-surface-100"
-                    >
-                        {{ action.label }}
-                    </span>
-                </span>
-                <ProgressSpinner
-                    v-if="action.loading"
-                    class="!h-6 !w-6 shrink-0"
-                    stroke-width="6"
-                />
-                <AppIcon
-                    v-else
-                    name="pi pi-arrow-right"
-                    class="shrink-0 text-surface-400 transition group-hover:text-primary"
-                />
-            </component>
-        </div>
+       <div class="mb-6">
+           <h1 class="text-2xl font-semibold sm:text-3xl">
+               {{ $t("Dashboard.Title") }}
+           </h1>
+           <p class="mt-1 text-surface-600 dark:text-surface-400">
+               {{ $t("Dashboard.Subtitle") }}
+           </p>
+       </div>
 
-        <div
-            v-else
-            class="rounded-2xl border border-dashed border-surface-300 p-8 text-center text-surface-600 dark:border-surface-700 dark:text-surface-400"
-        >
-            {{ $t("Dashboard.NoQuickAccess") }}
-        </div>
-    </div>
+       <div
+           v-if="quickActions.length"
+           class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
+       >
+           <component
+               :is="action.to ? 'RouterLink' : 'button'"
+               v-for="action in quickActions"
+               :key="action.key"
+               :to="action.to"
+               type="button"
+               class="group flex min-h-[136px] items-center gap-4 rounded-2xl border border-surface-200/80 bg-surface-0 p-5 text-start shadow-sm transition hover:border-primary/40 hover:shadow dark:border-surface-700 dark:bg-surface-900"
+               :disabled="action.loading"
+               @click="action.onClick ? action.onClick() : null"
+           >
+               <span
+                   class="grid h-14 w-14 shrink-0 place-content-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary/15"
+               >
+                   <AppIcon :name="action.icon" class="text-3xl" />
+               </span>
+               <span class="min-w-0 flex-1">
+                   <span
+                       class="block truncate text-lg font-semibold text-surface-800 dark:text-surface-100"
+                   >
+                       {{ action.label }}
+                   </span>
+               </span>
+               <ProgressSpinner
+                   v-if="action.loading"
+                   class="!h-6 !w-6 shrink-0"
+                   stroke-width="6"
+               />
+               <AppIcon
+                   v-else
+                   name="pi pi-arrow-right"
+                   class="shrink-0 text-surface-400 transition group-hover:text-primary"
+               />
+           </component>
+       </div>
+
+       <div
+           v-else
+           class="rounded-2xl border border-dashed border-surface-300 p-8 text-center text-surface-600 dark:border-surface-700 dark:text-surface-400"
+       >
+           {{ $t("Dashboard.NoQuickAccess") }}
+       </div>
+   </div>
 </template>
 
 <script setup>
 import { ordersService } from "@/apis/services/orders/orders.apis";
+import OrdersTable from "@/components/pages/orders/OrdersTable.vue";
 import ProgressSpinner from "primevue/progressspinner";
 import { useToast } from "primevue/usetoast";
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/user";
@@ -78,6 +118,39 @@ const canCreateProduct = computed(() => hasPermission("products create"));
 const canViewUnitsManagement = computed(() => hasPermission("units index"));
 const canViewOrders = computed(() => hasPermission("order index"));
 const canCreateTakeawayOrder = computed(() => hasPermission("order create"));
+
+// Latest orders state
+const latestOrders = ref([]);
+const ordersLoading = ref(false);
+let ordersPollingTimer = null;
+
+async function fetchLatestOrders() {
+    ordersLoading.value = true;
+    try {
+        const { data } = await ordersService.getOrders({ per_page: 10, page: 1 });
+        latestOrders.value = data?.items ?? [];
+    } catch {
+        // silently ignore polling errors to avoid disrupting the dashboard
+    } finally {
+        ordersLoading.value = false;
+    }
+}
+
+function startOrdersPolling() {
+    fetchLatestOrders();
+    ordersPollingTimer = setInterval(fetchLatestOrders, 60_000);
+}
+
+onMounted(() => {
+    console.log("canViewOrders", canViewOrders.value);
+    if (canViewOrders.value) {
+        startOrdersPolling();
+    }
+});
+
+onUnmounted(() => {
+    clearInterval(ordersPollingTimer);
+});
 
 const quickActions = computed(() => {
     const actions = [];

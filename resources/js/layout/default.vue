@@ -1,150 +1,167 @@
 <template>
     <div class="default-layout">
+        <!-- Global loading overlay -->
+        <Transition name="app-loader">
+            <div
+                v-if="appLoading"
+                class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-surface-0 dark:bg-surface-950"
+            >
+                <ProgressSpinner
+                    class="!size-14"
+                    stroke-width="3"
+                    aria-label="Loading"
+                />
+            </div>
+        </Transition>
+
         <!-- TODO lang: based on dir -->
-        <sidebar />
+        <template v-if="!appLoading">
+            <sidebar />
 
-        <div :class="['ps-20 min-h-screen flex flex-col transition-all']">
-            <div class="p-4">
-                <Menubar :dark="false">
-                    <!-- <template #item="{ item, props, hasSubmenu, root }">
-						<a v-ripple class="flex items-center" v-bind="props.action">
-							<span>{{ item.label }}</span>
-							<Badge v-if="item.badge" :class="{ 'ml-auto': !root, 'ml-2': root }" :value="item.badge" />
-							<span v-if="item.shortcut" class="ml-auto border border-surface rounded bg-emphasis dark:tex text-muted-color text-xs p-1">{{ item.shortcut }}</span>
-							<i v-if="hasSubmenu" :class="['pi pi-angle-down ml-auto', { 'pi-angle-down': root, 'pi-angle-right': !root }]"></i>
-						</a>
-					</template> -->
-                    <template #end>
-                        <div class="flex items-center gap-2">
-                            <Button
-                                severity="secondary"
-                                @click="toggleLangMenu"
-                                rounded
-                                aria-label="Save"
-                            >
-                                <template #icon>
-                                    <AppIcon name="pi pi-language" />
-                                </template>
-                            </Button>
-                            <Menu
-                                ref="langMenu"
-                                :model="langItems"
-                                :popup="true"
-                            >
-                                <template #item="{ item, props }">
-                                    <a
-                                        v-ripple
-                                        class="flex items-center rounded"
-                                        :class="{
-                                            'bg-primary': locale == item.key,
-                                        }"
-                                        v-bind="props.action"
-                                    >
-                                        <span>{{ item.label }}</span>
-                                    </a>
-                                </template>
-                            </Menu>
-
-                            <Button
-                                severity="secondary"
-                                @click="toggleDarkMode"
-                                rounded
-                                aria-label="Save"
-                            >
-                                <template #icon>
-                                    <AppIcon name="pi pi-sun" />
-                                </template>
-                            </Button>
-
-                            <Avatar
-                                role="button"
-                                :label="
-                                    userStore.info?.name &&
-                                    userStore.info?.name[0]
-                                "
-                                class="!size-10"
-                                @click="toggleProfileMenu"
-                                style="
-                                    background-color: #ece9fc;
-                                    color: #2a1261;
-                                "
-                                shape="circle"
-                            />
-                            <Menu
-                                ref="profileMenu"
-                                class="w-full md:w-60"
-                                id="overlay_menu"
-                                :model="profileMenuItems"
-                                :popup="true"
-                            >
-                                <template #start>
-                                    <button
-                                        v-ripple
-                                        class="relative gap-2 items-center overflow-hidden w-full border-0 bg-transparent flex p-2 pl-4 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-none cursor-pointer transition-colors duration-200"
-                                    >
-                                        <Avatar
-                                            role="button"
-                                            label="V"
-                                            @click="toggleProfileMenu"
-                                            style="
-                                                background-color: #ece9fc;
-                                                color: #2a1261;
-                                            "
-                                            shape="circle"
-                                        />
-                                        <span
-                                            class="inline-flex flex-col items-start"
+            <div :class="['ps-20 min-h-screen flex flex-col transition-all']">
+                <div class="p-4">
+                    <Menubar :dark="false">
+                        <!-- <template #item="{ item, props, hasSubmenu, root }">
+                            <a v-ripple class="flex items-center" v-bind="props.action">
+                                <span>{{ item.label }}</span>
+                                <Badge v-if="item.badge" :class="{ 'ml-auto': !root, 'ml-2': root }" :value="item.badge" />
+                                <span v-if="item.shortcut" class="ml-auto border border-surface rounded bg-emphasis dark:tex text-muted-color text-xs p-1">{{ item.shortcut }}</span>
+                                <i v-if="hasSubmenu" :class="['pi pi-angle-down ml-auto', { 'pi-angle-down': root, 'pi-angle-right': !root }]"></i>
+                            </a>
+                        </template> -->
+                        <template #end>
+                            <div class="flex items-center gap-2">
+                                <Button
+                                    severity="secondary"
+                                    @click="toggleLangMenu"
+                                    rounded
+                                    aria-label="Save"
+                                >
+                                    <template #icon>
+                                        <AppIcon name="pi pi-language" />
+                                    </template>
+                                </Button>
+                                <Menu
+                                    ref="langMenu"
+                                    :model="langItems"
+                                    :popup="true"
+                                >
+                                    <template #item="{ item, props }">
+                                        <a
+                                            v-ripple
+                                            class="flex items-center rounded"
+                                            :class="{
+                                                'bg-primary': locale == item.key,
+                                            }"
+                                            v-bind="props.action"
                                         >
-                                            <span class="font-bold">{{
-                                                userStore.info?.name
-                                            }}</span>
-                                        </span>
-                                    </button>
-                                </template>
-                                <template #item="{ item, props }">
-                                    <a
-                                        v-ripple
-                                        class="flex items-center"
-                                        v-bind="props.action"
-                                    >
-                                        <AppIcon :name="item.icon" />
-                                        <span>{{ item.label }}</span>
-                                        <Badge
-                                            v-if="item.badge"
-                                            class="ml-auto"
-                                            :value="item.badge"
-                                        />
-                                        <span
-                                            v-if="item.shortcut"
-                                            class="ml-auto border border-surface rounded bg-emphasis text-muted-color text-xs p-1"
-                                            >{{ item.shortcut }}</span
+                                            <span>{{ item.label }}</span>
+                                        </a>
+                                    </template>
+                                </Menu>
+
+                                <Button
+                                    severity="secondary"
+                                    @click="toggleDarkMode"
+                                    rounded
+                                    aria-label="Save"
+                                >
+                                    <template #icon>
+                                        <AppIcon name="pi pi-sun" />
+                                    </template>
+                                </Button>
+
+                                <Avatar
+                                    role="button"
+                                    :label="
+                                        userStore.info?.name &&
+                                        userStore.info?.name[0]
+                                    "
+                                    class="!size-10"
+                                    @click="toggleProfileMenu"
+                                    style="
+                                        background-color: #ece9fc;
+                                        color: #2a1261;
+                                    "
+                                    shape="circle"
+                                />
+                                <Menu
+                                    ref="profileMenu"
+                                    class="w-full md:w-60"
+                                    id="overlay_menu"
+                                    :model="profileMenuItems"
+                                    :popup="true"
+                                >
+                                    <template #start>
+                                        <button
+                                            v-ripple
+                                            class="relative gap-2 items-center overflow-hidden w-full border-0 bg-transparent flex p-2 pl-4 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-none cursor-pointer transition-colors duration-200"
                                         >
-                                    </a>
-                                </template>
-                            </Menu>
+                                            <Avatar
+                                                role="button"
+                                                label="V"
+                                                @click="toggleProfileMenu"
+                                                style="
+                                                    background-color: #ece9fc;
+                                                    color: #2a1261;
+                                                "
+                                                shape="circle"
+                                            />
+                                            <span
+                                                class="inline-flex flex-col items-start"
+                                            >
+                                                <span class="font-bold">{{
+                                                    userStore.info?.name
+                                                }}</span>
+                                            </span>
+                                        </button>
+                                    </template>
+                                    <template #item="{ item, props }">
+                                        <a
+                                            v-ripple
+                                            class="flex items-center"
+                                            v-bind="props.action"
+                                        >
+                                            <AppIcon :name="item.icon" />
+                                            <span>{{ item.label }}</span>
+                                            <Badge
+                                                v-if="item.badge"
+                                                class="ml-auto"
+                                                :value="item.badge"
+                                            />
+                                            <span
+                                                v-if="item.shortcut"
+                                                class="ml-auto border border-surface rounded bg-emphasis text-muted-color text-xs p-1"
+                                                >{{ item.shortcut }}</span
+                                            >
+                                        </a>
+                                    </template>
+                                </Menu>
+                            </div>
+                        </template>
+                    </Menubar>
+                </div>
+                <div class="flex-grow flex flex-col justify-between">
+                    <main class="p-4">
+                        <slot />
+                    </main>
+
+                    <footer class="">
+                        <div
+                            class="px-4 py-2 border-t text-sm border-surface-200 dark:border-surface-700 text-surface-500 dark:text-surface-400"
+                        >
+                            © {{ new Date().getFullYear() }} developed by spark team
                         </div>
-                    </template>
-                </Menubar>
+                    </footer>
+                </div>
             </div>
-            <div class="flex-grow flex flex-col justify-between">
-                <main class="p-4">
-                    <slot />
-                </main>
-
-                <footer class="">
-                    <div
-                        class="px-4 py-2 border-t text-sm border-surface-200 dark:border-surface-700 text-surface-500 dark:text-surface-400"
-                    >
-                        © {{ new Date().getFullYear() }} developed by spark team
-                    </div>
-                </footer>
-            </div>
-        </div>
+        </template>
     </div>
 </template>
 
 <script setup>
 import Menubar from "primevue/menubar";
+import ProgressSpinner from "primevue/progressspinner";
 import { onMounted, ref } from "vue";
 import { useUserStore } from "../stores/user";
 import sidebar from "./components/sidebar.vue";
@@ -235,6 +252,8 @@ const langItems = ref([
     },
 ]);
 
+const appLoading = ref(true);
+
 const fetchUserInfo = async () => {
     try {
         const response = await axios.get("/user");
@@ -242,6 +261,8 @@ const fetchUserInfo = async () => {
         userStore.setPermissions(response.data.permissions);
     } catch (error) {
         console.error("Failed to fetch user info:", error);
+    } finally {
+        appLoading.value = false;
     }
 };
 
@@ -264,3 +285,12 @@ onMounted(() => {
     // }
 });
 </script>
+
+<style scoped>
+.app-loader-leave-active {
+    transition: opacity 0.35s ease;
+}
+.app-loader-leave-to {
+    opacity: 0;
+}
+</style>
