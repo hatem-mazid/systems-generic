@@ -37,7 +37,76 @@
                     {{ loadError }}
                 </Message>
 
-                <div v-else-if="order" class="space-y-6">
+                <div v-else-if="order">
+                    <!-- Thermal POS receipt (print only) -->
+                    <div class="thermal-receipt">
+                        <div class="thermal-header">
+                            <div class="thermal-title">
+                                {{ $t("OrdersList.InvoiceTitle") }} #{{ order.id }}
+                            </div>
+                            <div class="thermal-subtitle">
+                                {{ formatDateTime(order.created_at) }}
+                            </div>
+                        </div>
+
+                        <div class="thermal-divider" />
+
+                        <div class="thermal-meta">
+                            <div class="thermal-row">
+                                <span>{{ $t("OrdersList.ColumnUnit") }}</span>
+                                <span>{{ order.unit_name ?? order.unit_id ?? "—" }}</span>
+                            </div>
+                            <div class="thermal-row">
+                                <span>{{ $t("OrdersList.ColumnWaiter") }}</span>
+                                <span>{{ order.user_name ?? "—" }}</span>
+                            </div>
+                            <div class="thermal-row">
+                                <span>{{ $t("OrdersList.ColumnStatus") }}</span>
+                                <span>{{ statusLabel(order.status) }}</span>
+                            </div>
+                            <div class="thermal-row">
+                                <span>{{ $t("OrdersList.OpenedShort") }}</span>
+                                <span>{{ formatDateTime(order.opened_at) }}</span>
+                            </div>
+                        </div>
+
+                        <div class="thermal-divider" />
+
+                        <table class="thermal-items">
+                            <thead>
+                                <tr>
+                                    <th class="name">{{ $t("OrdersList.LineName") }}</th>
+                                    <th class="qty">{{ $t("OrdersList.LineQty") }}</th>
+                                    <th class="price">{{ $t("OrdersList.LinePrice") }}</th>
+                                    <th class="total-col">{{ $t("OrdersList.LineTotal") }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    v-for="(line, idx) in mergedInvoiceLines"
+                                    :key="line.key + '-' + idx"
+                                >
+                                    <td class="name">{{ line.name ?? "—" }}</td>
+                                    <td class="qty">{{ line.quantity ?? "—" }}</td>
+                                    <td class="price">{{ formatMoney(line.price) }}</td>
+                                    <td class="total-col">{{ formatMoney(line.total) }}</td>
+                                </tr>
+                                <tr v-if="!mergedInvoiceLines.length">
+                                    <td colspan="4" class="thermal-empty">—</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="thermal-divider" />
+
+                        <div class="thermal-total">
+                            <span>{{ $t("OrdersList.ColumnTotal") }}</span>
+                            <span>{{ formatMoney(order.total) }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Screen layout -->
+                    <div class="screen-invoice space-y-6">
                     <header class="border-b border-dashed border-surface-300 pb-4 dark:border-surface-600">
                         <h1 class="text-2xl font-bold text-surface-900 dark:text-surface-0">
                             {{ $t("OrdersList.InvoiceTitle") }} #{{ order.id }}
@@ -107,6 +176,7 @@
                             <p class="text-2xl font-bold text-surface-900 dark:text-surface-0">{{ formatMoney(order.total) }}</p>
                         </div>
                     </footer>
+                    </div>
                 </div>
             </template>
         </Card>
@@ -204,8 +274,26 @@ onMounted(fetchOrder);
 </script>
 
 <style>
+.thermal-receipt {
+    display: none;
+}
+
 @media print {
-    .no-print {
+    @page {
+        size: 80mm auto;
+        margin: 0;
+    }
+
+    html,
+    body {
+        width: 80mm;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+    }
+
+    .no-print,
+    .screen-invoice {
         display: none !important;
     }
 
@@ -225,26 +313,111 @@ onMounted(fetchOrder);
     }
 
     .invoice-page {
-        max-width: none !important;
+        max-width: 80mm !important;
+        width: 80mm !important;
         margin: 0 !important;
         padding: 0 !important;
     }
 
-    .invoice-page,
-    .invoice-page * {
-        color: #000 !important;
-    }
-
-    .invoice-page [class*="bg-surface-"] {
+    .invoice-page .p-card,
+    .invoice-page .p-card-content {
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
         background: #fff !important;
     }
 
-    .invoice-page [class*="border-surface-"] {
-        border-color: #d1d5db !important;
+    .thermal-receipt {
+        display: block;
+        width: 76mm;
+        margin: 0 auto;
+        padding: 2mm 1mm 3mm;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 10px;
+        line-height: 1.35;
+        color: #000 !important;
+        background: #fff !important;
     }
 
-    .invoice-page thead {
-        background: #f3f4f6 !important;
+    .thermal-title {
+        font-size: 12px;
+        font-weight: 700;
+        text-align: center;
+        letter-spacing: 0.02em;
+    }
+
+    .thermal-subtitle {
+        margin-top: 1mm;
+        font-size: 9px;
+        text-align: center;
+    }
+
+    .thermal-divider {
+        margin: 2mm 0;
+        border-top: 1px dashed #000;
+    }
+
+    .thermal-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 2mm;
+        margin-bottom: 0.8mm;
+        font-size: 9px;
+    }
+
+    .thermal-row span:last-child {
+        font-weight: 700;
+        text-align: right;
+        word-break: break-word;
+    }
+
+    .thermal-items {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 9px;
+        table-layout: fixed;
+    }
+
+    .thermal-items th {
+        padding: 1mm 0;
+        border-bottom: 1px solid #000;
+        font-weight: 700;
+        text-align: left;
+    }
+
+    .thermal-items td {
+        padding: 1.2mm 0;
+        vertical-align: top;
+    }
+
+    .thermal-items .name {
+        width: 38%;
+        word-break: break-word;
+    }
+
+    .thermal-items .qty {
+        width: 12%;
+        text-align: center;
+    }
+
+    .thermal-items .price,
+    .thermal-items .total-col {
+        width: 25%;
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .thermal-empty {
+        padding: 2mm 0 !important;
+        text-align: center;
+    }
+
+    .thermal-total {
+        display: flex;
+        justify-content: space-between;
+        gap: 2mm;
+        font-size: 12px;
+        font-weight: 700;
     }
 }
 </style>

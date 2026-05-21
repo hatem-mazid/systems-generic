@@ -17,7 +17,12 @@ function formatMoney(value: string | number | undefined): string {
     if (Number.isNaN(n)) {
         return String(value);
     }
-    return n.toFixed(2);
+    return new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: "IQD",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+    }).format(n);
 }
 
 export type InvoicePrintLabels = {
@@ -34,11 +39,85 @@ export type InvoicePrintLabels = {
     total: string;
 };
 
+const THERMAL_STYLES = `
+  @page { size: 80mm auto; margin: 0; }
+  html, body {
+    width: 80mm;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+  }
+  .receipt {
+    width: 76mm;
+    margin: 0 auto;
+    padding: 2mm 1mm 3mm;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 10px;
+    line-height: 1.35;
+    color: #000;
+  }
+  .title {
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0.02em;
+  }
+  .subtitle {
+    margin-top: 1mm;
+    font-size: 9px;
+    text-align: center;
+  }
+  .divider {
+    margin: 2mm 0;
+    border-top: 1px dashed #000;
+  }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 2mm;
+    margin-bottom: 0.8mm;
+    font-size: 9px;
+  }
+  .row span:last-child {
+    font-weight: 700;
+    text-align: right;
+    word-break: break-word;
+  }
+  table.items {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9px;
+    table-layout: fixed;
+  }
+  table.items th {
+    padding: 1mm 0;
+    border-bottom: 1px solid #000;
+    font-weight: 700;
+    text-align: left;
+  }
+  table.items td {
+    padding: 1.2mm 0;
+    vertical-align: top;
+  }
+  table.items .name { width: 38%; word-break: break-word; }
+  table.items .qty { width: 12%; text-align: center; }
+  table.items .price,
+  table.items .total-col { width: 25%; text-align: right; white-space: nowrap; }
+  .empty { padding: 2mm 0; text-align: center; }
+  .total {
+    display: flex;
+    justify-content: space-between;
+    gap: 2mm;
+    font-size: 12px;
+    font-weight: 700;
+  }
+`;
+
 /**
- * Opens a print dialog with a minimal invoice layout for the given order.
+ * Opens a print dialog with a thermal POS receipt layout for the given order.
  */
 export function printOrderInvoice(order: Order, labels: InvoicePrintLabels): void {
-    const w = window.open("", "_blank", "width=820,height=960");
+    const w = window.open("", "_blank", "width=320,height=720");
     if (!w) {
         return;
     }
@@ -65,54 +144,55 @@ export function printOrderInvoice(order: Order, labels: InvoicePrintLabels): voi
                     const price = formatMoney(line.price);
                     const lineTot = formatMoney(line.total);
                     return `<tr>
-            <td>${name}</td>
-            <td style="text-align:center">${qty}</td>
-            <td style="text-align:right">${price}</td>
-            <td style="text-align:right">${lineTot}</td>
+            <td class="name">${name}</td>
+            <td class="qty">${qty}</td>
+            <td class="price">${price}</td>
+            <td class="total-col">${lineTot}</td>
           </tr>`;
                 })
                 .join("") :
-            `<tr><td colspan="4" style="text-align:center;color:#666">—</td></tr>`;
+            `<tr><td colspan="4" class="empty">—</td></tr>`;
 
     const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <title>${escapeHtml(labels.title)} #${id}</title>
-  <style>
-    body { font-family: system-ui, sans-serif; padding: 24px; color: #111; }
-    h1 { font-size: 1.25rem; margin: 0 0 16px; }
-    table.meta { width: 100%; margin-bottom: 20px; border-collapse: collapse; }
-    table.meta td { padding: 4px 8px; vertical-align: top; }
-    table.meta td:first-child { font-weight: 600; width: 140px; }
-    table.items { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-    table.items th, table.items td { border: 1px solid #ccc; padding: 8px; }
-    table.items th { background: #f4f4f4; text-align: left; }
-    .total { margin-top: 16px; text-align: right; font-size: 1.1rem; font-weight: 700; }
-    @media print { body { padding: 12px; } }
-  </style>
+  <style>${THERMAL_STYLES}</style>
 </head>
 <body>
-  <h1>${escapeHtml(labels.title)} #${id}</h1>
-  <table class="meta">
-    <tr><td>${escapeHtml(labels.unit)}</td><td>${unit}</td></tr>
-    <tr><td>${escapeHtml(labels.waiter)}</td><td>${user}</td></tr>
-    <tr><td>${escapeHtml(labels.status)}</td><td>${status}</td></tr>
-    <tr><td>${escapeHtml(labels.openedAt)}</td><td>${opened}</td></tr>
-    <tr><td>${escapeHtml(labels.createdAt)}</td><td>${created}</td></tr>
-  </table>
-  <table class="items">
-    <thead>
-      <tr>
-        <th>${escapeHtml(labels.product)}</th>
-        <th style="text-align:center;width:72px">${escapeHtml(labels.qty)}</th>
-        <th style="text-align:right;width:96px">${escapeHtml(labels.price)}</th>
-        <th style="text-align:right;width:96px">${escapeHtml(labels.lineTotal)}</th>
-      </tr>
-    </thead>
-    <tbody>${rows}</tbody>
-  </table>
-  <p class="total">${escapeHtml(labels.total)}: ${total}</p>
+  <div class="receipt">
+    <div class="title">${escapeHtml(labels.title)} #${id}</div>
+    <div class="subtitle">${created}</div>
+
+    <div class="divider"></div>
+
+    <div class="row"><span>${escapeHtml(labels.unit)}</span><span>${unit}</span></div>
+    <div class="row"><span>${escapeHtml(labels.waiter)}</span><span>${user}</span></div>
+    <div class="row"><span>${escapeHtml(labels.status)}</span><span>${status}</span></div>
+    <div class="row"><span>${escapeHtml(labels.openedAt)}</span><span>${opened}</span></div>
+
+    <div class="divider"></div>
+
+    <table class="items">
+      <thead>
+        <tr>
+          <th class="name">${escapeHtml(labels.product)}</th>
+          <th class="qty">${escapeHtml(labels.qty)}</th>
+          <th class="price">${escapeHtml(labels.price)}</th>
+          <th class="total-col">${escapeHtml(labels.lineTotal)}</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+
+    <div class="divider"></div>
+
+    <div class="total">
+      <span>${escapeHtml(labels.total)}</span>
+      <span>${total}</span>
+    </div>
+  </div>
   <script>window.onload=function(){window.focus();window.print();}</script>
 </body>
 </html>`;
