@@ -477,11 +477,16 @@ const loadError = ref(null);
 const order = ref(null);
 const editorVisible = ref(false);
 const submittingTakeaway = ref(false);
+/** Auto-open editor once per visit for new takeaway orders. */
+const hasAutoOpenedEditor = ref(false);
 /** Hide thumbnails that fail to load. */
 const lineImageFailed = reactive({});
 
 const orderId = computed(() => String(route.params.id ?? ""));
 const isOrdering = computed(() => order.value?.status === OrderStatus.Ordering);
+const isTakeawayOrder = computed(
+    () => order.value != null && order.value.unit_id == null
+);
 const canEditOrderItems = computed(() => userStore.hasPermission("order edit"));
 
 const mergedOrderLines = computed(() => mergeOrderItems(order.value?.items));
@@ -489,9 +494,23 @@ const mergedOrderLines = computed(() => mergeOrderItems(order.value?.items));
 watch(
     () => route.params.id,
     () => {
+        hasAutoOpenedEditor.value = false;
         fetchOrder();
     }
 );
+
+function maybeOpenTakeawayEditor() {
+    if (
+        hasAutoOpenedEditor.value ||
+        !canEditOrderItems.value ||
+        !isOrdering.value ||
+        !isTakeawayOrder.value
+    ) {
+        return;
+    }
+    hasAutoOpenedEditor.value = true;
+    editorVisible.value = true;
+}
 
 function formatMoney(value) {
     if (value === undefined || value === null || value === "") {
@@ -618,6 +637,7 @@ async function fetchOrder() {
     try {
         const { data } = await ordersService.getOrder(id);
         order.value = data?.data ?? data;
+        maybeOpenTakeawayEditor();
     } catch {
         loadError.value = t("OrderDetail.LoadError");
     } finally {
