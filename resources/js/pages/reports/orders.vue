@@ -160,7 +160,7 @@
                     </table>
                 </div>
             </div>
-            <div
+            <!-- <div
                 class="rounded-2xl border border-surface-200/80 bg-surface-0 p-4 shadow-sm dark:border-surface-700 dark:bg-surface-900 sm:p-6"
             >
                 <h2
@@ -193,7 +193,7 @@
                         class="h-full w-full"
                     />
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 </template>
