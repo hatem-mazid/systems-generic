@@ -11,7 +11,7 @@ class UnitGroupController extends Controller
 {
     public function index(Request $request)
     {
-        $this->ensureCan('unit-groups index');
+        $this->ensureCan('units index');
 
         $unitGroups = UnitGroup::with(['units.currentOrder'])
             ->orderBy('position')
