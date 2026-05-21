@@ -69,6 +69,20 @@
                     </template>
                 </Button>
                 <Button
+                    v-if="order?.items?.length"
+                    type="button"
+                    outlined
+                    size="large"
+                    severity="secondary"
+                    :label="$t('OrderDetail.ViewBatchBreakdown')"
+                    class="min-h-[48px]"
+                    @click="patchPreviewVisible = true"
+                >
+                    <template #icon>
+                        <AppIcon name="pi pi-list" />
+                    </template>
+                </Button>
+                <Button
                     v-if="order"
                     type="button"
                     outlined
@@ -447,12 +461,74 @@
             :order-id="orderId"
             @updated="fetchOrder"
         />
+
+        <Dialog
+            v-model:visible="patchPreviewVisible"
+            modal
+            :header="$t('OrderDetail.BatchPreviewTitle')"
+            :style="{ width: 'min(96vw, 42rem)' }"
+        >
+            <div v-if="!patchPreviewPatches.length" class="text-sm text-surface-600 dark:text-surface-300">
+                {{ $t("OrderDetail.EmptyItems") }}
+            </div>
+            <div v-else class="max-h-[min(70vh,520px)] space-y-4 overflow-y-auto pe-1">
+                <div
+                    v-for="patch in patchPreviewPatches"
+                    :key="'pv-patch-' + patch.batchKey"
+                    class="rounded-xl border border-surface-200 p-3 dark:border-surface-700"
+                >
+                    <p class="mb-3 text-sm font-semibold text-surface-900 dark:text-surface-100">
+                        {{
+                            patch.isOpenPatch
+                                ? $t("OrderDetail.BatchOpenLabel")
+                                : $t("OrderDetail.BatchLabel", { n: patch.batch_no })
+                        }}
+                    </p>
+                    <div class="space-y-3">
+                        <article
+                            v-for="section in patch.sections"
+                            :key="'pv-' + patch.batchKey + '-' + section.section_code"
+                            class="rounded-lg border border-surface-200/90 p-3 dark:border-surface-600"
+                        >
+                            <div class="mb-2 flex items-center justify-between gap-2">
+                                <div>
+                                    <p class="font-semibold text-surface-900 dark:text-surface-100">
+                                        {{ section.section_name || section.section_code }}
+                                    </p>
+                                    <p class="text-xs text-surface-500 dark:text-surface-400">
+                                        {{ section.items.length }} item(s)
+                                    </p>
+                                </div>
+                                <Button
+                                    type="button"
+                                    size="small"
+                                    outlined
+                                    :label="$t('OrderDetail.PrintSectionAction')"
+                                    @click="printOperationSection(section, patch.batch_no)"
+                                />
+                            </div>
+                            <ul class="space-y-1 text-sm">
+                                <li
+                                    v-for="row in section.items"
+                                    :key="row.id"
+                                    class="flex items-center justify-between gap-2"
+                                >
+                                    <span class="truncate">{{ row.name || "—" }}</span>
+                                    <span class="shrink-0 tabular-nums">x{{ row.quantity ?? "—" }}</span>
+                                </li>
+                            </ul>
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </Dialog>
     </div>
 </template>
 
 <script setup>
 import { Button } from "primevue";
 import Card from "primevue/card";
+import Dialog from "primevue/dialog";
 import Divider from "primevue/divider";
 import Message from "primevue/message";
 import Skeleton from "primevue/skeleton";
@@ -477,6 +553,9 @@ const loadError = ref(null);
 const order = ref(null);
 const editorVisible = ref(false);
 const submittingTakeaway = ref(false);
+const patchPreviewVisible = ref(false);
+
+const PENDING_PATCH_KEY = "__open__";
 /** Auto-open editor once per visit for new takeaway orders. */
 const hasAutoOpenedEditor = ref(false);
 /** Hide thumbnails that fail to load. */
@@ -490,6 +569,52 @@ const isTakeawayOrder = computed(
 const canEditOrderItems = computed(() => userStore.hasPermission("order edit"));
 
 const mergedOrderLines = computed(() => mergeOrderItems(order.value?.items));
+
+const patchPreviewPatches = computed(() => {
+    const items = order.value?.items ?? [];
+    if (!items.length) {
+        return [];
+    }
+    const byBatch = new Map();
+    for (const line of items) {
+        const b = line.batch_no == null ? PENDING_PATCH_KEY : line.batch_no;
+        if (!byBatch.has(b)) {
+            byBatch.set(b, []);
+        }
+        byBatch.get(b).push(line);
+    }
+    return [...byBatch.entries()]
+        .sort((a, b) => {
+            if (a[0] === PENDING_PATCH_KEY) return -1;
+            if (b[0] === PENDING_PATCH_KEY) return 1;
+            return a[0] - b[0];
+        })
+        .map(([batchKey, lines]) => {
+            const bySec = new Map();
+            for (const line of lines) {
+                const code = line.section_code || "general";
+                if (!bySec.has(code)) {
+                    bySec.set(code, {
+                        section_code: code,
+                        section_name: line.section_name || (code === "general" ? "General" : code),
+                        items: [],
+                    });
+                }
+                bySec.get(code).items.push({
+                    id: line.id,
+                    name: line.name,
+                    quantity: line.quantity,
+                    notes: line.notes ?? null,
+                });
+            }
+            return {
+                batchKey,
+                batch_no: batchKey === PENDING_PATCH_KEY ? null : batchKey,
+                isOpenPatch: batchKey === PENDING_PATCH_KEY,
+                sections: [...bySec.values()],
+            };
+        });
+});
 
 watch(
     () => route.params.id,
@@ -618,6 +743,28 @@ async function submitTakeaway() {
     } finally {
         submittingTakeaway.value = false;
     }
+}
+
+function printOperationSection(section, batchNo) {
+    const w = window.open("", "_blank", "width=520,height=760");
+    if (!w) {
+        return;
+    }
+    const sectionTitle = section?.section_name || section?.section_code || "Section";
+    const title =
+        batchNo != null ? `${t("OrderDetail.BatchLabel", { n: batchNo })} · ${sectionTitle}` : sectionTitle;
+    const rows = (section?.items ?? [])
+        .map((line) => {
+            const name = String(line?.name ?? "—");
+            const qty = String(line?.quantity ?? "—");
+            const notes = line?.notes ? `<div style="font-size:11px;color:#666;">${String(line.notes)}</div>` : "";
+            return `<tr><td style="padding:8px 6px;border-bottom:1px solid #ddd;">${name}${notes}</td><td style="padding:8px 6px;border-bottom:1px solid #ddd;text-align:center;width:72px;">${qty}</td></tr>`;
+        })
+        .join("");
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title></head><body style="font-family:Arial,sans-serif;padding:16px"><h3 style="margin:0 0 10px;">${title}</h3><table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:8px 6px;border-bottom:1px solid #000">Item</th><th style="text-align:center;padding:8px 6px;border-bottom:1px solid #000">Qty</th></tr></thead><tbody>${rows || '<tr><td colspan="2" style="padding:8px 6px;text-align:center;color:#666">—</td></tr>'}</tbody></table><scr` + `ipt>window.onload=function(){window.focus();window.print();}</scr` + `ipt></body></html>`;
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
 }
 
 async function fetchOrder() {
