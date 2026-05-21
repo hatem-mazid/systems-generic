@@ -65,9 +65,11 @@ class ReportController extends Controller
             ->selectRaw("CASE WHEN orders.unit_id IS NULL THEN 'takeaway' ELSE COALESCE(unit_groups.name, 'Unassigned group') END as group_name")
             ->selectRaw('SUM(orders.total) as total_value')
             ->selectRaw('COUNT(orders.id) as order_count')
-            ->groupBy('unit_group_id', 'is_takeaway', 'group_name')
-            ->orderBy('is_takeaway')
-            ->orderBy('group_name')
+            ->groupByRaw('unit_groups.id')
+            ->groupByRaw('CASE WHEN orders.unit_id IS NULL THEN 1 ELSE 0 END')
+            ->groupByRaw("CASE WHEN orders.unit_id IS NULL THEN 'takeaway' ELSE COALESCE(unit_groups.name, 'Unassigned group') END")
+            ->orderByRaw('CASE WHEN orders.unit_id IS NULL THEN 1 ELSE 0 END')
+            ->orderByRaw("CASE WHEN orders.unit_id IS NULL THEN 'takeaway' ELSE COALESCE(unit_groups.name, 'Unassigned group') END")
             ->get();
 
         $unitGroupBreakdown = $unitGroupBreakdownRows->map(function ($row) {
