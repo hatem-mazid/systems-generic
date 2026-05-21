@@ -52,14 +52,7 @@ class OrderController extends Controller
         }
 
         if (! empty($validated['status'] ?? null)) {
-            $status = $validated['status'];
-            if ($status === 'active') {
-                $query->whereIn('status', ['active', 'open', 'ordering']);
-            } elseif ($status === 'reserved') {
-                $query->whereIn('status', ['reserved', 'pending']);
-            } else {
-                $query->where('status', $status);
-            }
+            $query->where('status', $validated['status']);
         }
 
         if (! empty($validated['date_from'] ?? null)) {
