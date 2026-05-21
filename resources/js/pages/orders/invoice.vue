@@ -333,14 +333,14 @@ onMounted(fetchOrder);
         margin: 0 auto;
         padding: 2mm 1mm 3mm;
         font-family: "Courier New", Courier, monospace;
-        font-size: 10px;
+        font-size: 11px;
         line-height: 1.35;
         color: #000 !important;
         background: #fff !important;
     }
 
     .thermal-title {
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 700;
         text-align: center;
         letter-spacing: 0.02em;
@@ -348,7 +348,7 @@ onMounted(fetchOrder);
 
     .thermal-subtitle {
         margin-top: 1mm;
-        font-size: 9px;
+        font-size: 10px;
         text-align: center;
     }
 
@@ -362,7 +362,7 @@ onMounted(fetchOrder);
         justify-content: space-between;
         gap: 2mm;
         margin-bottom: 0.8mm;
-        font-size: 9px;
+        font-size: 10px;
     }
 
     .thermal-row span:last-child {
@@ -374,7 +374,7 @@ onMounted(fetchOrder);
     .thermal-items {
         width: 100%;
         border-collapse: collapse;
-        font-size: 9px;
+        font-size: 10px;
         table-layout: fixed;
     }
 
@@ -416,7 +416,7 @@ onMounted(fetchOrder);
         display: flex;
         justify-content: space-between;
         gap: 2mm;
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 700;
     }
 }

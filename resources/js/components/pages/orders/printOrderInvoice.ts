@@ -52,19 +52,19 @@ const THERMAL_STYLES = `
     margin: 0 auto;
     padding: 2mm 1mm 3mm;
     font-family: "Courier New", Courier, monospace;
-    font-size: 10px;
+    font-size: 11px;
     line-height: 1.35;
     color: #000;
   }
   .title {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
     text-align: center;
     letter-spacing: 0.02em;
   }
   .subtitle {
     margin-top: 1mm;
-    font-size: 9px;
+    font-size: 10px;
     text-align: center;
   }
   .divider {
@@ -76,7 +76,7 @@ const THERMAL_STYLES = `
     justify-content: space-between;
     gap: 2mm;
     margin-bottom: 0.8mm;
-    font-size: 9px;
+    font-size: 10px;
   }
   .row span:last-child {
     font-weight: 700;
@@ -86,7 +86,7 @@ const THERMAL_STYLES = `
   table.items {
     width: 100%;
     border-collapse: collapse;
-    font-size: 9px;
+    font-size: 10px;
     table-layout: fixed;
   }
   table.items th {
@@ -108,7 +108,7 @@ const THERMAL_STYLES = `
     display: flex;
     justify-content: space-between;
     gap: 2mm;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
   }
 `;
