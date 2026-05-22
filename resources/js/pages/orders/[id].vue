@@ -542,8 +542,12 @@ import { OrderStatus } from "../../apis/services/orders/orders.type";
 import OrderDetailDrawer from "../../components/pages/orders/OrderDetailDrawer.vue";
 import { useUserStore } from "../../stores/user";
 import { mergeOrderItems } from "../../utils/orderItemsMerge";
+import {
+    buildOperationPrintLabels,
+    printOperationInvoice,
+} from "../../components/pages/orders/printOperationInvoice";
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const route = useRoute();
 const toast = useToast();
 const userStore = useUserStore();
@@ -746,25 +750,10 @@ async function submitTakeaway() {
 }
 
 function printOperationSection(section, batchNo) {
-    const w = window.open("", "_blank", "width=520,height=760");
-    if (!w) {
-        return;
-    }
-    const sectionTitle = section?.section_name || section?.section_code || "Section";
-    const title =
-        batchNo != null ? `${t("OrderDetail.BatchLabel", { n: batchNo })} · ${sectionTitle}` : sectionTitle;
-    const rows = (section?.items ?? [])
-        .map((line) => {
-            const name = String(line?.name ?? "—");
-            const qty = String(line?.quantity ?? "—");
-            const notes = line?.notes ? `<div style="font-size:11px;color:#666;">${String(line.notes)}</div>` : "";
-            return `<tr><td style="padding:8px 6px;border-bottom:1px solid #ddd;">${name}${notes}</td><td style="padding:8px 6px;border-bottom:1px solid #ddd;text-align:center;width:72px;">${qty}</td></tr>`;
-        })
-        .join("");
-    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title></head><body style="font-family:Arial,sans-serif;padding:16px"><h3 style="margin:0 0 10px;">${title}</h3><table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:8px 6px;border-bottom:1px solid #000">Item</th><th style="text-align:center;padding:8px 6px;border-bottom:1px solid #000">Qty</th></tr></thead><tbody>${rows || '<tr><td colspan="2" style="padding:8px 6px;text-align:center;color:#666">—</td></tr>'}</tbody></table><scr` + `ipt>window.onload=function(){window.focus();window.print();}</scr` + `ipt></body></html>`;
-    w.document.open();
-    w.document.write(html);
-    w.document.close();
+    printOperationInvoice(
+        section,
+        buildOperationPrintLabels(order.value, batchNo, section, t, locale.value),
+    );
 }
 
 async function fetchOrder() {
