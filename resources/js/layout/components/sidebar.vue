@@ -6,7 +6,9 @@
             <span class="inline-flex items-center gap-2">
                 <div class="flex flex-col items-center gap-2">
                     <img :src="logo" alt="Vectorian Palace Cafe" class="w-9" />
-                    <span class="text-[10px] leading-none text-center font-semibold text-nowrap text-surface-800">Spark <br /> Cafe</span>
+                    <span class="text-[10px] leading-none text-center font-semibold  text-surface-800">
+                        Vectorian Palace Cafe
+                    </span>
                 </div>
                 <!-- <svg
                     width="35"
